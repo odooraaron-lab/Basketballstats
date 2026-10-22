@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import shutil
 import subprocess
 import sys
 import time
@@ -204,6 +205,38 @@ def count_rows(d: dict) -> int:
     return len(d.get("r", []))
 
 
+def push(folder: str, now: str) -> None:
+    """Commit data/nba and push. Explains what to do instead of crashing if Git isn't set up."""
+    git = shutil.which("git")
+    if not git:
+        print(
+            "\nData saved, but it wasn't pushed: Git isn't installed or isn't on your PATH.\n"
+            "  1. Install Git for Windows from https://git-scm.com/download/win (keep the default options).\n"
+            "  2. Close and reopen this window, then run the sync again with --push.\n"
+            f"Your data is safe in {DATA}."
+        )
+        return
+    if not (ROOT / ".git").exists():
+        print(
+            f"\nData saved, but it wasn't pushed: {ROOT} isn't a Git clone (it may have been downloaded as a ZIP).\n"
+            "  Clone the repo instead, copy your data/nba folder into it, and run the sync from there:\n"
+            "    git clone https://github.com/odooraaron-lab/Basketballstats.git"
+        )
+        return
+    try:
+        subprocess.run([git, "-C", str(ROOT), "add", "data/nba"], check=True)
+        diff = subprocess.run([git, "-C", str(ROOT), "diff", "--cached", "--quiet"])
+        if diff.returncode == 0:
+            print("No data changes to push.")
+            return
+        subprocess.run([git, "-C", str(ROOT), "commit", "-q", "-m", f"Sync NBA.com data {folder} ({now[:10]})"], check=True)
+        subprocess.run([git, "-C", str(ROOT), "pull", "--rebase", "-q"], check=False)
+        subprocess.run([git, "-C", str(ROOT), "push", "-q"], check=True)
+        print("Pushed — Vercel will redeploy with the new data.")
+    except subprocess.CalledProcessError as e:
+        print(f"\nData saved, but the git step failed ({e}). Check `git status` in {ROOT}, then run `git push`.")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--season", default=Season.default, help="e.g. 2026-27 (default: current)")
@@ -259,14 +292,7 @@ def main() -> int:
               " run this from a home connection.")
 
     if args.push:
-        subprocess.run(["git", "-C", str(ROOT), "add", "data/nba"], check=True)
-        diff = subprocess.run(["git", "-C", str(ROOT), "diff", "--cached", "--quiet"])
-        if diff.returncode != 0:
-            subprocess.run(["git", "-C", str(ROOT), "commit", "-m", f"Sync NBA.com data {folder} ({now[:10]})"], check=True)
-            subprocess.run(["git", "-C", str(ROOT), "push"], check=True)
-            print("Pushed — Vercel will redeploy with the new data.")
-        else:
-            print("No data changes to push.")
+        push(folder, now)
     return 0 if failures < len(jobs) else 1
 
 
