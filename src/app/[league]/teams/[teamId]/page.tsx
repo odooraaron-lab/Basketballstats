@@ -2,12 +2,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Headshot, TeamLogo } from "@/components/Img";
 import { SortableTable, type Column, type Row } from "@/components/SortableTable";
+import { TeamTrackingPanel } from "@/components/TrackingPanels";
 import { Card, Empty, GameTile, SeasonPicker, Stat, Tabs } from "@/components/ui";
 import { getLeague } from "@/leagues/registry";
 import { getInjuries, getPlayerSeasons, getRoster, getTeam, getTeamSchedule } from "@/lib/espn";
 import { fmt, fmtDay, hex } from "@/lib/format";
 import { getLeagueTable, projectGame, resolveSeason, type TeamRow } from "@/lib/league";
 import type { PlayerSeasonRow } from "@/lib/model";
+import { seasonFolder } from "@/lib/nbacom";
+import { teamTracking } from "@/lib/tracking";
 import { regulationMinutes, teamMinutes } from "@/lib/rules";
 import {
   astToRatio,
@@ -55,6 +58,7 @@ export default async function TeamPage({
   ]);
   if (!info) notFound();
   const { team } = info;
+  const tracking = tab === "tracking" ? await teamTracking(seasonFolder(sel.year, sel.type), team.abbr) : null;
   const row = table.rows.find((r) => r.team.id === teamId) ?? null;
   const rowMap = new Map(table.rows.map((r) => [r.team.id, r]));
   const color = hex(team.color);
@@ -234,6 +238,7 @@ export default async function TeamPage({
           { id: "advanced", label: "Advanced" },
           { id: "schedule", label: "Schedule & results" },
           { id: "roster", label: "Roster" },
+          { id: "tracking", label: "Tracking" },
         ]}
       />
 
@@ -505,6 +510,19 @@ export default async function TeamPage({
           </Card>
         </div>
       )}
+
+      {tab === "tracking" &&
+        (tracking ? (
+          <TeamTrackingPanel t={tracking} league={league.id} />
+        ) : (
+          <Empty>
+            NBA.com tracking data for {sel.label} hasn&apos;t been synced yet — see the{" "}
+            <Link href={`/${league.id}/tracking?season=${sel.year}&type=${sel.type}`} className="text-court">
+              Tracking page
+            </Link>{" "}
+            for the sync command.
+          </Empty>
+        ))}
 
       {tab === "roster" && (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

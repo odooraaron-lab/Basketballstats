@@ -47,14 +47,19 @@ export function Headshot({
   size = 40,
   ring,
   className = "",
+  fallback,
 }: {
   src: string;
+  fallback?: string;
   name: string;
   size?: number;
   ring?: string;
   className?: string;
 }) {
   const { ref, err, setErr } = useBroken();
+  const [useFallback, setUseFallback] = useState(false);
+  const current = useFallback && fallback ? fallback : src;
+  const onErr = () => (fallback && !useFallback ? setUseFallback(true) : setErr(true));
   const initials = name
     .split(" ")
     .map((p) => p[0])
@@ -65,17 +70,17 @@ export function Headshot({
       className={`relative inline-flex shrink-0 items-end justify-center overflow-hidden rounded-full bg-ink-800 ${className}`}
       style={{ width: size, height: size, boxShadow: ring ? `0 0 0 2px ${ring}` : undefined }}
     >
-      {!src || err ? (
+      {!current || err ? (
         <span className="display self-center text-xs font-bold text-ink-400" style={{ fontSize: size * 0.34 }}>
           {initials}
         </span>
       ) : (
         <img
           ref={ref}
-          src={src}
+          src={current}
           alt={name}
           loading="lazy"
-          onError={() => setErr(true)}
+          onError={onErr}
           className="h-full w-full object-cover object-top"
           style={{ transform: "scale(1.25) translateY(8%)" }}
         />

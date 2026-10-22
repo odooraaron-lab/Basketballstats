@@ -11,8 +11,9 @@ export default async function GlossaryPage({ params }: { params: Promise<{ leagu
     ["Live", "Box scores, play-by-play, shot locations, standings, rosters, injuries, schedules, odds lines", "ESPN public feeds"],
     ["Live", "TS%, eFG%, USG%, AST%, REB%, OREB%/DREB%, STL%, BLK%, PER (est.), Game Score, ORtg/DRtg/Net, Pace, Four Factors", "Calculated in-app"],
     ["Live", "Shot zones, shot charts & heatmaps, xPPS / shot-making, runs, lead changes, clutch splits, live- vs dead-ball turnovers, possession log, reconstructed 5-man lineups", "Calculated from play-by-play"],
-    ["Proxy", "Play type (drive, pull-up, post, catch-and-shoot)", "Estimated from shot descriptions + assisted/unassisted"],
-    ["Not public", "Shot contest level, defensive matchups (who guarded who), hustle stats (deflections, box-outs, charges), Synergy play types", "NBA tracking data — stats.nba.com blocks cloud servers like Vercel; would need a paid feed or a manual-tracking module"],
+    ["Synced", "Synergy play types (iso, P&R, post-up, spot-up, cut, transition…), shot contest level (closest defender), hustle (deflections, charges, box-outs, screen assists, loose balls), who-guarded-who matchups, official 5-man lineups, official clutch, player tracking (speed, distance, drives, catch & shoot, pull-ups, touches, passing, rebounding chances, rim defense), official ORtg/DRtg/PIE, season shot zones", "NBA.com via nba_api — run sync/sync_nba.py on your own computer (NBA.com blocks cloud servers)"],
+    ["Proxy", "Per-game play type from ESPN shot descriptions", "Used on game pages (Synergy data is season-level)"],
+    ["Not public", "Possession-level defensive assignments for a single game, optical player coordinates", "Second Spectrum raw feeds (paid)"],
     ["Next", "Manual stat entry (touch / keyboard) for your own leagues, saved to a database", "Add a Postgres (e.g. Neon) league environment"],
   ];
 
@@ -83,7 +84,7 @@ export default async function GlossaryPage({ params }: { params: Promise<{ leagu
               <tr key={what}>
                 <td>
                   <span
-                    className={`chip ${s === "Live" ? "!border-win/50 !text-win" : s === "Proxy" ? "!border-court/50 !text-court" : s === "Next" ? "" : "!border-loss/40 !text-loss"}`}
+                    className={`chip ${s === "Live" || s === "Synced" ? "!border-win/50 !text-win" : s === "Proxy" ? "!border-court/50 !text-court" : s === "Next" ? "" : "!border-loss/40 !text-loss"}`}
                   >
                     {s}
                   </span>

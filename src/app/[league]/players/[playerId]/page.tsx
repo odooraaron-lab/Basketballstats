@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Headshot, TeamLogo } from "@/components/Img";
 import { ShotChart } from "@/components/ShotChart";
+import { PlayerTrackingPanel } from "@/components/TrackingPanels";
 import { SortableTable, type Column, type Row } from "@/components/SortableTable";
 import { Bars, Card, Empty, SeasonPicker, Stat, Tabs } from "@/components/ui";
 import { SHOT_ZONES } from "@/leagues/types";
@@ -9,6 +10,8 @@ import { getLeague } from "@/leagues/registry";
 import { getAthlete, getGameSummary, getPlayerGameLog, getPlayerSeasons } from "@/lib/espn";
 import { fmt, fmtDay, hex } from "@/lib/format";
 import { getLeagueTable, resolveSeason } from "@/lib/league";
+import { findPlayer, nbaHeadshot, rows as nbaRows, seasonFolder } from "@/lib/nbacom";
+import { playerTracking } from "@/lib/tracking";
 import { buildCtx, extractShots, groupBy, shotQuality, zoneSummary, type Shot } from "@/lib/pbp";
 import { teamMinutes } from "@/lib/rules";
 import {
@@ -48,6 +51,10 @@ export default async function PlayerPage({
     getPlayerGameLog(league, playerId, sel.year),
   ]);
   if (!a) notFound();
+
+  const folder = seasonFolder(sel.year, sel.type);
+  const nbaRow = findPlayer(await nbaRows(folder, "player_base"), a.name, a.team?.abbr);
+  const tracking = tab === "tracking" ? await playerTracking(folder, a.name, a.team?.abbr) : null;
 
   const seasons = sel.type === 3 ? poSeasons : regSeasons;
   const thisSeasonRows = seasons.filter((s) => s.year === sel.year);
@@ -198,7 +205,7 @@ export default async function PlayerPage({
     <div className="space-y-5">
       <div className="card relative overflow-hidden" style={{ background: `linear-gradient(110deg, ${teamColor}40 0%, #111419 60%)` }}>
         <div className="flex flex-wrap items-end gap-6 p-5">
-          <Headshot src={a.headshot} name={a.name} size={132} ring={teamColor} />
+          <Headshot src={a.headshot} fallback={nbaHeadshot(nbaRow?.PLAYER_ID as number)} name={a.name} size={132} ring={teamColor} />
           <div className="min-w-[14rem] flex-1">
             {a.team && (
               <Link href={`/${league.id}/teams/${a.team.id}`} className="mb-1 flex items-center gap-2 text-sm text-ink-300 hover:text-court">
@@ -251,6 +258,7 @@ export default async function PlayerPage({
           { id: "log", label: "Game log" },
           { id: "shots", label: "Shot chart" },
           { id: "career", label: "Career" },
+          { id: "tracking", label: "Tracking" },
         ]}
       />
 
@@ -375,6 +383,19 @@ export default async function PlayerPage({
           </div>
         </div>
       )}
+
+      {tab === "tracking" &&
+        (tracking ? (
+          <PlayerTrackingPanel t={tracking} league={league.id} season={sel.label} />
+        ) : (
+          <Empty>
+            NBA.com tracking data for {sel.label} hasn&apos;t been synced yet — see the{" "}
+            <Link href={`/${league.id}/tracking?season=${sel.year}&type=${sel.type}`} className="text-court">
+              Tracking page
+            </Link>{" "}
+            for the one-line sync command.
+          </Empty>
+        ))}
 
       {tab === "career" && (
         <div className="space-y-5">
