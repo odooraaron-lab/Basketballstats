@@ -1,0 +1,83 @@
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-display: "Barlow Condensed", "Inter", sans-serif;
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #0b0d10;
+  color: #eef1f5;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer utilities {
+  .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .display {
+    font-family: var(--font-display);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-ink-800 bg-ink-900;
+  }
+  .card-h {
+    @apply display flex items-center justify-between border-b border-ink-800 px-4 py-2.5 text-sm font-semibold text-ink-300;
+  }
+  .chip {
+    @apply inline-flex items-center rounded-md border border-ink-700 px-2 py-0.5 text-xs text-ink-300;
+  }
+  .tab {
+    @apply display whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-semibold text-ink-400 hover:text-ink-100;
+  }
+  .tab-active {
+    @apply bg-ink-800 text-ink-100;
+  }
+}
+
+/* Stat tables */
+.stat-table {
+  @apply w-full border-collapse text-sm;
+}
+.stat-table th {
+  @apply display sticky top-0 z-10 whitespace-nowrap bg-ink-900 px-2 py-2 text-right text-xs font-semibold text-ink-400;
+}
+.stat-table th:first-child,
+.stat-table td:first-child {
+  @apply sticky left-0 z-20 bg-ink-900 text-left;
+}
+.stat-table td {
+  @apply num whitespace-nowrap border-t border-ink-850 px-2 py-1.5 text-right text-ink-200;
+}
+.stat-table tbody tr:hover td {
+  @apply bg-ink-850;
+}
+.stat-table tfoot td {
+  @apply border-t border-ink-700 font-semibold text-ink-100;
+}
+
+::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #283039;
+  border-radius: 8px;
+}
