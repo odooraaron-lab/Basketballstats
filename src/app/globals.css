@@ -81,3 +81,12 @@ body {
   background: #283039;
   border-radius: 8px;
 }
+
+/* Tighter cells for side-by-side comparisons */
+.stat-table.compact th,
+.stat-table.compact td {
+  @apply px-1.5;
+}
+.stat-table.compact td {
+  @apply text-[12.5px];
+}

@@ -155,7 +155,7 @@ export function GameTile({ g, league, projection }: { g: GameCard; league: strin
         <SideRow s={g.away} state={g.state} bold={g.state !== "post" || awayWin} />
         <SideRow s={g.home} state={g.state} bold={g.state !== "post" || homeWin} />
       </div>
-      {(g.odds || projection) && g.state !== "post" && (
+      {(g.odds || projection || g.state === "pre") && g.state !== "post" && (
         <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1 border-t border-ink-800 pt-2 text-[11px] text-ink-500">
           {g.odds?.details && <span>Line {g.odds.details}</span>}
           {g.odds?.overUnder != null && <span>O/U <span className="num text-ink-300">{g.odds.overUnder}</span></span>}
@@ -168,6 +168,7 @@ export function GameTile({ g, league, projection }: { g: GameCard; league: strin
               (<span className="num text-court-soft">{fmt(projection.away + projection.home, "int")}</span>)
             </span>
           )}
+          {g.state === "pre" && <span className="ml-auto text-court group-hover:underline">Compare players →</span>}
         </div>
       )}
     </Link>

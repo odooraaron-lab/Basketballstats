@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TeamLogo } from "@/components/Img";
 import { LeadChart, PeriodBars } from "@/components/LeadChart";
+import { PlayerCompare } from "@/components/PlayerCompare";
 import { ShotChart } from "@/components/ShotChart";
 import { SortableTable, type Column, type Row } from "@/components/SortableTable";
 import { Bars, Card, CompareBar, Empty, Stat, Tabs } from "@/components/ui";
@@ -9,6 +10,7 @@ import { SHOT_ZONES } from "@/leagues/types";
 import { getLeague } from "@/leagues/registry";
 import { getGameSummary } from "@/lib/espn";
 import { fmt, fmtDayTime, hex } from "@/lib/format";
+import { compareRosters, type Split } from "@/lib/compare";
 import { getLeagueTable, projectGame, resolveSeason } from "@/lib/league";
 import type { BoxTeam } from "@/lib/model";
 import {
@@ -54,7 +56,7 @@ export default async function GamePage({
   searchParams,
 }: {
   params: Promise<{ league: string; gameId: string }>;
-  searchParams: Promise<{ tab?: string; clutch?: string; period?: string; view?: string }>;
+  searchParams: Promise<{ tab?: string; clutch?: string; period?: string; view?: string; split?: string }>;
 }) {
   const { league: lid, gameId } = await params;
   const sp = await searchParams;
@@ -64,7 +66,7 @@ export default async function GamePage({
   if (!g) notFound();
   const { card } = g;
   const hasBox = g.box.length === 2 && g.box.some((t) => t.players.some((p) => !p.dnp));
-  const defaultTab = hasBox ? "box" : "preview";
+  const defaultTab = card.state === "pre" || !hasBox ? "players" : "box";
   const tab = sp.tab ?? defaultTab;
   const base = `/${league.id}/games/${gameId}`;
 
@@ -87,21 +89,24 @@ export default async function GamePage({
   // ---------------------------------------------------------------- header
   const header = (
     <div className="card overflow-hidden">
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 p-5" style={{ background: `linear-gradient(90deg, ${awayColor}30, transparent 35%, transparent 65%, ${homeColor}30)` }}>
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 p-3 sm:gap-4 sm:p-5" style={{ background: `linear-gradient(90deg, ${awayColor}30, transparent 35%, transparent 65%, ${homeColor}30)` }}>
         {[card.away, card.home].map((s, i) => (
-          <Link key={s.team.id} href={`/${league.id}/teams/${s.team.id}`} className={`flex items-center gap-3 ${i === 1 ? "order-3 flex-row-reverse text-right" : ""}`}>
-            <TeamLogo src={s.team.logo} alt={s.team.abbr} size={64} />
-            <div>
-              <div className="display text-2xl font-extrabold leading-none hover:text-court">{s.team.shortName}</div>
+          <Link key={s.team.id} href={`/${league.id}/teams/${s.team.id}`} className={`flex min-w-0 items-center gap-2 sm:gap-3 ${i === 1 ? "order-3 flex-row-reverse text-right" : ""}`}>
+            <TeamLogo src={s.team.logo} alt={s.team.abbr} size={64} className="!h-10 !w-10 sm:!h-16 sm:!w-16" />
+            <div className="min-w-0">
+              <div className="display truncate text-base font-extrabold leading-none hover:text-court sm:text-2xl">
+                <span className="sm:hidden">{s.team.abbr}</span>
+                <span className="hidden sm:inline">{s.team.shortName}</span>
+              </div>
               <div className="num text-xs text-ink-400">{s.record}</div>
             </div>
             {card.state !== "pre" && (
-              <div className={`num ${i === 1 ? "mr-auto" : "ml-auto"} text-4xl font-bold ${s.winner || card.state !== "post" ? "text-ink-100" : "text-ink-500"}`}>{s.score}</div>
+              <div className={`num ${i === 1 ? "mr-auto" : "ml-auto"} text-2xl font-bold sm:text-4xl ${s.winner || card.state !== "post" ? "text-ink-100" : "text-ink-500"}`}>{s.score}</div>
             )}
           </Link>
         ))}
         <div className="order-2 text-center">
-          <div className={`display text-sm font-bold ${card.state === "in" ? "text-loss" : "text-ink-300"}`}>{card.state === "pre" ? fmtDayTime(card.date) : card.detail}</div>
+          <div className={`display max-w-[7rem] text-xs font-bold sm:max-w-none sm:text-sm ${card.state === "in" ? "text-loss" : "text-ink-300"}`}>{card.state === "pre" ? fmtDayTime(card.date) : card.detail}</div>
           {card.odds && card.state === "pre" && <div className="mt-1 text-[11px] text-ink-500">{card.odds.details} · O/U {card.odds.overUnder ?? "–"}</div>}
         </div>
       </div>
@@ -141,7 +146,12 @@ export default async function GamePage({
   );
 
   const tabs = [
-    ...(card.state === "pre" || !hasBox ? [{ id: "preview", label: "Preview" }] : []),
+    ...(card.state === "pre" || !hasBox
+      ? [
+          { id: "players", label: "Player comparison" },
+          { id: "preview", label: "Preview" },
+        ]
+      : []),
     ...(hasBox
       ? [
           { id: "box", label: "Box score" },
@@ -154,13 +164,19 @@ export default async function GamePage({
           { id: "pbp", label: "Play-by-play" },
         ]
       : []),
-    ...(card.state !== "pre" && hasBox ? [{ id: "preview", label: "Matchup" }] : []),
+    ...(card.state !== "pre" && hasBox
+      ? [
+          { id: "players", label: "Season comparison" },
+          { id: "preview", label: "Matchup" },
+        ]
+      : []),
   ];
 
   return (
     <div className="space-y-5">
       {header}
       <Tabs base={base} tabs={tabs} active={tab} />
+      {tab === "players" && <PlayersTab />}
       {tab === "preview" && <Preview />}
       {tab === "box" && away && home && <BoxTab />}
       {tab === "advanced" && away && home && <AdvancedTab />}
@@ -791,6 +807,43 @@ export default async function GamePage({
             </ul>
           )}
         </Card>
+      </div>
+    );
+  }
+
+  async function PlayersTab() {
+    const splits: { id: Split; label: string }[] = [
+      { id: "season", label: "This season" },
+      { id: "prev", label: "Last season" },
+      { id: "l5", label: "Last 5 games" },
+      { id: "l10", label: "Last 10 games" },
+    ];
+    const split = (splits.find((x) => x.id === sp.split)?.id ?? "season") as Split;
+    const cur = await resolveSeason(league, undefined);
+    const data = await compareRosters(league, g!, cur.year, split);
+    const withStats = data.players.filter((p) => (p.cells.gp ?? 0) > 0).length;
+    return (
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="display mr-1 text-xs text-ink-500">Stats from</span>
+          {splits.map((x) => (
+            <Link key={x.id} href={`${base}?tab=players&split=${x.id}`} scroll={false} className={`chip ${x.id === split ? "!border-court !text-court" : "hover:text-ink-100"}`}>
+              {x.label}
+            </Link>
+          ))}
+          <span className="ml-2 text-xs text-ink-500">
+            {data.splitLabel} · {withStats} of {data.players.length} players have stats
+          </span>
+        </div>
+        {split === "season" && withStats < data.players.length / 3 && (
+          <p className="rounded-md border border-ink-700 bg-ink-900 px-3 py-2 text-xs text-ink-400">
+            It&apos;s early in the season, so many players have only a game or two.{" "}
+            <Link href={`${base}?tab=players&split=prev`} className="text-court hover:underline">
+              Compare last season instead →
+            </Link>
+          </p>
+        )}
+        <PlayerCompare data={data} league={league.id} />
       </div>
     );
   }
