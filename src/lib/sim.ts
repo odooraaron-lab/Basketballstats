@@ -230,13 +230,15 @@ export function bestCombos(legs: Leg[], n: number, size: number, top = 10): Comb
   return best;
 }
 
-export function quantile(values: ArrayLike<number>, q: number): number {
+export function quantile(values: ArrayLike<number> | null | undefined, q: number): number {
+  if (!values) return 0;
   const a = Array.from(values).sort((x, y) => x - y);
   if (!a.length) return 0;
   return a[Math.min(a.length - 1, Math.max(0, Math.round(q * (a.length - 1))))];
 }
 
-export const share = (values: ArrayLike<number>, test: (v: number) => boolean) => {
+export const share = (values: ArrayLike<number> | null | undefined, test: (v: number) => boolean) => {
+  if (!values) return 0;
   let c = 0;
   for (let i = 0; i < values.length; i++) if (test(values[i])) c++;
   return values.length ? c / values.length : 0;

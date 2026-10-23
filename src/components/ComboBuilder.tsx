@@ -37,9 +37,11 @@ export function ComboBuilder({ report }: { report: ScanReport }) {
   const [gameLegs, setGameLegs] = useState(true);
   const [standoutOnly, setStandoutOnly] = useState(true);
   const [mine, setMine] = useState<string[]>([]);
-  const [sim, setSim] = useState<SimResult | null>(null);
+  const [simState, setSimState] = useState<{ gameId: string; result: SimResult } | null>(null);
 
   const game = games.find((g) => g.id === gameId) ?? games[0];
+  // Only use a simulation that belongs to the game being shown (avoids a stale render after switching games).
+  const sim = simState && simState.gameId === game?.id ? simState.result : null;
 
   // "The listed players": everyone the scan surfaced (top signals + category leaders) in this game
   const listed = useMemo(() => {
@@ -60,11 +62,11 @@ export function ComboBuilder({ report }: { report: ScanReport }) {
   // Run the simulation off the main paint so the button feels instant
   useEffect(() => {
     if (!game) return;
-    setSim(null);
     setMine([]);
     const t = setTimeout(() => {
-      setSim(
-        simulate(
+      setSimState({
+        gameId: game.id,
+        result: simulate(
           {
             teams: [
               { id: game.teams[0].id, abbr: game.teams[0].abbr, mean: game.teams[0].mean },
@@ -75,7 +77,7 @@ export function ComboBuilder({ report }: { report: ScanReport }) {
           N,
           Number(game.id.slice(-6)) || 7,
         ),
-      );
+      });
     }, 30);
     return () => clearTimeout(t);
   }, [game, listed]);
@@ -248,7 +250,8 @@ export function ComboBuilder({ report }: { report: ScanReport }) {
                         {(Object.keys(STAT_LABEL) as StatKey[])
                           .filter((s) => stats.has(s))
                           .map((s) => {
-                            const vals = sim.stats.get(`${p.id}:${s}`)!;
+                            const vals = sim.stats.get(`${p.id}:${s}`);
+                            if (!vals) return <td key={s} className="!py-1.5 !text-left text-ink-600">–</td>;
                             const legs = allLegs.filter((l) => l.playerId === p.id && l.stat === s && l.p >= 0.3 && l.p <= 0.95);
                             return (
                               <td key={s} className="!py-1.5 !text-left">
