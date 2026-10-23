@@ -14,6 +14,7 @@ A password-protected Next.js app that pulls live NBA data from ESPN's public JSO
 | **Game page** | Linescore, full box score, team comparison (paint/fast-break/points off TOs), advanced (possessions, pace, ORtg/DRtg, four factors, USG%, AST%, OREB%/DREB%/REB%, STL%, BLK%), **shot chart + heatmap**, shot zones (restricted area, paint, mid-range, corner 3, above-the-break 3), xPPS & shot-making, shot types, **score margin chart, lead changes, runs (e.g. 12–2)**, **clutch** stats (last 5 min ≤5 pts, last 2 min, whole 4th), **reconstructed 5-man lineups** with ORtg/DRtg/net, **live- vs dead-ball turnovers**, play-by-play and a possession-by-possession log; pre-game preview with projection, injuries and last five |
 | **Tracking** | NBA.com hub: hustle, shot contests, Synergy play types (incl. team play-type mix), player tracking, defense, matchups, official lineups, clutch, advanced, scoring sources, shot zones — players or teams, any synced season |
 | **Scan & combinations** | 'Scan for stats' on any game (or a whole day) scores every rotation player and writes a report; 'Build combinations' then simulates the game 10,000 times to estimate the most likely result, total, margin and multi-leg player combinations (points / assists / blocks and more), with a click-to-build custom combo |
+| **Odds check** | Upload a screenshot of player props; names, lines and odds are read (Claude vision if `ANTHROPIC_API_KEY` is set, otherwise free on-device OCR), checked against each player's last 10 games and projection, and marked Strong / Lean / Pass with our chance vs the bookmaker's (margin removed) |
 | **Glossary** | Every formula, the league rule set, xPPS baselines and a data-coverage table |
 
 ### League environments
@@ -47,6 +48,7 @@ Matching between ESPN and NBA.com uses normalised player names + team, and NBA.c
    - `APP_PASSWORD` — your password
    - `AUTH_SECRET` — a long random string (e.g. run `openssl rand -hex 32`)
    - optional `NEXT_PUBLIC_DISPLAY_TZ` — defaults to `Pacific/Auckland`
+   - optional `ANTHROPIC_API_KEY` — makes Odds check read screenshots with Claude vision (more accurate); without it the phone reads them itself
 3. Deploy (redeploy after changing env vars). Every page except `/login` requires the session cookie; the site is also marked `noindex`.
 
 ## Local development

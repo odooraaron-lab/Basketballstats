@@ -10,6 +10,7 @@ export function Nav({ league, accent, shortName }: { league: string; accent: str
     { href: `/${league}/games`, label: "Games" },
     { href: `/${league}/teams`, label: "Teams" },
     { href: `/${league}/players`, label: "Players" },
+    { href: `/${league}/odds`, label: "Odds check" },
     { href: `/${league}/tracking`, label: "Tracking" },
     { href: `/${league}/standings`, label: "Standings" },
     { href: `/${league}/glossary`, label: "Glossary" },
