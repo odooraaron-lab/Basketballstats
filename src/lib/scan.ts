@@ -70,6 +70,8 @@ export interface ScanPlayer {
   notes: string[]; // player-level notes (minutes trend, teammate out…)
   /** Projection for tonight, used by the combination simulator. */
   model: Record<ModelStat, { mean: number; sd: number }>;
+  /** Last 10 games, newest first, for history checks. */
+  history: Record<"pts" | "reb" | "ast" | "tpm", number[]>;
 }
 
 export interface GameModel {
@@ -106,6 +108,8 @@ export interface ScanReport {
   matchups: { teamAbbr: string; oppAbbr: string; soft: { cat: ScanCatKey; rank: number; allowed: number }[]; tough: { cat: ScanCatKey; rank: number; allowed: number }[] }[];
   out: { name: string; teamAbbr: string; status: string; pts: number | null; min: number | null }[];
   gameModels: GameModel[];
+  /** Every scanned rotation player (for longshot hunting). */
+  pool: ScanPlayer[];
 }
 
 // ---------------------------------------------------------------------------- helpers
@@ -354,6 +358,12 @@ export async function runScan(
       signals,
       notes,
       model,
+      history: {
+        pts: log.map((g) => g.box.pts),
+        reb: log.map((g) => g.box.reb),
+        ast: log.map((g) => g.box.ast),
+        tpm: log.map((g) => g.box.tpm),
+      },
     };
   });
 
@@ -461,5 +471,6 @@ export async function runScan(
     matchups,
     out: outList.sort((a, b) => (b.pts ?? 0) - (a.pts ?? 0)),
     gameModels,
+    pool: players,
   };
 }

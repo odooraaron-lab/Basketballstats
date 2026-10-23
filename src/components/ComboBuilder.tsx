@@ -6,6 +6,7 @@ import type { GameModel, ScanPlayer, ScanReport } from "@/lib/scan";
 import { SCAN_CATS } from "@/lib/scanCore";
 import { bestCombos, bitsWhere, popcount, quantile, share, simulate, type Bits, type Combo, type Leg, type SimResult } from "@/lib/sim";
 import { Headshot, TeamLogo } from "./Img";
+import { MassiveMulti } from "./MassiveMulti";
 
 type StatKey = "pts" | "reb" | "ast" | "tpm" | "stl" | "blk" | "pra";
 const STAT_LABEL: Record<StatKey, string> = { pts: "PTS", reb: "REB", ast: "AST", tpm: "3PM", stl: "STL", blk: "BLK", pra: "PRA" };
@@ -37,6 +38,7 @@ export function ComboBuilder({ report }: { report: ScanReport }) {
   const [gameLegs, setGameLegs] = useState(true);
   const [standoutOnly, setStandoutOnly] = useState(true);
   const [mine, setMine] = useState<string[]>([]);
+  const [showMulti, setShowMulti] = useState(false);
   const [simState, setSimState] = useState<{ gameId: string; result: SimResult } | null>(null);
 
   const game = games.find((g) => g.id === gameId) ?? games[0];
@@ -169,6 +171,20 @@ export function ComboBuilder({ report }: { report: ScanReport }) {
       ) : (
         <div className="space-y-6 p-3 sm:p-4">
           {outcome && <Outcome o={outcome} g={game} />}
+
+          {showMulti ? (
+            <MassiveMulti report={report} gameId={game.id} currentSim={sim} />
+          ) : (
+            <div className="flex flex-col gap-2 rounded-lg border border-court/30 bg-court/5 px-3 py-2.5 sm:flex-row sm:items-center">
+              <div className="min-w-0 flex-1 text-sm">
+                <span className="display font-bold">Massive multi</span>
+                <span className="text-ink-400"> — the other end: hunts unlikely-but-realistic spikes (a 4 ppg player scoring 8, a guard grabbing extra boards) and stacks them for big odds.</span>
+              </div>
+              <button onClick={() => setShowMulti(true)} className="display rounded-lg bg-court px-4 py-2 text-sm font-bold text-ink-950 hover:bg-court-soft">
+                Find massive multi
+              </button>
+            </div>
+          )}
 
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-1.5 text-xs">
