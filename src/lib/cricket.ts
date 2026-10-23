@@ -206,6 +206,8 @@ export interface MatchDetail {
   innings: InningsCard[];
   notes: { type: string; text: string }[];
   officials: string[];
+  /** Named squads (available before the match starts). */
+  squads: { teamId: string; players: { id: string; name: string; role: string }[] }[];
 }
 
 const stat = (o: J, ...keys: string[]) => {
@@ -361,6 +363,14 @@ export async function getMatch(leagueId: string, eventId: string, dayKey?: strin
     innings,
     notes: (j.notes ?? []).map((n: J) => ({ type: String(n.type ?? ""), text: String(n.text ?? "") })).filter((n: { text: string }) => n.text),
     officials: (j.gameInfo?.officials ?? []).map((o: J) => o.displayName ?? o.fullName).filter(Boolean),
+    squads: rosters.map((r) => ({
+      teamId: String(r.team?.id ?? ""),
+      players: (r.roster ?? []).map((p: J) => ({
+        id: String(p.athlete?.id ?? ""),
+        name: p.athlete?.shortName ?? p.athlete?.displayName ?? "",
+        role: [p.captain ? "c" : "", p.keeper ? "wk" : "", p.athlete?.position?.name ?? p.position?.name ?? ""].filter(Boolean).join(" · "),
+      })),
+    })),
   };
 }
 
@@ -389,4 +399,121 @@ export function inningsStats(c: InningsCard) {
     top: [...c.batting].sort((a, b) => b.runs - a.runs)[0] ?? null,
     best: c.bowling[0] ?? null,
   };
+}
+
+// ---------------------------------------------------------------------------- pre-match preview
+
+const family = (f: Format) => (f === "T20I" || f === "T20" ? "t20" : f === "ODI" || f === "List A" ? "odi" : f === "Test" || f === "First-class" ? "long" : "other");
+
+export interface FormResult {
+  match: Match;
+  opp: string;
+  result: "W" | "L" | "D";
+  scoreFor: string;
+  scoreAgainst: string;
+}
+export interface BatForm { id: string; name: string; inns: number; runs: number; balls: number; notOuts: number; hs: number; recent: string[]; avg: number | null; sr: number | null }
+export interface BowlForm { id: string; name: string; inns: number; balls: number; runs: number; wickets: number; best: string; econ: number | null; avg: number | null }
+export interface TeamPreview {
+  team: MatchTeam;
+  form: FormResult[];
+  batting: BatForm[];
+  bowling: BowlForm[];
+  avgFirstInnings: number | null;
+  squad: { id: string; name: string; role: string }[];
+}
+export interface Preview {
+  teams: TeamPreview[];
+  h2h: FormResult[]; // from teams[0]'s point of view
+  venue: { matches: Match[]; avgFirst: number | null; chaseWins: number; defendWins: number };
+  daysScanned: number;
+}
+
+/** The side that batted first, when the feed makes it unambiguous. */
+const battedFirst = (m: Match) => {
+  const firsts = m.teams.filter((t) => t.innings.some((i) => i.period === 1));
+  return firsts.length === 1 ? firsts[0] : null;
+};
+const firstInningsRuns = (m: Match) => battedFirst(m)?.innings.find((i) => i.period === 1)?.runs ?? null;
+
+/** Built from the last few weeks of results: each side's form, player form, head-to-head and venue history. */
+export async function getPreview(m: Match, days = 28): Promise<Preview> {
+  const start = localDayKey(m.date || new Date().toISOString());
+  const keys = Array.from({ length: days }, (_, i) => shiftDay(start, -(i + 1)));
+  const panels = await Promise.all(keys.map((k) => getJson(`${BASE}/scorepanel?dates=${k}`, 6 * 3600)));
+  const seen = new Set<string>();
+  const past = panels
+    .flatMap((p) => (p ? eventsFromPanel(p) : []))
+    .filter((x) => x.state === "post" && x.id !== m.id && !seen.has(x.id) && (seen.add(x.id), true))
+    .sort((a, b) => (a.date < b.date ? 1 : -1));
+  const fam = family(m.format);
+  const vsTeam = (x: Match, id: string): FormResult | null => {
+    const me = x.teams.find((t) => t.id === id);
+    const op = x.teams.find((t) => t.id !== id);
+    if (!me || !op) return null;
+    return { match: x, opp: op.abbr || op.name, result: me.winner ? "W" : op.winner ? "L" : "D", scoreFor: me.score, scoreAgainst: op.score };
+  };
+
+  // squads: from this match's own summary when announced
+  const own = await getMatch(m.leagueId, m.id).catch(() => null);
+
+  const teams = await Promise.all(
+    m.teams.map(async (team): Promise<TeamPreview> => {
+      const mine = past.filter((x) => x.teams.some((t) => t.id === team.id));
+      const same = mine.filter((x) => family(x.format) === fam);
+      const pool = (same.length >= 3 ? same : mine).slice(0, 8);
+      const form = pool.map((x) => vsTeam(x, team.id)!).filter(Boolean);
+      const details = await Promise.all(pool.slice(0, 6).map((x) => getMatch(x.leagueId, x.id).catch(() => null)));
+      const bat = new Map<string, BatForm>();
+      const bowl = new Map<string, BowlForm & { bestW: number; bestR: number }>();
+      for (const d of details) {
+        for (const inn of d?.innings ?? []) {
+          if (inn.battingTeam?.id === team.id)
+            for (const b of inn.batting) {
+              if (!b.balls && !b.runs && !b.out) continue;
+              const r = bat.get(b.id) ?? { id: b.id, name: b.name, inns: 0, runs: 0, balls: 0, notOuts: 0, hs: 0, recent: [], avg: null, sr: null };
+              r.inns++; r.runs += b.runs; r.balls += b.balls; if (b.notOut) r.notOuts++;
+              r.hs = Math.max(r.hs, b.runs); r.recent.push(`${b.runs}${b.notOut ? "*" : ""}`);
+              bat.set(b.id, r);
+            }
+          if (inn.bowlingTeam?.id === team.id)
+            for (const b of inn.bowling) {
+              const r = bowl.get(b.id) ?? { id: b.id, name: b.name, inns: 0, balls: 0, runs: 0, wickets: 0, best: "", econ: null, avg: null, bestW: -1, bestR: 0 };
+              r.inns++; r.balls += ballsOf(b.overs); r.runs += b.runs; r.wickets += b.wickets;
+              if (b.wickets > r.bestW || (b.wickets === r.bestW && b.runs < r.bestR)) { r.bestW = b.wickets; r.bestR = b.runs; r.best = `${b.wickets}/${b.runs}`; }
+              bowl.set(b.id, r);
+            }
+        }
+      }
+      const batting = [...bat.values()]
+        .map((r) => ({ ...r, avg: r.inns - r.notOuts ? r.runs / (r.inns - r.notOuts) : null, sr: r.balls ? (100 * r.runs) / r.balls : null }))
+        .sort((a, b) => b.runs - a.runs).slice(0, 8);
+      const bowling = [...bowl.values()]
+        .map(({ bestW: _w, bestR: _r, ...r }) => ({ ...r, econ: r.balls ? (6 * r.runs) / r.balls : null, avg: r.wickets ? r.runs / r.wickets : null }))
+        .sort((a, b) => b.wickets - a.wickets || (a.econ ?? 99) - (b.econ ?? 99)).slice(0, 8);
+      const firsts = pool.map((x) => {
+        const me = x.teams.find((t) => t.id === team.id);
+        return me?.innings[0]?.runs ?? null;
+      }).filter((v): v is number => v != null);
+      return {
+        team, form, batting, bowling,
+        avgFirstInnings: firsts.length ? firsts.reduce((a, b) => a + b, 0) / firsts.length : null,
+        squad: own?.squads.find((s) => s.teamId === team.id)?.players ?? [],
+      };
+    }),
+  );
+
+  const [a, b] = m.teams;
+  const h2h = a && b ? past.filter((x) => x.teams.some((t) => t.id === a.id) && x.teams.some((t) => t.id === b.id)).map((x) => vsTeam(x, a.id)!) : [];
+  const atVenue = m.venue ? past.filter((x) => x.venue === m.venue && family(x.format) === fam).slice(0, 10) : [];
+  const vFirsts = atVenue.map(firstInningsRuns).filter((v): v is number => v != null);
+  let chaseWins = 0, defendWins = 0;
+  for (const x of atVenue) {
+    const w = x.teams.find((t) => t.winner);
+    if (!w) continue;
+    const bf = battedFirst(x);
+    if (!bf) continue;
+    if (bf.id === w.id) defendWins++; else chaseWins++;
+  }
+  return { teams, h2h, venue: { matches: atVenue, avgFirst: vFirsts.length ? vFirsts.reduce((s, v) => s + v, 0) / vFirsts.length : null, chaseWins, defendWins }, daysScanned: days };
 }
