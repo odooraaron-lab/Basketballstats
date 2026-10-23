@@ -15,9 +15,12 @@ import {
   rankOf,
   signalScore,
   statOf,
+  projectStat,
   type HitLine,
+  type ModelStat,
   type ScanCatKey,
 } from "./scanCore";
+import { getLeagueTable, projectGame } from "./league";
 
 // ---------------------------------------------------------------------------- types
 
@@ -65,6 +68,27 @@ export interface ScanPlayer {
   recent: { date: string; opp: string; pts: number; reb: number; ast: number; tpm: number; stl: number; blk: number; min: number }[];
   signals: ScanSignal[];
   notes: string[]; // player-level notes (minutes trend, teammate out…)
+  /** Projection for tonight, used by the combination simulator. */
+  model: Record<ModelStat, { mean: number; sd: number }>;
+}
+
+export interface GameModel {
+  id: string;
+  label: string;
+  date: string;
+  teams: [GameModelTeam, GameModelTeam]; // [away, home]
+  overUnder: number | null;
+  spread: { abbr: string; value: number } | null; // favourite and line, e.g. MIL -1.5
+  basis: string;
+}
+
+export interface GameModelTeam {
+  id: string;
+  abbr: string;
+  name: string;
+  logo: string;
+  color: string;
+  mean: number;
 }
 
 export interface ScanReport {
@@ -81,6 +105,7 @@ export interface ScanReport {
   cold: { player: ScanPlayer; signal: ScanSignal }[];
   matchups: { teamAbbr: string; oppAbbr: string; soft: { cat: ScanCatKey; rank: number; allowed: number }[]; tough: { cat: ScanCatKey; rank: number; allowed: number }[] }[];
   out: { name: string; teamAbbr: string; status: string; pts: number | null; min: number | null }[];
+  gameModels: GameModel[];
 }
 
 // ---------------------------------------------------------------------------- helpers
@@ -241,6 +266,14 @@ export async function runScan(
     return games.sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 10);
   });
 
+  // League-average allowed per stat, for the matchup nudge in projections
+  const lgAllowed = Object.fromEntries(
+    SCAN_CATS.map((c) => {
+      const vals = Object.values(opp.table).map((t) => t[c.key]).filter((v): v is number => v != null);
+      return [c.key, mean(vals)];
+    }),
+  ) as Record<ScanCatKey, number | null>;
+
   // Team-level context: high-volume teammates who are out
   const outByTeam = new Map<string, ScanReport["out"]>();
   for (const o of outList) outByTeam.set(o.teamAbbr, [...(outByTeam.get(o.teamAbbr) ?? []), o]);
@@ -294,6 +327,14 @@ export async function runScan(
       return s.base >= cat.floor || (s.l5 ?? 0) >= cat.floor;
     });
 
+    const model = Object.fromEntries(
+      (["pts", "reb", "ast", "tpm", "stl", "blk"] as ModelStat[]).map((k) => {
+        const o = opp.table[oppAbbr]?.[k] ?? null;
+        const pr = projectStat(k, statOf(c.base, k), log.map((g) => statOf(g.box, k)), o, lgAllowed[k]);
+        return [k, { mean: Math.round(pr.mean * 100) / 100, sd: Math.round(pr.sd * 100) / 100 }];
+      }),
+    ) as ScanPlayer["model"];
+
     return {
       id: c.p.id,
       name: c.p.name,
@@ -312,6 +353,7 @@ export async function runScan(
       recent: log.slice(0, 5).map((g) => ({ date: g.date, opp: `${g.atVs} ${g.opp}`, pts: g.box.pts, reb: g.box.reb, ast: g.box.ast, tpm: g.box.tpm, stl: g.box.stl, blk: g.box.blk, min: g.box.min })),
       signals,
       notes,
+      model,
     };
   });
 
@@ -368,6 +410,37 @@ export async function runScan(
     };
   });
 
+  // Team score projections for the simulator
+  let table = await getLeagueTable(l, currentYear, 2);
+  let tableBasis = seasonLabel(currentYear);
+  const thin = !table.context || table.rows.every((r) => (r.gp ?? 0) < 8);
+  if (thin) {
+    const prevTable = await getLeagueTable(l, currentYear - 1, 2);
+    if (prevTable.context) {
+      table = prevTable;
+      tableBasis = `${seasonLabel(currentYear - 1)} (current season too early)`;
+    }
+  }
+  const rowMap = new Map(table.rows.map((r) => [r.team.id, r]));
+  const gameModels: GameModel[] = games.map((g) => {
+    const proj = projectGame(g, rowMap);
+    const lg = table.averages?.ppg ?? 114;
+    // Home court ≈ +1.5 each way on top of the season blend
+    const away = (proj?.away ?? lg) - 1.25;
+    const home = (proj?.home ?? lg) + 1.25;
+    const m = (g.odds?.details ?? "").match(/^([A-Z]{2,4})\s*([-+]?\d+(?:\.\d+)?)/);
+    const team = (s: (typeof g)["away"]) => ({ id: s.team.id, abbr: s.team.abbr, name: s.team.shortName, logo: s.team.logo, color: s.team.color });
+    return {
+      id: g.id,
+      label: `${g.away.team.abbr} @ ${g.home.team.abbr}`,
+      date: g.date,
+      teams: [{ ...team(g.away), mean: Math.round(away * 10) / 10 }, { ...team(g.home), mean: Math.round(home * 10) / 10 }],
+      overUnder: g.odds?.overUnder ?? null,
+      spread: m ? { abbr: m[1], value: Number(m[2]) } : null,
+      basis: proj ? `Team scoring vs points allowed, ${tableBasis}, plus home court` : "League average (team data not available)",
+    };
+  });
+
   const first = games[0];
   return {
     scope,
@@ -387,5 +460,6 @@ export async function runScan(
     cold,
     matchups,
     out: outList.sort((a, b) => (b.pts ?? 0) - (a.pts ?? 0)),
+    gameModels,
   };
 }

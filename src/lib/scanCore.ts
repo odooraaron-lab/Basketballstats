@@ -91,3 +91,44 @@ export const ordinal = (n: number) => {
   const v = n % 100;
   return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
 };
+
+// ---------------------------------------------------------------------------- projections
+
+export type ModelStat = "pts" | "reb" | "ast" | "tpm" | "stl" | "blk";
+
+/** Typical game-to-game spread for a stat with mean m (used when a player has few games). */
+export function modelSd(key: ModelStat, m: number): number {
+  switch (key) {
+    case "pts":
+      return 0.25 * m + 2.5;
+    case "reb":
+      return 0.3 * m + 1.2;
+    case "ast":
+      return Math.sqrt(m + (m * m) / 6);
+    case "blk":
+      return Math.sqrt(m + (m * m) / 3);
+    default:
+      return Math.sqrt(m + (m * m) / 4);
+  }
+}
+
+const sampleSd = (xs: number[]) => {
+  const m = mean(xs) ?? 0;
+  return Math.sqrt(xs.reduce((a, x) => a + (x - m) ** 2, 0) / Math.max(1, xs.length - 1));
+};
+
+/**
+ * Projected mean and spread for tonight: blend of season average (45%), last 10 (35%)
+ * and last 5 (20%), nudged by how much the opponent allows vs league average (dampened,
+ * capped at ±7%). Spread blends the player's own game-to-game variation with a model value.
+ */
+export function projectStat(key: ModelStat, base: number, recent: number[], oppAllowed: number | null, lgAllowed: number | null) {
+  const l10 = mean(recent);
+  const l5 = mean(recent.slice(0, 5));
+  let m = recent.length >= 3 && l10 != null && l5 != null ? 0.45 * base + 0.35 * l10 + 0.2 * l5 : base;
+  const matchup = oppAllowed && lgAllowed ? Math.sqrt(clamp(oppAllowed / lgAllowed, 0.86, 1.15)) : 1;
+  m *= matchup;
+  const model = modelSd(key, m);
+  const sd = recent.length >= 5 ? Math.sqrt((recent.length * sampleSd(recent) ** 2 + 5 * model ** 2) / (recent.length + 5)) : model;
+  return { mean: Math.max(0, m), sd: Math.max(0.5, sd), matchup };
+}

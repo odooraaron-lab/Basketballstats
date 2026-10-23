@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ComboBuilder } from "./ComboBuilder";
 import { fmt, fmtDayTime } from "@/lib/format";
 import type { ScanPlayer, ScanReport as Report, ScanSignal } from "@/lib/scan";
 import { SCAN_CATS, type ScanCatKey } from "@/lib/scanCore";
@@ -133,6 +134,11 @@ function TopCard({ p, s, rank, league }: { p: ScanPlayer; s: ScanSignal; rank: n
 
 export function ScanReportView({ report: r, league, closeHref, scopeLinks }: { report: Report; league: string; closeHref?: string; scopeLinks?: { label: string; href: string; active: boolean }[] }) {
   const [copied, setCopied] = useState(false);
+  const [combos, setCombos] = useState(false);
+  const openCombos = () => {
+    setCombos(true);
+    setTimeout(() => document.getElementById("combo-builder")?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+  };
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(toText(r));
@@ -160,6 +166,9 @@ export function ScanReportView({ report: r, league, closeHref, scopeLinks }: { r
               {s.label}
             </Link>
           ))}
+          <button onClick={openCombos} className="display rounded-md bg-court px-3 py-1 text-xs font-bold text-ink-950 hover:bg-court-soft">
+            Build combinations
+          </button>
           <button onClick={copy} className="chip hover:text-ink-100">
             {copied ? "Copied ✓" : "Copy as text"}
           </button>
@@ -186,7 +195,24 @@ export function ScanReportView({ report: r, league, closeHref, scopeLinks }: { r
           ) : (
             <p className="text-sm text-ink-500">No rotation players with enough data yet.</p>
           )}
+          {!combos && r.top.length > 0 && (
+            <div className="no-print mt-3 flex flex-wrap items-center gap-3 rounded-lg border border-court/30 bg-court/5 px-3 py-2.5">
+              <div className="min-w-0 flex-1 text-sm">
+                <span className="display font-bold">Build combinations</span>
+                <span className="text-ink-400"> — simulates the game 10,000 times with these players to find the most likely points + assists + blocks combinations and game outcome.</span>
+              </div>
+              <button onClick={openCombos} className="display rounded-lg bg-court px-4 py-2 text-sm font-bold text-ink-950 hover:bg-court-soft">
+                Build combinations
+              </button>
+            </div>
+          )}
         </div>
+
+        {combos && (
+          <div className="no-print">
+            <ComboBuilder report={r} />
+          </div>
+        )}
 
         <div>
           <h3 className="display mb-2 text-base font-bold text-ink-200">Category leaders</h3>
