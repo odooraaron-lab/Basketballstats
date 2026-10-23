@@ -39,7 +39,7 @@ export function LeagueSwitch({ current, leagues }: { current: string; leagues: L
     <div className="border-b border-ink-800 bg-ink-900">
       <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-1.5">
         <span className="display hidden text-[11px] font-semibold text-ink-500 sm:inline">League</span>
-        <div className="flex gap-1 rounded-lg bg-ink-950 p-0.5" role="tablist" aria-label="Choose league">
+        <div className="flex gap-1 overflow-x-auto rounded-lg bg-ink-950 p-0.5" role="tablist" aria-label="Choose league">
           {leagues.map((l) => {
             const active = l.id === current;
             return (
@@ -60,6 +60,21 @@ export function LeagueSwitch({ current, leagues }: { current: string; leagues: L
               </Link>
             );
           })}
+          <span className="mx-0.5 w-px self-stretch bg-ink-800" />
+          <Link
+            href="/cricket"
+            onClick={() => remember("cricket")}
+            role="tab"
+            aria-selected={current === "cricket"}
+            title="Cricket — every match in the world"
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-sm transition-colors ${
+              current === "cricket" ? "bg-ink-800 text-ink-100" : "text-ink-400 hover:text-ink-100"
+            }`}
+          >
+            <span className="h-2 w-2 rounded-full" style={{ background: "#2fb36d", opacity: current === "cricket" ? 1 : 0.5 }} />
+            <span className="display font-bold">Cricket</span>
+            <span className="text-xs text-ink-500">World</span>
+          </Link>
         </div>
       </div>
     </div>

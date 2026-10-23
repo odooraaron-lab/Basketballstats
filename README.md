@@ -15,6 +15,7 @@ A password-protected Next.js app that pulls live NBA and NBL (Australia/New Zeal
 | **Tracking** | NBA.com hub: hustle, shot contests, Synergy play types (incl. team play-type mix), player tracking, defense, matchups, official lineups, clutch, advanced, scoring sources, shot zones — players or teams, any synced season |
 | **Scan & combinations** | 'Scan for stats' on any game (or a whole day) scores every rotation player and writes a report; 'Build combinations' then simulates the game 10,000 times to estimate the most likely result, total, margin and multi-leg player combinations (points / assists / blocks and more), with a click-to-build custom combo |
 | **Odds check** | Upload a screenshot of player props; names, lines and odds are read (Claude vision if `ANTHROPIC_API_KEY` is set, otherwise free on-device OCR), checked against each player's last 10 games and projection, and marked Strong / Lean / Pass with our chance vs the bookmaker's (margin removed) |
+| **Cricket · World** | Separate section from the league switcher: every match worldwide by NZ day (Tests, ODIs, T20Is, franchise and domestic, men & women) with format filters, live scores, full scorecards (batting, bowling, dots, extras), run rates, boundary %, chase maths and projected totals. Data: ESPN's cricket feed (ESPNcricinfo match data) |
 | **Glossary** | Every formula, the league rule set, xPPS baselines and a data-coverage table |
 
 ### NBL (NZ & AUS)
