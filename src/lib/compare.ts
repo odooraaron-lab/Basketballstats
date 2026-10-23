@@ -182,7 +182,7 @@ export async function compareRosters(league: League, g: GameSummary, currentYear
         roster.map(async (p) => {
           let cells: Cells;
           if (split === "l5" || split === "l10") {
-            const log = (await getPlayerGameLog(league, p.id, currentYear)).filter((x) => x.box.min > 0);
+            const log = (await getPlayerGameLog(league, p.id, currentYear)).filter((x) => x.box.min > 0 && x.seasonType !== 1);
             const games = log.slice(0, split === "l5" ? 5 : 10).map((x) => x.box);
             const avg = games.length ? avgOf(games) : null;
             cells = boxCells(avg, games.length || null, null, teamRow, table, tmMin);

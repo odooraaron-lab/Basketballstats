@@ -90,3 +90,16 @@ body {
 .stat-table.compact td {
   @apply text-[12.5px];
 }
+
+/* Printing a scan report: only the report, in dark-on-white */
+@media print {
+  body * { visibility: hidden; }
+  #scan-report, #scan-report * { visibility: visible; }
+  #scan-report { position: absolute; inset: 0 auto auto 0; width: 100%; border: 0; }
+  #scan-report * { color: #111 !important; background: transparent !important; border-color: #ccc !important; box-shadow: none !important; }
+  #scan-report .no-print { display: none !important; }
+  #scan-report .card { break-inside: avoid; }
+  #scan-report .bar, #scan-report .bar-hit { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  #scan-report .bar { background: #bbb !important; }
+  #scan-report .bar-hit { background: #2e9a62 !important; }
+}

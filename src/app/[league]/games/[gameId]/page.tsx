@@ -2,7 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TeamLogo } from "@/components/Img";
 import { LeadChart, PeriodBars } from "@/components/LeadChart";
+import { Suspense } from "react";
 import { PlayerCompare } from "@/components/PlayerCompare";
+import { ScanReportView } from "@/components/ScanReport";
+import { ScanLoading } from "@/components/ScanLoading";
 import { ShotChart } from "@/components/ShotChart";
 import { SortableTable, type Column, type Row } from "@/components/SortableTable";
 import { Bars, Card, CompareBar, Empty, Stat, Tabs } from "@/components/ui";
@@ -11,6 +14,8 @@ import { getLeague } from "@/leagues/registry";
 import { getGameSummary } from "@/lib/espn";
 import { fmt, fmtDayTime, hex } from "@/lib/format";
 import { compareRosters, type Split } from "@/lib/compare";
+import { espnDate, getScoreboard } from "@/lib/espn";
+import { runScan } from "@/lib/scan";
 import { getLeagueTable, projectGame, resolveSeason } from "@/lib/league";
 import type { BoxTeam } from "@/lib/model";
 import {
@@ -50,13 +55,14 @@ import {
 } from "@/lib/stats";
 
 export const revalidate = 20;
+export const maxDuration = 60;
 
 export default async function GamePage({
   params,
   searchParams,
 }: {
   params: Promise<{ league: string; gameId: string }>;
-  searchParams: Promise<{ tab?: string; clutch?: string; period?: string; view?: string; split?: string }>;
+  searchParams: Promise<{ tab?: string; clutch?: string; period?: string; view?: string; split?: string; scan?: string }>;
 }) {
   const { league: lid, gameId } = await params;
   const sp = await searchParams;
@@ -822,8 +828,29 @@ export default async function GamePage({
     const cur = await resolveSeason(league, undefined);
     const data = await compareRosters(league, g!, cur.year, split);
     const withStats = data.players.filter((p) => (p.cells.gp ?? 0) > 0).length;
+    const scan = sp.scan === "day" ? "day" : sp.scan ? "game" : null;
+    const scanHref = (s?: "game" | "day") => `${base}?tab=players&split=${split}${s ? `&scan=${s}` : ""}${s ? "#scan-report" : ""}`;
     return (
       <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-court/30 bg-court/5 px-4 py-3">
+          <div className="min-w-0 flex-1">
+            <div className="display text-base font-bold">Scan for stats</div>
+            <div className="text-xs text-ink-400">
+              Checks every rotation player for high averages, hot streaks, consistent lines and soft matchups, then writes up a report.
+            </div>
+          </div>
+          <Link href={scanHref("game")} scroll={false} className="display rounded-lg bg-court px-4 py-2 text-sm font-bold text-ink-950 transition hover:bg-court-soft">
+            {scan ? "Re-scan" : "Scan for stats"}
+          </Link>
+          <Link href={scanHref("day")} scroll={false} className="chip hover:text-ink-100">
+            Scan all games this day
+          </Link>
+        </div>
+        {scan && (
+          <Suspense key={scan} fallback={<ScanLoading scope={scan} />}>
+            <ScanSection scope={scan} closeHref={scanHref()} />
+          </Suspense>
+        )}
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="display mr-1 text-xs text-ink-500">Stats from</span>
           {splits.map((x) => (
@@ -845,6 +872,24 @@ export default async function GamePage({
         )}
         <PlayerCompare data={data} league={league.id} />
       </div>
+    );
+  }
+
+  async function ScanSection({ scope, closeHref }: { scope: "game" | "day"; closeHref: string }) {
+    const cur = await resolveSeason(league, undefined);
+    const games = scope === "day" ? (await getScoreboard(league, espnDate(new Date(card.date)))).filter((x) => x.state !== "post") : [card];
+    const report = await runScan(league, games.length ? games : [card], cur.year, scope, g!.injuries);
+    const split = sp.split ?? "season";
+    return (
+      <ScanReportView
+        report={report}
+        league={league.id}
+        closeHref={closeHref}
+        scopeLinks={[
+          { label: "This game", href: `${base}?tab=players&split=${split}&scan=game#scan-report`, active: scope === "game" },
+          { label: "All games this day", href: `${base}?tab=players&split=${split}&scan=day#scan-report`, active: scope === "day" },
+        ]}
+      />
     );
   }
 

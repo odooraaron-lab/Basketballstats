@@ -666,7 +666,7 @@ export async function getPlayerGameLog(l: League, id: string, season?: number): 
   const labels: string[] = j.labels ?? [];
   const meta: Record<string, J> = j.events ?? {};
   const seen = new Map<string, GameLogRow>();
-  const walk = (cats: J[]) => {
+  const walk = (cats: J[], seasonType: number) => {
     for (const c of cats ?? []) {
       for (const e of c.events ?? []) {
         const id = String(e.eventId ?? "");
@@ -700,12 +700,17 @@ export async function getPlayerGameLog(l: League, id: string, season?: number): 
           atVs: m.atVs ?? "",
           result: m.gameResult ?? "",
           score: m.score ?? "",
+          seasonType,
           box: b,
         });
       }
     }
   };
-  for (const st of j.seasonTypes ?? []) walk(st.categories ?? []);
+  for (const st of j.seasonTypes ?? []) {
+    const label = String(st.displayName ?? st.name ?? "");
+    const type = /pre/i.test(label) ? 1 : /post|playoff/i.test(label) ? 3 : /play-?in/i.test(label) ? 5 : 2;
+    walk(st.categories ?? [], type);
+  }
   return [...seen.values()].sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 

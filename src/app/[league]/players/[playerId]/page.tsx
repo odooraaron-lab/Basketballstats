@@ -68,7 +68,7 @@ export default async function PlayerPage({
   const usg = b && teamRow?.season ? usage(b, teamRow.season.perGame, tmMin) : null;
   const perVal = b && teamRow?.season && table.context ? per(b, { totals: teamRow.season.perGame, pace: teamRow.pace }, table.context) : null;
 
-  const games = log;
+  const games = log.filter((g) => g.seasonType !== 1); // skip preseason
   const last = (n: number) => {
     const g = games.slice(0, n);
     if (!g.length) return null;

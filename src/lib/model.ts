@@ -142,6 +142,8 @@ export interface GameLogRow {
   atVs: string;
   result: string;
   score: string;
+  /** 1 preseason, 2 regular season, 3 playoffs, 5 play-in */
+  seasonType: number;
   box: BoxLine;
 }
 

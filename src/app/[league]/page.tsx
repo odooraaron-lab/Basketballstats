@@ -60,7 +60,19 @@ export default async function Dashboard({ params }: { params: Promise<{ league: 
         <Stat label="Live now" value={live} tone={live ? "loss" : undefined} />
       </div>
 
-      <Card title={`Today · ${days[0] ? espnDayLabel(days[0].date) : ""}`} right="Times shown in NZ time">
+      <Card
+        title={`Today · ${days[0] ? espnDayLabel(days[0].date) : ""}`}
+        right={
+          <span className="flex items-center gap-3">
+            <span>Times shown in NZ time</span>
+            {today.length > 0 && (
+              <Link href={`/${league.id}/scan`} className="display rounded-md bg-court px-2.5 py-1 text-xs font-bold text-ink-950 hover:bg-court-soft">
+                Scan today&apos;s games
+              </Link>
+            )}
+          </span>
+        }
+      >
         {today.length ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {today.map((g) => (
