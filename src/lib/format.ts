@@ -58,3 +58,21 @@ export function shiftEspnDay(d: string, days: number): string {
 }
 
 export const hex = (c: string | undefined, fallback = "5b6573") => `#${(c || fallback).replace("#", "")}`;
+
+/** yyyymmdd calendar day of an instant in the display time zone (NZ by default). */
+export function localDayKey(d: Date | string): string {
+  const date = typeof d === "string" ? new Date(d) : d;
+  return new Intl.DateTimeFormat("en-CA", { timeZone: DISPLAY_TZ, year: "numeric", month: "2-digit", day: "2-digit" })
+    .format(date)
+    .replace(/-/g, "");
+}
+
+export const todayKey = () => localDayKey(new Date());
+
+/** Label a yyyymmdd calendar day (no time-zone shifting). */
+export function dayLabel(key: string, opts: Intl.DateTimeFormatOptions = { weekday: "long", day: "numeric", month: "long" }): string {
+  const dt = new Date(Date.UTC(+key.slice(0, 4), +key.slice(4, 6) - 1, +key.slice(6, 8), 12));
+  return new Intl.DateTimeFormat("en-NZ", { timeZone: "UTC", ...opts }).format(dt);
+}
+
+export const shiftDay = shiftEspnDay;

@@ -4,8 +4,8 @@ import { ScanLoading } from "@/components/ScanLoading";
 import { ScanReportView } from "@/components/ScanReport";
 import { Empty, PageTitle } from "@/components/ui";
 import { getLeague } from "@/leagues/registry";
-import { espnDate, getScoreboard } from "@/lib/espn";
-import { espnDayLabel, shiftEspnDay } from "@/lib/format";
+import { getGamesForLocalDay } from "@/lib/espn";
+import { dayLabel, shiftDay, todayKey } from "@/lib/format";
 import { resolveSeason } from "@/lib/league";
 import { runScan } from "@/lib/scan";
 
@@ -22,19 +22,19 @@ export default async function ScanPage({
   const { league: id } = await params;
   const { date: q } = await searchParams;
   const league = getLeague(id);
-  const date = q && /^\d{8}$/.test(q) ? q : espnDate(new Date());
-  const games = await getScoreboard(league, date);
+  const date = q && /^\d{8}$/.test(q) ? q : todayKey();
+  const games = await getGamesForLocalDay(league, date);
   const upcoming = games.filter((g) => g.state !== "post");
 
   return (
     <div className="space-y-4">
-      <PageTitle sub={`${espnDayLabel(date)} · ${games.length} games`}>Stat scan</PageTitle>
+      <PageTitle sub={`${dayLabel(date)} (NZ time) · ${games.length} games`}>Stat scan</PageTitle>
       <div className="flex flex-wrap gap-1.5">
         {[-1, 0, 1, 2].map((d) => {
-          const day = shiftEspnDay(espnDate(new Date()), d);
+          const day = shiftDay(todayKey(), d);
           return (
             <Link key={day} href={`/${league.id}/scan?date=${day}`} className={`chip ${day === date ? "!border-court !text-court" : "hover:text-ink-100"}`}>
-              {d === 0 ? "Today" : d === 1 ? "Tomorrow" : d === -1 ? "Yesterday" : espnDayLabel(day).split(",")[0]}
+              {d === 0 ? "Today" : d === 1 ? "Tomorrow" : d === -1 ? "Yesterday" : dayLabel(day, { weekday: "long" })}
             </Link>
           );
         })}
@@ -49,7 +49,7 @@ export default async function ScanPage({
     </div>
   );
 
-  async function Report({ leagueId, games }: { leagueId: string; games: Awaited<ReturnType<typeof getScoreboard>> }) {
+  async function Report({ leagueId, games }: { leagueId: string; games: Awaited<ReturnType<typeof getGamesForLocalDay>> }) {
     const cur = await resolveSeason(league, undefined);
     const report = await runScan(league, games, cur.year, "day");
     return <ScanReportView report={report} league={leagueId} />;

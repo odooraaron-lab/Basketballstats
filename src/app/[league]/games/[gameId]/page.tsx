@@ -14,7 +14,8 @@ import { getLeague } from "@/leagues/registry";
 import { getGameSummary } from "@/lib/espn";
 import { fmt, fmtDayTime, hex } from "@/lib/format";
 import { compareRosters, type Split } from "@/lib/compare";
-import { espnDate, getScoreboard } from "@/lib/espn";
+import { getGamesForLocalDay } from "@/lib/espn";
+import { localDayKey } from "@/lib/format";
 import { runScan } from "@/lib/scan";
 import { getLeagueTable, projectGame, resolveSeason } from "@/lib/league";
 import type { BoxTeam } from "@/lib/model";
@@ -877,7 +878,7 @@ export default async function GamePage({
 
   async function ScanSection({ scope, closeHref }: { scope: "game" | "day"; closeHref: string }) {
     const cur = await resolveSeason(league, undefined);
-    const games = scope === "day" ? (await getScoreboard(league, espnDate(new Date(card.date)))).filter((x) => x.state !== "post") : [card];
+    const games = scope === "day" ? (await getGamesForLocalDay(league, localDayKey(card.date))).filter((x) => x.state !== "post") : [card];
     const report = await runScan(league, games.length ? games : [card], cur.year, scope, g!.injuries);
     const split = sp.split ?? "season";
     return (

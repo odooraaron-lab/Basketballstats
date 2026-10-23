@@ -3,7 +3,7 @@ import { Headshot, TeamLogo } from "@/components/Img";
 import { Card, Empty, GameTile, PageTitle, Stat } from "@/components/ui";
 import { getLeague } from "@/leagues/registry";
 import { getLeaders, getUpcoming, seasonLabel } from "@/lib/espn";
-import { espnDayLabel, fmt } from "@/lib/format";
+import { dayLabel, fmt } from "@/lib/format";
 import { getLeagueTable, projectGame, resolveSeason } from "@/lib/league";
 
 export const revalidate = 60;
@@ -56,12 +56,12 @@ export default async function Dashboard({ params }: { params: Promise<{ league: 
         <Stat label="Avg game total" value={fmt(table.averages?.total, "1")} sub="Both teams combined" tone="accent" />
         <Stat label="Avg pace" value={fmt(table.averages?.pace, "1")} sub="Possessions / 48" />
         <Stat label="Avg off. rating" value={fmt(table.averages?.ortg, "1")} sub="Pts / 100 poss" />
-        <Stat label="Games today" value={today.length} sub="US Eastern game day" />
+        <Stat label="Games today" value={today.length} sub="NZ time" />
         <Stat label="Live now" value={live} tone={live ? "loss" : undefined} />
       </div>
 
       <Card
-        title={`Today · ${days[0] ? espnDayLabel(days[0].date) : ""}`}
+        title={`Today · ${days[0] ? dayLabel(days[0].date) : ""}`}
         right={
           <span className="flex items-center gap-3">
             <span>Times shown in NZ time</span>
@@ -89,7 +89,7 @@ export default async function Dashboard({ params }: { params: Promise<{ league: 
           <div className="space-y-5">
             {later.map((d) => (
               <div key={d.date}>
-                <div className="display mb-2 text-sm font-semibold text-ink-400">{espnDayLabel(d.date)}</div>
+                <div className="display mb-2 text-sm font-semibold text-ink-400">{dayLabel(d.date)}</div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {d.games.map((g) => (
                     <GameTile key={g.id} g={g} league={league.id} projection={projectGame(g, rowMap)} />

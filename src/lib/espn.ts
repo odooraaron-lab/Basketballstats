@@ -18,6 +18,7 @@ import type {
   TeamRef,
   TeamSeason,
 } from "./model";
+import { localDayKey, shiftDay, todayKey } from "./format";
 import { emptyBox, num, parseMadeAtt, type BoxLine } from "./stats";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -367,17 +368,38 @@ export async function getScoreboard(l: League, yyyymmdd?: string): Promise<GameC
   return (j?.events ?? []).map((e: J) => toGameCard(e, l));
 }
 
-/** Games for the next `days` ESPN game days, starting today. */
-export async function getUpcoming(l: League, days = 7): Promise<{ date: string; games: GameCard[] }[]> {
-  const now = Date.now();
-  const dates = Array.from({ length: days }, (_, i) => espnDate(new Date(now + i * 86400_000)));
-  const unique = [...new Set(dates)];
-  const res = await Promise.all(unique.map((d) => getScoreboard(l, d)));
+/**
+ * Games whose tip-off falls on a calendar day in the display time zone (NZ by default).
+ * ESPN groups games by US Eastern day, so an NZ day spans two ESPN days — fetch the
+ * neighbours and filter by local date.
+ */
+export async function getGamesForLocalDay(l: League, dayKey: string): Promise<GameCard[]> {
+  const keys = [shiftDay(dayKey, -1), dayKey, shiftDay(dayKey, 1)];
+  const res = await Promise.all(keys.map((k) => getScoreboard(l, k)));
   const seen = new Set<string>();
-  return unique.map((d, i) => ({
-    date: d,
-    games: res[i].filter((g) => (seen.has(g.id) ? false : (seen.add(g.id), true))),
-  }));
+  return res
+    .flat()
+    .filter((g) => localDayKey(g.date) === dayKey && (seen.has(g.id) ? false : (seen.add(g.id), true)))
+    .sort((a, b) => (a.date < b.date ? -1 : 1));
+}
+
+/** Games for the next `days` local (NZ) calendar days, starting today. */
+export async function getUpcoming(l: League, days = 7): Promise<{ date: string; games: GameCard[] }[]> {
+  const start = todayKey();
+  const espnKeys = Array.from({ length: days + 2 }, (_, i) => shiftDay(start, i - 1));
+  const res = await Promise.all(espnKeys.map((d) => getScoreboard(l, d)));
+  const byDay = new Map<string, GameCard[]>();
+  const seen = new Set<string>();
+  for (const g of res.flat()) {
+    if (seen.has(g.id)) continue;
+    seen.add(g.id);
+    const k = localDayKey(g.date);
+    byDay.set(k, [...(byDay.get(k) ?? []), g]);
+  }
+  return Array.from({ length: days }, (_, i) => {
+    const k = shiftDay(start, i);
+    return { date: k, games: (byDay.get(k) ?? []).sort((a, b) => (a.date < b.date ? -1 : 1)) };
+  });
 }
 
 const BOX_ALIASES: Record<keyof BoxLine, string[]> = {
