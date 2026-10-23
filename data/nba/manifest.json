@@ -114,7 +114,122 @@
    "updated": "2026-10-22T23:50:53+00:00",
    "season": "2026-27",
    "seasonType": "Regular Season"
+  },
+  "2025-26": {
+   "datasets": {
+    "player_base": {
+     "rows": 582,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "player_advanced": {
+     "rows": 582,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "player_misc": {
+     "rows": 582,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "player_scoring": {
+     "rows": 582,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "player_usage": {
+     "rows": 582,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "team_base": {
+     "rows": 30,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "team_advanced": {
+     "rows": 30,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "team_opponent": {
+     "rows": 30,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "team_misc": {
+     "rows": 30,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "hustle_player": {
+     "rows": 581,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "hustle_team": {
+     "rows": 30,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "tracking_player": {
+     "rows": 6980,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "tracking_team": {
+     "rows": 360,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "contest_player": {
+     "rows": 2267,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "contest_team": {
+     "rows": 120,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "synergy_player_off": {
+     "rows": 3364,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "synergy_player_def": {
+     "rows": 2573,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "synergy_team_off": {
+     "rows": 330,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "synergy_team_def": {
+     "rows": 330,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "lineups": {
+     "rows": 4000,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "matchups": {
+     "rows": 21221,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "clutch_player": {
+     "rows": 492,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "clutch_team": {
+     "rows": 30,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "est_player": {
+     "rows": 582,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "est_team": {
+     "rows": 30,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "shot_zones_player": {
+     "rows": 582,
+     "updated": "2026-10-23T00:17:49+00:00"
+    },
+    "defend_player": {
+     "rows": 3467,
+     "updated": "2026-10-23T00:17:49+00:00"
+    }
+   },
+   "updated": "2026-10-23T00:17:49+00:00",
+   "season": "2025-26",
+   "seasonType": "Regular Season"
   }
  },
- "updated": "2026-10-22T23:50:53+00:00"
+ "updated": "2026-10-23T00:17:49+00:00"
 }
