@@ -364,7 +364,7 @@ export default async function GamePage({
       <div className="space-y-5">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
           <Stat label="Possessions" value={fmt(poss, "1")} />
-          <Stat label="Pace" value={fmt(pace, "1")} sub="per 48 min" />
+          <Stat label="Pace" value={fmt(pace, "1")} sub={`per ${rules.periods * rules.periodMinutes} min`} />
           <Stat label={`${away!.team.abbr} ORtg`} value={fmt(offRating(a.pts, poss), "1")} />
           <Stat label={`${home!.team.abbr} ORtg`} value={fmt(offRating(h.pts, poss), "1")} />
           <Stat label={`${away!.team.abbr} TS%`} value={fmt(trueShooting(a), "pct")} />
@@ -455,7 +455,7 @@ export default async function GamePage({
       <div className="space-y-5">
         <div className="grid gap-5 lg:grid-cols-[1.25fr_1fr]">
           <Card title="Shot chart">
-            <ShotChart shots={shots} teams={teams} players={players} />
+            <ShotChart three={{ arc: league.rules.threePointFt, corner: league.rules.cornerThreeFt }} shots={shots} teams={teams} players={players} />
           </Card>
           <div className="space-y-5">
             {teams.map((t) => {

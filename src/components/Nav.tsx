@@ -3,15 +3,25 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function Nav({ league, accent, shortName }: { league: string; accent: string; shortName: string }) {
+export function Nav({
+  league,
+  accent,
+  shortName,
+  tracking,
+}: {
+  league: string;
+  accent: string;
+  shortName: string;
+  tracking: boolean;
+}) {
   const path = usePathname();
-  const items = [
+  const items: { href: string; label: string; exact?: boolean }[] = [
     { href: `/${league}`, label: "Dashboard", exact: true },
     { href: `/${league}/games`, label: "Games" },
     { href: `/${league}/teams`, label: "Teams" },
     { href: `/${league}/players`, label: "Players" },
     { href: `/${league}/odds`, label: "Odds check" },
-    { href: `/${league}/tracking`, label: "Tracking" },
+    ...(tracking ? [{ href: `/${league}/tracking`, label: "Tracking" }] : []),
     { href: `/${league}/standings`, label: "Standings" },
     { href: `/${league}/glossary`, label: "Glossary" },
   ];

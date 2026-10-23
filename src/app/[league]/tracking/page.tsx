@@ -49,6 +49,23 @@ export default async function TrackingPage({ params, searchParams }: { params: P
   const { league: lid } = await params;
   const sp = await searchParams;
   const league = getLeague(lid);
+  if (!league.features.nbaComTracking) {
+    return (
+      <div className="space-y-6">
+        <PageTitle sub={league.name}>Tracking</PageTitle>
+        <Card title={`No tracking feed for the ${league.shortName}`}>
+          <p className="text-sm text-ink-300">
+            Hustle, Synergy play types, shot contests and matchups come from NBA.com&apos;s tracking system, which only covers the NBA. Everything
+            built from play-by-play — shot charts, zones, runs, clutch, lineups and possessions — is on each{" "}
+            <Link href={`/${league.id}/games`} className="text-court">
+              game page
+            </Link>
+            .
+          </p>
+        </Card>
+      </div>
+    );
+  }
   const sel = await resolveSeason(league, sp);
   const folder = seasonFolder(sel.year, sel.type);
   const manifest = await getManifest();

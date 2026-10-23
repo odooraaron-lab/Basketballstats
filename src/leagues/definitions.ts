@@ -1,4 +1,4 @@
-import type { StatDefinition } from "./types";
+import type { StatDefinition } from "./types.ts";
 
 // Shared vocabulary that league configs can adopt (or override per league).
 export const STANDARD_STAT_DEFINITIONS: StatDefinition[] = [

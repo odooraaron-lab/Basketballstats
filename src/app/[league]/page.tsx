@@ -5,6 +5,7 @@ import { getLeague } from "@/leagues/registry";
 import { getLeaders, getUpcoming, seasonLabel } from "@/lib/espn";
 import { dayLabel, fmt } from "@/lib/format";
 import { getLeagueTable, projectGame, resolveSeason } from "@/lib/league";
+import { regulationMinutes } from "@/lib/rules";
 
 export const revalidate = 60;
 
@@ -54,7 +55,7 @@ export default async function Dashboard({ params }: { params: Promise<{ league: 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <Stat label="League PPG" value={fmt(table.averages?.ppg, "1")} sub={seasonLabel(tableYear)} />
         <Stat label="Avg game total" value={fmt(table.averages?.total, "1")} sub="Both teams combined" tone="accent" />
-        <Stat label="Avg pace" value={fmt(table.averages?.pace, "1")} sub="Possessions / 48" />
+        <Stat label="Avg pace" value={fmt(table.averages?.pace, "1")} sub={`Possessions / ${regulationMinutes(league.rules)}`} />
         <Stat label="Avg off. rating" value={fmt(table.averages?.ortg, "1")} sub="Pts / 100 poss" />
         <Stat label="Games today" value={today.length} sub="NZ time" />
         <Stat label="Live now" value={live} tone={live ? "loss" : undefined} />

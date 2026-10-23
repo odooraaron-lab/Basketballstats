@@ -1,6 +1,9 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { DEFAULT_LEAGUE } from "@/leagues/registry";
+import { DEFAULT_LEAGUE, LEAGUES } from "@/leagues/registry";
 
-export default function Home() {
-  redirect(`/${DEFAULT_LEAGUE}`);
+export default async function Home() {
+  // Open whichever league was picked last in the switcher.
+  const last = (await cookies()).get("league")?.value;
+  redirect(`/${last && LEAGUES[last] ? last : DEFAULT_LEAGUE}`);
 }

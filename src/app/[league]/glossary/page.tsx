@@ -10,8 +10,11 @@ export default async function GlossaryPage({ params }: { params: Promise<{ leagu
   const roadmap: [string, string, string][] = [
     ["Live", "Box scores, play-by-play, shot locations, standings, rosters, injuries, schedules, odds lines", "ESPN public feeds"],
     ["Live", "TS%, eFG%, USG%, AST%, REB%, OREB%/DREB%, STL%, BLK%, PER (est.), Game Score, ORtg/DRtg/Net, Pace, Four Factors", "Calculated in-app"],
+    ...(league.provider.seasonStats === "boxscores"
+      ? ([["Built", "Team season stats, player averages, game logs, leaderboards and stats-allowed-by-team", "Aggregated in-app from every completed game's box score"]] as [string, string, string][])
+      : []),
     ["Live", "Shot zones, shot charts & heatmaps, xPPS / shot-making, runs, lead changes, clutch splits, live- vs dead-ball turnovers, possession log, reconstructed 5-man lineups", "Calculated from play-by-play"],
-    ["Synced", "Synergy play types (iso, P&R, post-up, spot-up, cut, transition…), shot contest level (closest defender), hustle (deflections, charges, box-outs, screen assists, loose balls), who-guarded-who matchups, official 5-man lineups, official clutch, player tracking (speed, distance, drives, catch & shoot, pull-ups, touches, passing, rebounding chances, rim defense), official ORtg/DRtg/PIE, season shot zones", "NBA.com via nba_api — run sync/sync_nba.py on your own computer (NBA.com blocks cloud servers)"],
+    ...(league.features.nbaComTracking ? ([["Synced", "Synergy play types (iso, P&R, post-up, spot-up, cut, transition…), shot contest level (closest defender), hustle (deflections, charges, box-outs, screen assists, loose balls), who-guarded-who matchups, official 5-man lineups, official clutch, player tracking (speed, distance, drives, catch & shoot, pull-ups, touches, passing, rebounding chances, rim defense), official ORtg/DRtg/PIE, season shot zones", "NBA.com via nba_api — run sync/sync_nba.py on your own computer (NBA.com blocks cloud servers)"]] as [string, string, string][]) : []),
     ["Proxy", "Per-game play type from ESPN shot descriptions", "Used on game pages (Synergy data is season-level)"],
     ["Not public", "Possession-level defensive assignments for a single game, optical player coordinates", "Second Spectrum raw feeds (paid)"],
     ["Next", "Manual stat entry (touch / keyboard) for your own leagues, saved to a database", "Add a Postgres (e.g. Neon) league environment"],

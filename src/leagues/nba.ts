@@ -5,8 +5,11 @@ export const NBA: League = {
   id: "nba",
   name: "National Basketball Association",
   shortName: "NBA",
-  provider: { kind: "espn", sportPath: "nba" },
+  region: "USA",
+  provider: { kind: "espn", sportPath: "nba", seasonStats: "feed" },
+  features: { nbaComTracking: true },
   accent: "#f26b1d",
+  ladder: { direct: 6, playIn: 10, note: "Solid line: top-6 playoff seeds · dashed: play-in cutoff (7–10)." },
   rules: {
     periods: 4,
     periodMinutes: 12,

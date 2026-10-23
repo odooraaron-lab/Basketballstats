@@ -7,7 +7,31 @@ const BASELINE_Y = -5.25;
 const sx = (x: number) => x * 10;
 const sy = (y: number) => Math.min(465, Math.max(5, (y - BASELINE_Y) * 10));
 
-export function Court({ children, stroke = "#3a4350" }: { children?: React.ReactNode; stroke?: string }) {
+/** Three-point line in feet: arc radius and corner distance from the hoop. */
+export interface ThreePointGeo {
+  arc: number;
+  corner: number;
+}
+const NBA_THREE: ThreePointGeo = { arc: 23.75, corner: 22 };
+
+function threePath(g: ThreePointGeo) {
+  const r = g.arc * 10;
+  const hoopY = -BASELINE_Y * 10; // 52.5
+  const top = hoopY + Math.sqrt(Math.max(0, g.arc ** 2 - g.corner ** 2)) * 10;
+  const l = 250 - g.corner * 10;
+  const rt = 250 + g.corner * 10;
+  return `M${l} 0 L${l} ${top.toFixed(1)} A${r} ${r} 0 0 0 ${rt} ${top.toFixed(1)} L${rt} 0`;
+}
+
+export function Court({
+  children,
+  stroke = "#3a4350",
+  three = NBA_THREE,
+}: {
+  children?: React.ReactNode;
+  stroke?: string;
+  three?: ThreePointGeo;
+}) {
   return (
     <svg viewBox="0 0 500 470" className="h-auto w-full" role="img" aria-label="Half court shot chart">
       <rect x="0" y="0" width="500" height="470" fill="#13171c" />
@@ -25,7 +49,7 @@ export function Court({ children, stroke = "#3a4350" }: { children?: React.React
         <line x1="220" y1="40" x2="280" y2="40" strokeWidth="3" />
         <circle cx="250" cy="52.5" r="7.5" stroke="#f26b1d" />
         {/* three point line */}
-        <path d="M30 0 L30 140 A237.5 237.5 0 0 0 470 140 L470 0" />
+        <path d={threePath(three)} />
         {/* half court */}
         <path d="M190 470 A60 60 0 0 1 310 470" />
       </g>
@@ -52,6 +76,7 @@ export function ShotChart({
   initialTeam,
   initialPlayer,
   compact,
+  three,
 }: {
   shots: Shot[];
   teams: TeamOpt[];
@@ -59,6 +84,7 @@ export function ShotChart({
   initialTeam?: string;
   initialPlayer?: string;
   compact?: boolean;
+  three?: ThreePointGeo;
 }) {
   const [team, setTeam] = useState(initialTeam ?? "all");
   const [player, setPlayer] = useState(initialPlayer ?? "all");
@@ -143,7 +169,7 @@ export function ShotChart({
         </div>
       )}
       <div className="overflow-hidden rounded-lg border border-ink-800">
-        <Court>
+        <Court three={three}>
           {mode === "heat"
             ? cells.map((c) => {
                 const pct = c.a ? c.m / c.a : 0;

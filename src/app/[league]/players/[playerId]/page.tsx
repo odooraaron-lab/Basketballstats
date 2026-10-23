@@ -53,8 +53,9 @@ export default async function PlayerPage({
   if (!a) notFound();
 
   const folder = seasonFolder(sel.year, sel.type);
-  const nbaRow = findPlayer(await nbaRows(folder, "player_base"), a.name, a.team?.abbr);
-  const tracking = tab === "tracking" ? await playerTracking(folder, a.name, a.team?.abbr) : null;
+  const hasTracking = league.features.nbaComTracking;
+  const nbaRow = hasTracking ? findPlayer(await nbaRows(folder, "player_base"), a.name, a.team?.abbr) : null;
+  const tracking = hasTracking && tab === "tracking" ? await playerTracking(folder, a.name, a.team?.abbr) : null;
 
   const seasons = sel.type === 3 ? poSeasons : regSeasons;
   const thisSeasonRows = seasons.filter((s) => s.year === sel.year);
@@ -258,7 +259,7 @@ export default async function PlayerPage({
           { id: "log", label: "Game log" },
           { id: "shots", label: "Shot chart" },
           { id: "career", label: "Career" },
-          { id: "tracking", label: "Tracking" },
+          ...(hasTracking ? [{ id: "tracking", label: "Tracking" }] : []),
         ]}
       />
 
@@ -348,7 +349,7 @@ export default async function PlayerPage({
           {shots.length > 0 && (
             <div className="grid gap-5 lg:grid-cols-2">
               <Card title="Shot chart — last 5 games" right={<Link href={`${base}?tab=shots&season=${sel.year}`} className="hover:text-court">Last 10 →</Link>}>
-                <ShotChart shots={shots} teams={[{ id: shots[0].teamId ?? "", abbr: "", color: teamColor }]} players={[]} compact />
+                <ShotChart three={{ arc: league.rules.threePointFt, corner: league.rules.cornerThreeFt }} shots={shots} teams={[{ id: shots[0].teamId ?? "", abbr: "", color: teamColor }]} players={[]} compact />
               </Card>
               <ZonesCard zones={zones} sq={sq} />
             </div>
@@ -366,7 +367,7 @@ export default async function PlayerPage({
         <div className="grid gap-5 lg:grid-cols-[1.2fr_1fr]">
           <Card title="Shot chart — last 10 games">
             {shots.length ? (
-              <ShotChart shots={shots} teams={[{ id: shots[0].teamId ?? "", abbr: a.team?.abbr ?? "", color: teamColor }]} players={[]} />
+              <ShotChart three={{ arc: league.rules.threePointFt, corner: league.rules.cornerThreeFt }} shots={shots} teams={[{ id: shots[0].teamId ?? "", abbr: a.team?.abbr ?? "", color: teamColor }]} players={[]} />
             ) : (
               <Empty>No shot data for recent games.</Empty>
             )}
@@ -384,7 +385,7 @@ export default async function PlayerPage({
         </div>
       )}
 
-      {tab === "tracking" &&
+      {hasTracking && tab === "tracking" &&
         (tracking ? (
           <PlayerTrackingPanel t={tracking} league={league.id} season={sel.label} />
         ) : (

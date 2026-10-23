@@ -166,7 +166,9 @@ export async function compareRosters(league: League, g: GameSummary, currentYear
   const tmMin = teamMinutes(league.rules, league.rules.periods);
 
   const folder = seasonFolder(split === "prev" ? currentYear - 1 : currentYear, 2);
-  const [hustle, official] = await Promise.all([nbaRows(folder, "hustle_player"), nbaRows(folder, "player_advanced")]);
+  const [hustle, official] = league.features.nbaComTracking
+    ? await Promise.all([nbaRows(folder, "hustle_player"), nbaRows(folder, "player_advanced")])
+    : [[], []];
 
   const injuryByName = new Map<string, string>();
   for (const t of g.injuries) for (const i of t.items) injuryByName.set(i.name, [i.status, i.detail].filter(Boolean).join(" · "));

@@ -50,9 +50,22 @@ function textDistance(text: string): number | null {
   return m ? Number(m[1]) : null;
 }
 
-export function classifyZone(value: 2 | 3, x: number | null, y: number | null, dist: number | null): ShotZone {
+/** Where the straight corner-three segment ends, in hoop-relative feet (NBA ≈ 8.75, FIBA ≈ 4.7). */
+export function cornerThreeTop(rules?: Pick<RuleSet, "threePointFt" | "cornerThreeFt">): number {
+  if (!rules) return 14 + BASELINE_Y;
+  return Math.sqrt(Math.max(0, rules.threePointFt ** 2 - rules.cornerThreeFt ** 2));
+}
+
+export function classifyZone(
+  value: 2 | 3,
+  x: number | null,
+  y: number | null,
+  dist: number | null,
+  rules?: Pick<RuleSet, "threePointFt" | "cornerThreeFt">,
+): ShotZone {
   if (value === 3) {
-    if (x != null && y != null && y <= 14 + BASELINE_Y && Math.abs(x - HOOP.x) >= 21) return "Corner 3";
+    const cornerX = rules ? rules.cornerThreeFt - 1 : 21;
+    if (x != null && y != null && y <= cornerThreeTop(rules) && Math.abs(x - HOOP.x) >= cornerX) return "Corner 3";
     return "Above the Break 3";
   }
   const d = dist ?? (x != null && y != null ? Math.hypot(x - HOOP.x, y - HOOP.y) : null);
@@ -139,7 +152,7 @@ export function extractShots(plays: Play[], ctx: Ctx): Shot[] {
       x: p.x,
       y: p.y,
       dist,
-      zone: classifyZone(value, p.x, p.y, dist),
+      zone: classifyZone(value, p.x, p.y, dist, ctx.league.rules),
       shotType: p.type.replace(/\s*shot$/i, "").trim() || "Shot",
       category: shotCategory(p.type, assisted),
       blocked,

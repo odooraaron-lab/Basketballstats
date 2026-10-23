@@ -5,6 +5,8 @@ import type { League } from "@/leagues/types";
 import { getInjuries, getLeaders, getPlayerGameLog, getRoster, getStandings, seasonLabel } from "./espn";
 import type { GameCard, GameLogRow, LeaderRow } from "./model";
 import { getManifest, n, nbaAbbr, rows as nbaRows, seasonFolder } from "./nbacom";
+import { getSeasonBook } from "./boxSeason";
+import { allowedByTeam } from "./boxSeasonCore";
 import {
   SCAN_CATS,
   formOf,
@@ -164,7 +166,17 @@ const OPP_KEYS: Record<ScanCatKey, string[]> = {
 
 /** How much of each stat every team allows per game, from synced NBA.com data (or ESPN points only). */
 async function opponentAllowed(l: League, currentYear: number) {
-  const manifest = await getManifest();
+  if (l.provider.seasonStats === "boxscores") {
+    // Every stat allowed, straight from this league's box scores.
+    for (const y of [currentYear, currentYear - 1]) {
+      const book = await getSeasonBook(l, y, 2);
+      const gp = Math.max(0, ...[...book.teams.values()].map((t) => t.gp));
+      if (book.teams.size && (gp >= 4 || y !== currentYear)) {
+        return { table: allowedByTeam(book), label: `${l.shortName} box scores, ${seasonLabel(y)}${y === currentYear ? "" : " (current season too early)"}` };
+      }
+    }
+  }
+  const manifest = l.features.nbaComTracking ? await getManifest() : { seasons: {} as Record<string, unknown> };
   for (const y of [currentYear, currentYear - 1]) {
     const folder = seasonFolder(y, 2);
     if (!manifest.seasons[folder]) continue;
@@ -185,7 +197,12 @@ async function opponentAllowed(l: League, currentYear: number) {
   const st = await getStandings(l, currentYear);
   const table: Record<string, Partial<Record<ScanCatKey, number>>> = {};
   for (const s of st) if (s.oppg) table[nbaAbbr(s.team.abbr)] = { pts: s.oppg };
-  return { table, label: "ESPN points allowed only — sync NBA.com data for rebounds, assists, threes, steals, blocks" };
+  return {
+    table,
+    label: l.features.nbaComTracking
+      ? "ESPN points allowed only — sync NBA.com data for rebounds, assists, threes, steals, blocks"
+      : "ESPN points allowed only",
+  };
 }
 
 function rankAllowed(table: Record<string, Partial<Record<ScanCatKey, number>>>, abbr: string, cat: ScanCatKey) {

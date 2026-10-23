@@ -1,6 +1,6 @@
-# Courtside — private NBA stat tracker
+# Courtside — private NBA & NBL stat tracker
 
-A password-protected Next.js app that pulls live NBA data from ESPN's public JSON feeds and computes the advanced analytics itself.
+A password-protected Next.js app that pulls live NBA and NBL (Australia/New Zealand) data from ESPN's public JSON feeds and computes the advanced analytics itself. A league switch at the very top of every page flips between the two; the app remembers the last one you picked.
 
 ## What's in it
 
@@ -17,8 +17,11 @@ A password-protected Next.js app that pulls live NBA data from ESPN's public JSO
 | **Odds check** | Upload a screenshot of player props; names, lines and odds are read (Claude vision if `ANTHROPIC_API_KEY` is set, otherwise free on-device OCR), checked against each player's last 10 games and projection, and marked Strong / Lean / Pass with our chance vs the bookmaker's (margin removed) |
 | **Glossary** | Every formula, the league rule set, xPPS baselines and a data-coverage table |
 
+### NBL (NZ & AUS)
+`/nbl/...` is the same app — dashboard, games, teams, players, standings, scan & combinations, odds check, glossary — run on FIBA rules (4 × 10 min, foul-out on 5, 6.75 m three-point line drawn on the shot charts and used for corner-3 zones, pace per 40). ESPN publishes NBL box scores and play-by-play but **no season aggregates**, so team season stats, player averages, game logs, leaderboards and "stats allowed by team" are built in-app from every completed game's box score (`src/lib/boxSeason.ts`, `src/lib/boxSeasonCore.ts`). The first load of a season pulls each box score once; finished games are cached for a day. The ladder marks the top 2 (straight to the semis) and the play-in (3–6). NBA.com tracking (hustle, Synergy, matchups) is NBA-only, so the NBL has no Tracking section; ESPN doesn't publish NBL betting lines or headshots either.
+
 ### League environments
-Each league is an isolated environment (`src/leagues/`) with its own rules (game length, OT, shot clock, foul-out, bonus, clutch window), stat definitions and data provider. All routes are scoped by league (`/nba/...`), so IDs never mix across leagues. Every timing calculation goes through `src/lib/rules.ts`. To add a league, copy `src/leagues/nba.ts` and register it in `src/leagues/registry.ts`.
+Each league is an isolated environment (`src/leagues/`) with its own rules (game length, OT, shot clock, foul-out, bonus, clutch window), stat definitions and data provider. All routes are scoped by league (`/nba/...`), so IDs never mix across leagues. Every timing calculation goes through `src/lib/rules.ts`. To add a league, copy `src/leagues/nba.ts` (ESPN season feeds) or `src/leagues/nbl.ts` (season stats built from box scores) and register it in `src/leagues/registry.ts` — it appears in the league switch automatically.
 
 ### NBA.com tracking data (via [nba_api](https://github.com/swar/nba_api))
 The **Tracking** section and the **Tracking** tabs on player and team pages use official NBA.com data:

@@ -20,6 +20,12 @@ import type {
 } from "./model";
 import { localDayKey, shiftDay, todayKey } from "./format";
 import { emptyBox, num, parseMadeAtt, type BoxLine } from "./stats";
+import { leadersFrom, playerSeasonRowsFrom, teamSeasonFrom } from "./boxSeasonCore";
+
+/** Leagues whose season aggregates are built from box scores instead of ESPN's season feeds. */
+const fromBoxScores = (l: League) => l.provider.seasonStats === "boxscores";
+const seasonBook = async (l: League, year: number, seasonType: number) =>
+  (await import("./boxSeason")).getSeasonBook(l, year, seasonType);
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type J = any;
@@ -222,7 +228,8 @@ export async function getRoster(l: League, teamId: string): Promise<RosterPlayer
 
 export async function getStandings(l: League, season?: number): Promise<Standing[]> {
   const j = await getJson(`${SITE_V2(l)}/standings${qs({ season })}`, TTL.standings);
-  const groups: J[] = j?.children ?? [];
+  // Conference leagues (NBA) nest entries under children; single-table leagues (NBL) don't.
+  const groups: J[] = j?.children?.length ? j.children : j?.standings ? [{ abbreviation: "", standings: j.standings }] : [];
   const out: Standing[] = [];
   for (const g of groups) {
     const conf = g.abbreviation ?? g.name ?? "";
@@ -329,6 +336,7 @@ export async function getTeamSeason(
   season: number,
   seasonType = 2,
 ): Promise<TeamSeason | null> {
+  if (fromBoxScores(l)) return teamSeasonFrom(await seasonBook(l, season, seasonType), teamId);
   const j = await getJson(
     `${SITE(l)}/teams/${teamId}/statistics${qs({ season, seasontype: seasonType })}`,
     TTL.teamStats,
@@ -528,8 +536,8 @@ function toPlay(p: J): Play {
   };
 }
 
-export async function getGameSummary(l: League, gameId: string): Promise<GameSummary | null> {
-  const j = await getJson(`${SITE(l)}/summary${qs({ event: gameId })}`, TTL.live);
+export async function getGameSummary(l: League, gameId: string, revalidate: number = TTL.live): Promise<GameSummary | null> {
+  const j = await getJson(`${SITE(l)}/summary${qs({ event: gameId })}`, revalidate);
   if (!j?.header) return null;
   const comp = j.header.competitions?.[0] ?? {};
   const card = toGameCard({ ...comp, id: gameId, date: comp.date, season: j.header.season }, l);
@@ -661,6 +669,12 @@ function rowFromLabels(labels: string[], stats: (string | number)[]) {
 
 /** Season-by-season per-game averages (regular season by default). */
 export async function getPlayerSeasons(l: League, id: string, seasonType = 2): Promise<PlayerSeasonRow[]> {
+  if (fromBoxScores(l)) {
+    // Built from box scores: this season and last (oldest first, like ESPN's career table).
+    const { year } = await getCurrentSeason(l);
+    const books = await Promise.all([year - 1, year].map((y) => seasonBook(l, y, seasonType)));
+    return books.flatMap((b) => playerSeasonRowsFrom(b, id));
+  }
   const j = await getJson(`${WEB(l)}/athletes/${id}/stats${qs({ seasontype: seasonType })}`, TTL.player);
   const cat = (j?.categories ?? []).find((c: J) => c.name === "averages");
   if (!cat) return [];
@@ -683,6 +697,13 @@ export async function getPlayerSeasons(l: League, id: string, seasonType = 2): P
 }
 
 export async function getPlayerGameLog(l: League, id: string, season?: number): Promise<GameLogRow[]> {
+  if (fromBoxScores(l)) {
+    const year = season ?? (await getCurrentSeason(l)).year;
+    const books = await Promise.all([2, 3].map((t) => seasonBook(l, year, t)));
+    return books
+      .flatMap((b) => b.players.get(id)?.log ?? [])
+      .sort((a, b) => (a.date < b.date ? 1 : -1));
+  }
   const j = await getJson(`${WEB(l)}/athletes/${id}/gamelog${qs({ season })}`, TTL.player);
   if (!j) return [];
   const labels: string[] = j.labels ?? [];
@@ -756,6 +777,10 @@ export async function getLeaders(
   opts: { season: number; seasonType?: number; sortKey?: string; limit?: number; page?: number; qualified?: boolean },
 ): Promise<{ rows: LeaderRow[]; pages: number; count: number }> {
   const sort = LEADER_SORTS[opts.sortKey ?? "pts"]?.sort ?? LEADER_SORTS.pts.sort;
+  if (fromBoxScores(l)) {
+    const book = await seasonBook(l, opts.season, opts.seasonType ?? 2);
+    return leadersFrom(book, { sort, qualified: opts.qualified, limit: opts.limit, page: opts.page });
+  }
   const j = await getJson(
     `${WEB(l)}/statistics/byathlete${qs({
       region: "us",

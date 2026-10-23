@@ -58,7 +58,8 @@ export default async function TeamPage({
   ]);
   if (!info) notFound();
   const { team } = info;
-  const tracking = tab === "tracking" ? await teamTracking(seasonFolder(sel.year, sel.type), team.abbr) : null;
+  const hasTracking = league.features.nbaComTracking;
+  const tracking = hasTracking && tab === "tracking" ? await teamTracking(seasonFolder(sel.year, sel.type), team.abbr) : null;
   const row = table.rows.find((r) => r.team.id === teamId) ?? null;
   const rowMap = new Map(table.rows.map((r) => [r.team.id, r]));
   const color = hex(team.color);
@@ -238,7 +239,7 @@ export default async function TeamPage({
           { id: "advanced", label: "Advanced" },
           { id: "schedule", label: "Schedule & results" },
           { id: "roster", label: "Roster" },
-          { id: "tracking", label: "Tracking" },
+          ...(hasTracking ? [{ id: "tracking", label: "Tracking" }] : []),
         ]}
       />
 
@@ -511,7 +512,7 @@ export default async function TeamPage({
         </div>
       )}
 
-      {tab === "tracking" &&
+      {hasTracking && tab === "tracking" &&
         (tracking ? (
           <TeamTrackingPanel t={tracking} league={league.id} />
         ) : (
