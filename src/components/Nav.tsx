@@ -16,7 +16,7 @@ export function Nav({ league, accent, shortName }: { league: string; accent: str
   ];
   return (
     <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950/90 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-2.5">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2.5">
         <Link href={`/${league}`} className="display flex items-center gap-2 text-xl font-extrabold">
           Court<span className="text-court">side</span>
           <span
@@ -27,7 +27,7 @@ export function Nav({ league, accent, shortName }: { league: string; accent: str
             {shortName}
           </span>
         </Link>
-        <nav className="-mx-1 flex flex-1 gap-1 overflow-x-auto">
+        <nav className="order-3 -mx-1 flex w-full gap-1 overflow-x-auto md:order-none md:w-auto md:flex-1">
           {items.map((i) => {
             const active = i.exact ? path === i.href : path.startsWith(i.href);
             return (
@@ -37,7 +37,7 @@ export function Nav({ league, accent, shortName }: { league: string; accent: str
             );
           })}
         </nav>
-        <form action="/api/logout" method="post">
+        <form action="/api/logout" method="post" className="ml-auto md:ml-0">
           <button className="text-xs text-ink-500 hover:text-ink-200" type="submit">
             Log out
           </button>

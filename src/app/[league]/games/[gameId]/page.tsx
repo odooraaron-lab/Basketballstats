@@ -833,8 +833,8 @@ export default async function GamePage({
     const scanHref = (s?: "game" | "day") => `${base}?tab=players&split=${split}${s ? `&scan=${s}` : ""}${s ? "#scan-report" : ""}`;
     return (
       <div className="space-y-3">
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-court/30 bg-court/5 px-4 py-3">
-          <div className="min-w-0 flex-1">
+        <div className="flex flex-col gap-3 rounded-xl border border-court/30 bg-court/5 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center">
+          <div className="min-w-0 sm:flex-1">
             <div className="display text-base font-bold">Scan for stats</div>
             <div className="text-xs text-ink-400">
               Checks every rotation player for high averages, hot streaks, consistent lines and soft matchups, then writes up a report.

@@ -444,7 +444,7 @@ export async function runScan(
   const first = games[0];
   return {
     scope,
-    title: scope === "game" && first ? `${first.away.team.shortName} @ ${first.home.team.shortName}` : `${games.length} games`,
+    title: scope === "game" && first ? `${first.away.team.shortName} @ ${first.home.team.shortName}` : `${games.length} game${games.length === 1 ? "" : "s"}`,
     generatedAt: new Date().toISOString(),
     games: games.map((g) => ({ id: g.id, label: `${g.away.team.abbr} @ ${g.home.team.abbr}`, date: g.date })),
     scanned,

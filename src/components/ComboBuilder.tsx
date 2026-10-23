@@ -139,8 +139,8 @@ export function ComboBuilder({ report }: { report: ScanReport }) {
   if (!game) return null;
   return (
     <section id="combo-builder" className="card scroll-mt-20 overflow-hidden border-court/40">
-      <div className="flex flex-wrap items-center gap-3 border-b border-ink-800 bg-court/10 px-4 py-3">
-        <div className="min-w-0 flex-1">
+      <div className="flex flex-col gap-3 border-b border-ink-800 bg-court/10 px-4 py-3 sm:flex-row sm:items-center">
+        <div className="min-w-0 sm:flex-1">
           <div className="display text-xl font-extrabold">
             Combinations <span className="text-court">· most likely outcomes</span>
           </div>
@@ -165,7 +165,7 @@ export function ComboBuilder({ report }: { report: ScanReport }) {
           Simulating {N.toLocaleString()} games…
         </div>
       ) : (
-        <div className="space-y-6 p-4">
+        <div className="space-y-6 p-3 sm:p-4">
           {outcome && <Outcome o={outcome} g={game} />}
 
           <div className="space-y-2">
@@ -413,7 +413,7 @@ function Outcome({ o, g }: { o: OutcomeData; g: GameModel }) {
       <h3 className="display mb-2 text-base font-bold text-ink-200">Most likely game outcome</h3>
       <div className="grid gap-3 lg:grid-cols-[1.3fr_1fr_1fr]">
         <div className="rounded-lg border border-ink-800 p-3">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-2">
             {g.teams.map((t, i) => (
               <div key={t.id} className={`flex items-center gap-2 ${i === 1 ? "flex-row-reverse text-right" : ""}`}>
                 <TeamLogo src={t.logo} alt={t.abbr} size={36} />
@@ -495,7 +495,7 @@ function ComboRow({
           );
         })}
       </div>
-      <div className="flex items-center gap-4 text-right">
+      <div className="flex w-full items-center justify-end gap-4 text-right sm:w-auto">
         <div>
           <div className="num text-lg font-bold text-court">{pct(c.p)}</div>
           <div className="text-[10px] text-ink-500">all hit</div>

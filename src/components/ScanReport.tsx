@@ -151,8 +151,8 @@ export function ScanReportView({ report: r, league, closeHref, scopeLinks }: { r
 
   return (
     <section id="scan-report" className="card scroll-mt-20 overflow-hidden border-court/40">
-      <div className="flex flex-wrap items-center gap-3 border-b border-ink-800 bg-court/10 px-4 py-3">
-        <div className="min-w-0 flex-1">
+      <div className="flex flex-col gap-3 border-b border-ink-800 bg-court/10 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="min-w-0 sm:flex-1">
           <div className="display text-xl font-extrabold">
             Stat scan <span className="text-court">· {r.title}</span>
           </div>
@@ -183,7 +183,7 @@ export function ScanReportView({ report: r, league, closeHref, scopeLinks }: { r
         </div>
       </div>
 
-      <div className="space-y-6 p-4">
+      <div className="space-y-6 p-3 sm:p-4">
         <div>
           <h3 className="display mb-2 text-base font-bold text-ink-200">Top signals</h3>
           {r.top.length ? (
