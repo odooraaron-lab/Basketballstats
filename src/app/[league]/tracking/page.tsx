@@ -394,7 +394,9 @@ export default async function TrackingPage({ params, searchParams }: { params: P
     let recs: Rec[] = (grp.base ?? []).map((b) => ({ ...b, ...(adv.get(String(b.GROUP_ID)) ?? {}), PLUS_MINUS: b.PLUS_MINUS, PTS: b.PTS }));
     const teamsList = [...new Set(recs.map((r) => String(r.TEAM_ABBREVIATION)))].sort();
     if (sp.team) recs = recs.filter((r) => r.TEAM_ABBREVIATION === nbaAbbr(sp.team!) || r.TEAM_ABBREVIATION === sp.team);
-    const minMin = sp.all === "1" ? 10 : 50;
+    // Early in a season few lineups reach 50 minutes, so fall back to the 10-minute floor.
+    const enough = recs.filter((r) => (n(r.MIN) ?? 0) >= 50).length >= 15;
+    const minMin = sp.all === "1" || !enough ? 10 : 50;
     recs = recs.filter((r) => (n(r.MIN) ?? 0) >= minMin);
     const keys = ["MIN", "PTS", "PLUS_MINUS", "OFF_RATING", "DEF_RATING", "NET_RATING", "PACE", "TS_PCT", "EFG_PCT", "AST_PCT", "OREB_PCT", "DREB_PCT", "TM_TOV_PCT", "PIE"].filter((k) => recs.some((r) => k in r));
     const rws: Row[] = recs.map((r) => ({
@@ -414,11 +416,13 @@ export default async function TrackingPage({ params, searchParams }: { params: P
             </Link>
           ))}
           <span className="mx-1 h-4 w-px self-center bg-ink-700" />
-          <Link href={href({ all: sp.all === "1" ? undefined : "1" })} className={chip(sp.all === "1")}>
-            {sp.all === "1" ? "10+ min" : "50+ min"}
-          </Link>
+          {enough && (
+            <Link href={href({ all: sp.all === "1" ? undefined : "1" })} className={chip(sp.all === "1")}>
+              {sp.all === "1" ? "10+ min" : "50+ min"}
+            </Link>
+          )}
         </div>
-        <Card pad={false} title={`${recs.length} five-man lineups`} right="Official NBA.com lineup data · season totals">
+        <Card pad={false} title={`${recs.length} five-man lineups`} right={`Official NBA.com lineup data · season totals · ${minMin}+ minutes together`}>
           <SortableTable
             leadLabel="Lineup"
             searchable
