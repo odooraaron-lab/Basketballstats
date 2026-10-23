@@ -70,6 +70,11 @@ export default async function Dashboard({ params }: { params: Promise<{ league: 
                 Scan today&apos;s games
               </Link>
             )}
+            {today.length > 1 && (
+              <Link href={`/${league.id}/scan?mm=slate#combo-builder`} className="display rounded-md border border-court px-2.5 py-1 text-xs font-bold text-court hover:bg-court/10">
+                Massive multi
+              </Link>
+            )}
           </span>
         }
       >

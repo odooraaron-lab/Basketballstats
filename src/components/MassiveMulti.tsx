@@ -115,25 +115,46 @@ const legScore = (l: LongLeg) => {
   return 0.6 * l.p + 0.4 * histRate;
 };
 
-function greedyMulti(legs: LongLeg[], target: number, maxLegs = 10): LongLeg[] {
+function greedyMulti(legs: LongLeg[], target: number, maxLegs = 10, maxPerGame = Infinity): LongLeg[] {
   const sorted = [...legs].sort((a, b) => legScore(b) - legScore(a));
   const chosen: LongLeg[] = [];
   const usedPlayers = new Set<string>();
+  const perGame = new Map<string, number>();
   for (const l of sorted) {
-    if (usedPlayers.has(l.player.id)) continue; // one longshot per player keeps legs independent-ish and spread out
+    if (usedPlayers.has(l.player.id)) continue;
+    if ((perGame.get(l.gameId) ?? 0) >= maxPerGame) continue; // one longshot per player keeps legs independent-ish and spread out
     const next = [...chosen, l];
     const p = jointP(next);
     if (p <= 0) continue;
     chosen.push(l);
     usedPlayers.add(l.player.id);
+    perGame.set(l.gameId, (perGame.get(l.gameId) ?? 0) + 1);
     if (1 / p >= target || chosen.length >= maxLegs) break;
   }
   return chosen;
 }
 
-export function MassiveMulti({ report, gameId, currentSim }: { report: ScanReport; gameId: string; currentSim: SimResult | null }) {
+export function MassiveMulti({
+  report,
+  gameId,
+  currentSim,
+  initialScope = "game",
+}: {
+  report: ScanReport;
+  gameId: string;
+  currentSim: SimResult | null;
+  initialScope?: "game" | "slate";
+}) {
   const games = report.gameModels;
-  const [scope, setScope] = useState<"game" | "slate">("game");
+  const [scope, setScope] = useState<"game" | "slate">(games.length > 1 ? initialScope : "game");
+  const multiGameHref = () => {
+    const u = new URL(window.location.href);
+    u.searchParams.set("scan", "day");
+    u.searchParams.set("mm", "slate");
+    if (!u.searchParams.get("tab") && u.pathname.includes("/games/")) u.searchParams.set("tab", "players");
+    u.hash = "combo-builder";
+    return u.toString();
+  };
   const [target, setTarget] = useState(250);
   const [custom, setCustom] = useState<string[]>([]);
   const [sims, setSims] = useState<Map<string, SimResult>>(new Map());
@@ -176,13 +197,16 @@ export function MassiveMulti({ report, gameId, currentSim }: { report: ScanRepor
 
   const variants = useMemo(() => {
     if (!legs.length) return [];
+    const slate = scope === "slate";
+    const maxLegs = slate ? 12 : 10;
+    const perGame = slate ? 2 : Infinity; // spread a multi-game multi across the slate
     const v = [
-      { name: "Best longshots", note: "Most realistic spikes from anyone", legs: greedyMulti(legs, target) },
-      { name: "Bench boosts", note: "Low scorers having a big night", legs: greedyMulti(legs.filter((l) => l.kind === "bench" || (l.stat !== "pts" && l.avg < 4)), target) },
-      { name: "Boards & dimes", note: "Rebound and assist spikes only", legs: greedyMulti(legs.filter((l) => l.stat === "reb" || l.stat === "ast"), target) },
+      { name: slate ? "Best across the slate" : "Best longshots", note: slate ? "Top realistic spikes, max 2 per game" : "Most realistic spikes from anyone", legs: greedyMulti(legs, target, maxLegs, perGame) },
+      { name: "Bench boosts", note: "Low scorers having a big night", legs: greedyMulti(legs.filter((l) => l.kind === "bench" || (l.stat !== "pts" && l.avg < 4)), target, maxLegs, perGame) },
+      { name: "Boards & dimes", note: "Rebound and assist spikes only", legs: greedyMulti(legs.filter((l) => l.stat === "reb" || l.stat === "ast"), target, maxLegs, perGame) },
     ];
     return v.filter((x) => x.legs.length >= 2);
-  }, [legs, target]);
+  }, [legs, target, scope]);
 
   const legById = useMemo(() => new Map(legs.map((l) => [l.id, l])), [legs]);
   const customLegs = custom.map((id) => legById.get(id)).filter((l): l is LongLeg => Boolean(l));
@@ -217,6 +241,14 @@ export function MassiveMulti({ report, gameId, currentSim }: { report: ScanRepor
             ${t.toLocaleString()}+
           </button>
         ))}
+        {games.length === 1 && (
+          <>
+            <span className="mx-1 h-4 w-px bg-ink-700" />
+            <a href="#" onClick={(e) => { e.preventDefault(); window.location.href = multiGameHref(); }} className="chip !border-court/60 !text-court hover:!bg-court/10">
+              Multi-game: build across every game this day →
+            </a>
+          </>
+        )}
         {games.length > 1 && (
           <>
             <span className="mx-1 h-4 w-px bg-ink-700" />
@@ -360,7 +392,7 @@ function LegRow({ l, color, onRemove }: { l: LongLeg; color: string; onRemove?: 
       <span className="min-w-0 flex-1 truncate">
         {l.player.name} <span className="font-semibold text-ink-100">{l.line}+ {LABEL[l.stat]}</span>
         <span className="block text-[10px] text-ink-500">
-          usually {l.avg.toFixed(1)} · hit {l.hits}/{l.n} last 10
+          {l.player.gameLabel} · usually {l.avg.toFixed(1)} · hit {l.hits}/{l.n} last 10
         </span>
       </span>
       <span className="num text-[11px] text-court-soft">{odds(l.p)}</span>

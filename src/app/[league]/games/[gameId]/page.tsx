@@ -63,7 +63,7 @@ export default async function GamePage({
   searchParams,
 }: {
   params: Promise<{ league: string; gameId: string }>;
-  searchParams: Promise<{ tab?: string; clutch?: string; period?: string; view?: string; split?: string; scan?: string }>;
+  searchParams: Promise<{ tab?: string; clutch?: string; period?: string; view?: string; split?: string; scan?: string; mm?: string }>;
 }) {
   const { league: lid, gameId } = await params;
   const sp = await searchParams;
@@ -886,6 +886,7 @@ export default async function GamePage({
         report={report}
         league={league.id}
         closeHref={closeHref}
+        autoMulti={scope === "day" && sp.mm === "slate"}
         scopeLinks={[
           { label: "This game", href: `${base}?tab=players&split=${split}&scan=game#scan-report`, active: scope === "game" },
           { label: "All games this day", href: `${base}?tab=players&split=${split}&scan=day#scan-report`, active: scope === "day" },

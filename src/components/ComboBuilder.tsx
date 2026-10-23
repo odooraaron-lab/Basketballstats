@@ -29,7 +29,7 @@ interface UILeg extends Leg {
   kind: "player" | "game";
 }
 
-export function ComboBuilder({ report }: { report: ScanReport }) {
+export function ComboBuilder({ report, autoMulti = false }: { report: ScanReport; autoMulti?: boolean }) {
   const games = report.gameModels;
   const [gameId, setGameId] = useState(games[0]?.id ?? "");
   const [stats, setStats] = useState<Set<StatKey>>(new Set(["pts", "ast", "blk"]));
@@ -38,7 +38,7 @@ export function ComboBuilder({ report }: { report: ScanReport }) {
   const [gameLegs, setGameLegs] = useState(true);
   const [standoutOnly, setStandoutOnly] = useState(true);
   const [mine, setMine] = useState<string[]>([]);
-  const [showMulti, setShowMulti] = useState(false);
+  const [showMulti, setShowMulti] = useState(autoMulti);
   const [simState, setSimState] = useState<{ gameId: string; result: SimResult } | null>(null);
 
   const game = games.find((g) => g.id === gameId) ?? games[0];
@@ -173,7 +173,7 @@ export function ComboBuilder({ report }: { report: ScanReport }) {
           {outcome && <Outcome o={outcome} g={game} />}
 
           {showMulti ? (
-            <MassiveMulti report={report} gameId={game.id} currentSim={sim} />
+            <MassiveMulti report={report} gameId={game.id} currentSim={sim} initialScope={autoMulti ? "slate" : "game"} />
           ) : (
             <div className="flex flex-col gap-2 rounded-lg border border-court/30 bg-court/5 px-3 py-2.5 sm:flex-row sm:items-center">
               <div className="min-w-0 flex-1 text-sm">

@@ -132,9 +132,21 @@ function TopCard({ p, s, rank, league }: { p: ScanPlayer; s: ScanSignal; rank: n
   );
 }
 
-export function ScanReportView({ report: r, league, closeHref, scopeLinks }: { report: Report; league: string; closeHref?: string; scopeLinks?: { label: string; href: string; active: boolean }[] }) {
+export function ScanReportView({
+  report: r,
+  league,
+  closeHref,
+  scopeLinks,
+  autoMulti = false,
+}: {
+  report: Report;
+  league: string;
+  closeHref?: string;
+  scopeLinks?: { label: string; href: string; active: boolean }[];
+  autoMulti?: boolean;
+}) {
   const [copied, setCopied] = useState(false);
-  const [combos, setCombos] = useState(false);
+  const [combos, setCombos] = useState(autoMulti);
   const openCombos = () => {
     setCombos(true);
     setTimeout(() => document.getElementById("combo-builder")?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
@@ -210,7 +222,7 @@ export function ScanReportView({ report: r, league, closeHref, scopeLinks }: { r
 
         {combos && (
           <div className="no-print">
-            <ComboBuilder report={r} />
+            <ComboBuilder report={r} autoMulti={autoMulti} />
           </div>
         )}
 

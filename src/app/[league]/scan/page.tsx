@@ -17,10 +17,10 @@ export default async function ScanPage({
   searchParams,
 }: {
   params: Promise<{ league: string }>;
-  searchParams: Promise<{ date?: string }>;
+  searchParams: Promise<{ date?: string; mm?: string }>;
 }) {
   const { league: id } = await params;
-  const { date: q } = await searchParams;
+  const { date: q, mm } = await searchParams;
   const league = getLeague(id);
   const date = q && /^\d{8}$/.test(q) ? q : todayKey();
   const games = await getGamesForLocalDay(league, date);
@@ -52,6 +52,6 @@ export default async function ScanPage({
   async function Report({ leagueId, games }: { leagueId: string; games: Awaited<ReturnType<typeof getGamesForLocalDay>> }) {
     const cur = await resolveSeason(league, undefined);
     const report = await runScan(league, games, cur.year, "day");
-    return <ScanReportView report={report} league={leagueId} />;
+    return <ScanReportView report={report} league={leagueId} autoMulti={mm === "slate"} />;
   }
 }
