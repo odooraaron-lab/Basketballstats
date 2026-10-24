@@ -1,5 +1,6 @@
 import { LeagueSwitch } from "@/components/LeagueSwitch";
 import { Nav } from "@/components/Nav";
+import { BetSlip } from "@/components/BetSlip";
 import { LEAGUE_LIST, getLeague } from "@/leagues/registry";
 
 export default async function LeagueLayout({
@@ -24,6 +25,7 @@ export default async function LeagueLayout({
       <LeagueSwitch current={league.id} leagues={options} />
       <Nav league={league.id} accent={league.accent} shortName={league.shortName} tracking={league.features.nbaComTracking} />
       <main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
+      <BetSlip />
       <footer className="mx-auto max-w-7xl px-4 pb-8 pt-4 text-xs text-ink-600">
         Data: ESPN public feeds, refreshed automatically.{" "}
         {league.provider.seasonStats === "boxscores"

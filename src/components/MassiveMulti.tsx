@@ -1,5 +1,6 @@
 "use client";
 
+import { AddToSlip, type NewLeg } from "./BetSlip";
 import { useEffect, useMemo, useState } from "react";
 import { hex } from "@/lib/format";
 import type { GameModel, ScanPlayer, ScanReport } from "@/lib/scan";
@@ -292,9 +293,12 @@ export function MassiveMulti({
                     ))}
                   </ul>
                   {1 / p < target && <p className="mt-1 text-[10px] text-ink-500">Ran out of realistic legs before ${target}.</p>}
-                  <button onClick={() => setCustom(v.legs.map((l) => l.id))} className="chip mt-2 self-start text-[11px] hover:text-ink-100">
-                    Edit this multi
-                  </button>
+                  <div className="mt-2 flex items-center justify-between gap-2">
+                    <button onClick={() => setCustom(v.legs.map((l) => l.id))} className="chip text-[11px] hover:text-ink-100">
+                      Edit this multi
+                    </button>
+                    <AddToSlip legs={toSlip(v.legs)} label="+ Add all to multi" />
+                  </div>
                 </div>
               );
             })}
@@ -384,6 +388,9 @@ export function MassiveMulti({
   );
 }
 
+const toSlip = (legs: LongLeg[]): NewLeg[] =>
+  legs.map((l) => ({ id: `${l.gameId}:${l.player.id}:${l.stat}:${l.line}`, gameId: l.gameId, game: l.player.gameLabel, label: `${l.player.name} ${l.line}+ ${LABEL[l.stat]}`, p: l.p, headshot: l.player.headshot }));
+
 function LegRow({ l, color, onRemove }: { l: LongLeg; color: string; onRemove?: () => void }) {
   return (
     <li className="flex items-center gap-2 rounded-md bg-ink-900 px-2 py-1 text-[12px]">
@@ -396,6 +403,7 @@ function LegRow({ l, color, onRemove }: { l: LongLeg; color: string; onRemove?: 
         </span>
       </span>
       <span className="num text-[11px] text-court-soft">{odds(l.p)}</span>
+      <AddToSlip legs={toSlip([l])} label="+" />
       {onRemove && (
         <button onClick={onRemove} className="text-ink-500 hover:text-loss" aria-label="Remove">
           ✕

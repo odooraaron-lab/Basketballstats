@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { hex } from "@/lib/format";
 import type { GameModel, ScanPlayer, ScanReport } from "@/lib/scan";
 import { SCAN_CATS } from "@/lib/scanCore";
+import { AddToSlip, type NewLeg } from "./BetSlip";
 import { bestCombos, bitsWhere, popcount, quantile, share, simulate, type Bits, type Combo, type Leg, type SimResult } from "@/lib/sim";
 import { Headshot, TeamLogo } from "./Img";
 import { MassiveMulti } from "./MassiveMulti";
@@ -226,7 +227,7 @@ export function ComboBuilder({ report, autoMulti = false }: { report: ScanReport
             {combos.length ? (
               <div className="overflow-hidden rounded-lg border border-ink-800">
                 {combos.map((c, i) => (
-                  <ComboRow key={i} c={c as UICombo} rank={i + 1} players={playerById} onAdd={(legs) => setMine(legs.map((l) => l.id))} />
+                  <ComboRow key={i} c={c as UICombo} rank={i + 1} players={playerById} onAdd={(legs) => setMine(legs.map((l) => l.id))} game={game.label} gameId={game.id} />
                 ))}
               </div>
             ) : (
@@ -336,9 +337,12 @@ export function ComboBuilder({ report, autoMulti = false }: { report: ScanReport
                         </div>
                       </div>
                     )}
-                    <button onClick={() => setMine([])} className="mt-2 text-xs text-ink-500 hover:text-ink-200">
-                      Clear
-                    </button>
+                    <div className="mt-2 flex items-center justify-between">
+                      <button onClick={() => setMine([])} className="text-xs text-ink-500 hover:text-ink-200">
+                        Clear
+                      </button>
+                      <AddToSlip legs={toSlip(mineLegs, game.label, game.id, playerById)} label="+ Add all to multi" />
+                    </div>
                   </>
                 ) : (
                   <p className="text-sm text-ink-500">Click line chips in the table (or a result/total above) to build a combination and see how often it all comes in.</p>
@@ -485,16 +489,27 @@ function Outcome({ o, g }: { o: OutcomeData; g: GameModel }) {
   );
 }
 
+function toSlip(legs: UILeg[], game: string, gameId: string, players: Map<string, ScanPlayer>): NewLeg[] {
+  return legs.map((l) => {
+    const p = l.playerId ? players.get(l.playerId) : null;
+    return { id: `${gameId}:${l.id}`, gameId, game, label: p ? `${p.name} ${l.line}+ ${STAT_LABEL[l.stat!]}` : l.label, p: l.p, headshot: p?.headshot };
+  });
+}
+
 function ComboRow({
   c,
   rank,
   players,
   onAdd,
+  game,
+  gameId,
 }: {
   c: UICombo;
   rank: number;
   players: Map<string, ScanPlayer>;
   onAdd: (legs: UILeg[]) => void;
+  game: string;
+  gameId: string;
 }) {
   const lift = c.pIndependent > 0 ? c.p / c.pIndependent : 1;
   return (
@@ -530,6 +545,7 @@ function ComboRow({
         <button onClick={() => onAdd(c.legs)} className="chip text-[11px] hover:text-ink-100" title="Load into 'Your combination' to tweak">
           Edit
         </button>
+        <AddToSlip legs={toSlip(c.legs, game, gameId, players)} />
       </div>
     </div>
   );
