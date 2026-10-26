@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { SWITCH_COMPS } from "@/sports/comps";
 
 export interface LeagueOption {
   id: string;
@@ -26,8 +27,16 @@ function targetPath(path: string, from: string, to: LeagueOption): string {
   return `/${to.id}/${parts.slice(1).join("/")}`;
 }
 
-export function LeagueSwitch({ current, leagues }: { current: string; leagues: LeagueOption[] }) {
+// Non-basketball sections: cricket and the field-sport competitions.
+const OTHER: { id: string; href: string; label: string; region: string; accent: string; title: string }[] = [
+  ...SWITCH_COMPS.map((c) => ({ id: c.id, href: `/sport/${c.id}`, label: c.short, region: c.region, accent: c.accent, title: c.name })),
+  { id: "cricket", href: "/cricket", label: "Cricket", region: "World", accent: "#2fb36d", title: "Cricket — every match in the world" },
+  { id: "super-smash", href: "/cricket/super-smash", label: "Super Smash", region: "NZ T20", accent: "#f2c400", title: "Super Smash — NZ men's T20" },
+];
+
+export function LeagueSwitch({ current: given, leagues }: { current: string; leagues: LeagueOption[] }) {
   const path = usePathname();
+  const current = path.startsWith("/cricket/super-smash") ? "super-smash" : given;
   const remember = (id: string) => {
     try {
       document.cookie = `league=${id}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
@@ -50,7 +59,7 @@ export function LeagueSwitch({ current, leagues }: { current: string; leagues: L
                 role="tab"
                 aria-selected={active}
                 title={l.name}
-                className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-sm transition-colors ${
+                className={`flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1 text-sm transition-colors ${
                   active ? "bg-ink-800 text-ink-100" : "text-ink-400 hover:text-ink-100"
                 }`}
               >
@@ -61,20 +70,24 @@ export function LeagueSwitch({ current, leagues }: { current: string; leagues: L
             );
           })}
           <span className="mx-0.5 w-px self-stretch bg-ink-800" />
-          <Link
-            href="/cricket"
-            onClick={() => remember("cricket")}
-            role="tab"
-            aria-selected={current === "cricket"}
-            title="Cricket — every match in the world"
-            className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-sm transition-colors ${
-              current === "cricket" ? "bg-ink-800 text-ink-100" : "text-ink-400 hover:text-ink-100"
-            }`}
-          >
-            <span className="h-2 w-2 rounded-full" style={{ background: "#2fb36d", opacity: current === "cricket" ? 1 : 0.5 }} />
-            <span className="display font-bold">Cricket</span>
-            <span className="text-xs text-ink-500">World</span>
-          </Link>
+          {OTHER.map((o) => {
+            const active = current === o.id;
+            return (
+              <Link
+                key={o.id}
+                href={o.href}
+                onClick={() => remember(o.id)}
+                role="tab"
+                aria-selected={active}
+                title={o.title}
+                className={`flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1 text-sm transition-colors ${active ? "bg-ink-800 text-ink-100" : "text-ink-400 hover:text-ink-100"}`}
+              >
+                <span className="h-2 w-2 rounded-full" style={{ background: o.accent, opacity: active ? 1 : 0.5 }} />
+                <span className="display whitespace-nowrap font-bold">{o.label}</span>
+                <span className="whitespace-nowrap text-xs text-ink-500">{o.region}</span>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>

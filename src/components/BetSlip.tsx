@@ -10,7 +10,8 @@ const money = (v: number) => `$${v >= 1000 ? Math.round(v).toLocaleString() : v.
 export type NewLeg = Omit<SlipLeg, "addedAt" | "league">;
 export function AddToSlip({ legs: raw, label, className = "" }: { legs: NewLeg[]; label?: string; className?: string }) {
   const cur = useSlip();
-  const league = usePathname().split("/")[1] ?? "";
+  const parts = usePathname().split("/");
+  const league = (parts[1] === "sport" ? parts[2] : parts[1]) ?? "";
   const legs = raw.map((l) => ({ ...l, id: `${league}:${l.id}`, league }));
   const inAll = legs.length > 0 && legs.every((l) => cur.some((c) => c.id === l.id));
   return (

@@ -17,6 +17,7 @@ export default function CricketLayout({ children }: { children: React.ReactNode 
           </Link>
           <nav className="flex flex-1 gap-1 overflow-x-auto">
             <Link href="/cricket" className="tab">Matches</Link>
+            <Link href="/cricket/super-smash" className="tab">Super Smash</Link>
           </nav>
           <form action="/api/logout" method="post">
             <button className="text-xs text-ink-500 hover:text-ink-200" type="submit">Log out</button>

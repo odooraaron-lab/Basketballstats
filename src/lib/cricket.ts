@@ -517,3 +517,30 @@ export async function getPreview(m: Match, days = 28): Promise<Preview> {
   }
   return { teams, h2h, venue: { matches: atVenue, avgFirst: vFirsts.length ? vFirsts.reduce((s, v) => s + v, 0) / vFirsts.length : null, chaseWins, defendWins }, daysScanned: days };
 }
+
+// ---------------------------------------------------------------------------- one competition, whole season
+
+/** Every match between two NZ days (inclusive) that passes `keep`, scanning the day panels. */
+export async function getMatchesBetween(startKey: string, endKey: string, keep: (m: Match) => boolean): Promise<Match[]> {
+  const days: string[] = [];
+  for (let d = startKey; d <= endKey && days.length < 140; d = shiftDay(d, 1)) days.push(d);
+  const today = localDayKey(new Date());
+  const seen = new Map<string, Match>();
+  let i = 0;
+  const panels: (J | null)[] = new Array(days.length);
+  await Promise.all(
+    Array.from({ length: 10 }, async () => {
+      while (i < days.length) {
+        const idx = i++;
+        const d = days[idx];
+        panels[idx] = await getJson(`${BASE}/scorepanel?dates=${d}`, d < shiftDay(today, -2) ? 12 * 3600 : d > shiftDay(today, 2) ? 3600 : 120);
+      }
+    }),
+  );
+  for (const p of panels)
+    for (const m of p ? eventsFromPanel(p) : []) {
+      const k = m.date ? localDayKey(m.date) : "";
+      if (k >= startKey && k <= endKey && keep(m)) seen.set(m.id, m); // later panels have fresher state
+    }
+  return [...seen.values()].sort((a, b) => (a.date < b.date ? -1 : 1));
+}
