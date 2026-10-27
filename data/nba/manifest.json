@@ -3,115 +3,115 @@
   "2026-27": {
    "datasets": {
     "player_base": {
-     "rows": 400,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "rows": 411,
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "player_advanced": {
-     "rows": 400,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "rows": 411,
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "player_misc": {
-     "rows": 400,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "rows": 411,
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "player_scoring": {
-     "rows": 400,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "rows": 411,
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "player_usage": {
-     "rows": 400,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "rows": 411,
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "team_base": {
      "rows": 30,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "team_advanced": {
      "rows": 30,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "team_opponent": {
      "rows": 30,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "team_misc": {
      "rows": 30,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "hustle_player": {
-     "rows": 375,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "rows": 388,
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "hustle_team": {
      "rows": 30,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "tracking_player": {
-     "rows": 4771,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "rows": 4793,
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "tracking_team": {
      "rows": 360,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "contest_player": {
      "rows": 1279,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "contest_team": {
      "rows": 120,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "synergy_player_off": {
-     "rows": 243,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "rows": 345,
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "synergy_player_def": {
-     "rows": 221,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "rows": 305,
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "synergy_team_off": {
      "rows": 330,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "synergy_team_def": {
      "rows": 330,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "lineups": {
-     "rows": 128,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "rows": 155,
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "matchups": {
      "rows": 493,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "clutch_player": {
-     "rows": 192,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "rows": 219,
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "clutch_team": {
-     "rows": 26,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "rows": 28,
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "est_player": {
-     "rows": 400,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "rows": 411,
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "est_team": {
      "rows": 30,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "shot_zones_player": {
-     "rows": 400,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "rows": 411,
+     "updated": "2026-10-27T16:41:56+00:00"
     },
     "defend_player": {
-     "rows": 2196,
-     "updated": "2026-10-26T16:41:56+00:00"
+     "rows": 2262,
+     "updated": "2026-10-27T16:41:56+00:00"
     }
    },
-   "updated": "2026-10-26T16:41:56+00:00",
+   "updated": "2026-10-27T16:41:56+00:00",
    "season": "2026-27",
    "seasonType": "Regular Season"
   },
@@ -231,5 +231,5 @@
    "seasonType": "Regular Season"
   }
  },
- "updated": "2026-10-26T16:41:56+00:00"
+ "updated": "2026-10-27T16:41:56+00:00"
 }
