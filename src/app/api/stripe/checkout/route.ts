@@ -11,8 +11,9 @@ export async function POST(req: Request) {
   if (!stripeConfigured()) return back(req, "/account/billing", { error: "stripe" });
   if (v.hasAccess && v.user.sub_status !== "none") return back(req, "/account/billing");
 
+  try {
   const customer = await customerFor(v.user);
-  const origin = site.url.startsWith("http://localhost") ? new URL(req.url).origin : site.url;
+  const origin = new URL(req.url).origin; // return to whichever domain they paid from
   const session = await stripe().checkout.sessions.create({
     mode: "subscription",
     customer,
@@ -29,4 +30,9 @@ export async function POST(req: Request) {
   });
   await logEvent("checkout_started", v.user.id);
   return Response.redirect(session.url!, 303);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[stripe checkout]", msg);
+    return back(req, "/account/billing", { error: "checkout", msg: msg.slice(0, 200) });
+  }
 }

@@ -31,7 +31,15 @@ export function lineItem(): Stripe.Checkout.SessionCreateParams.LineItem {
 
 /** Find or create the user's Stripe customer (tagged, since the Stripe account is shared). */
 export async function customerFor(user: User): Promise<string> {
-  if (user.stripe_customer_id) return user.stripe_customer_id;
+  if (user.stripe_customer_id) {
+    // The saved id can be stale (test vs live keys, or deleted in the dashboard).
+    try {
+      const existing = await stripe().customers.retrieve(user.stripe_customer_id);
+      if (!("deleted" in existing && existing.deleted)) return existing.id;
+    } catch {
+      /* fall through and create a fresh customer */
+    }
+  }
   const c = await stripe().customers.create({
     email: user.email,
     name: user.name || undefined,

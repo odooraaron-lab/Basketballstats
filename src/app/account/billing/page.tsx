@@ -18,7 +18,7 @@ const INCLUDED = [
   "Player form, hit rates, game logs and season leaderboards",
 ];
 
-export default async function Billing({ searchParams }: { searchParams: Promise<{ success?: string; session_id?: string; canceled?: string; need?: string; welcome?: string; error?: string }> }) {
+export default async function Billing({ searchParams }: { searchParams: Promise<{ success?: string; session_id?: string; canceled?: string; need?: string; welcome?: string; error?: string; msg?: string }> }) {
   const v = await requireViewer("/account/billing");
   const sp = await searchParams;
   let user = v.user;
@@ -45,6 +45,7 @@ export default async function Billing({ searchParams }: { searchParams: Promise<
       {sp.success && active && <p className="rounded-md border border-win/40 bg-win/10 px-3 py-2 text-sm text-win">You&apos;re in! Welcome to {site.name}. <Link href="/app" className="underline">Open the app →</Link></p>}
       {sp.success && !active && <p className="rounded-md border border-court-dim bg-court/10 px-3 py-2 text-sm text-court-soft">Payment received — activating your membership. Refresh in a few seconds.</p>}
       {sp.canceled && <p className="rounded-md border border-ink-700 px-3 py-2 text-sm text-ink-300">Checkout cancelled — nothing was charged.</p>}
+      {sp.error === "checkout" && <p className="rounded-md border border-loss/40 bg-loss/10 px-3 py-2 text-sm text-loss">Checkout couldn&apos;t start: {sp.msg || "unknown Stripe error"}. Check the Stripe keys / STRIPE_PRICE_ID in Vercel.</p>}
       {sp.error === "stripe" && <p className="rounded-md border border-loss/40 bg-loss/10 px-3 py-2 text-sm text-loss">Payments aren&apos;t configured yet (STRIPE_SECRET_KEY).</p>}
 
       {!user ? (
