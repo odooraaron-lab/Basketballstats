@@ -16,12 +16,14 @@ export interface LeagueOption {
 // Sections whose deeper URLs carry league-specific IDs (teams, players, games). Switching
 // league from one of those lands on the section's index page instead of a dead ID.
 const ID_SECTIONS = new Set(["teams", "players", "games"]);
+// Basketball pages that exist in every league, so switching league can keep you on the same page.
+const LEAGUE_SECTIONS = new Set(["games", "teams", "players", "standings", "glossary", "odds", "tracking", "scan"]);
 
 function targetPath(path: string, from: string, to: LeagueOption): string {
   const parts = path.split("/").filter(Boolean);
   if (parts[0] !== from) return `/${to.id}`;
   const section = parts[1];
-  if (!section) return `/${to.id}`;
+  if (!section || !LEAGUE_SECTIONS.has(section)) return `/${to.id}`; // e.g. from /account/billing
   if (section === "tracking" && !to.tracking) return `/${to.id}`;
   if (ID_SECTIONS.has(section)) return `/${to.id}/${section}`;
   return `/${to.id}/${parts.slice(1).join("/")}`;
