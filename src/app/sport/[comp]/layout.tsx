@@ -19,11 +19,11 @@ export default async function SportLayout({ children, params }: { children: Reac
   return (
     <div style={{ ["--accent" as string]: comp.accent }}>
       <LeagueSwitch current={switchId} {...switchProps} />
-      <SportNav comp={comp.id} short={comp.short} accent={comp.accent} siblings={comp.siblings} />
+      <SportNav comp={comp.id} short={comp.short} accent={comp.accent} siblings={comp.siblings} team={Boolean(comp.team)} />
       <main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
       {!hidden.includes("multi") && <BetSlip />}
       <footer className="mx-auto max-w-7xl px-4 pb-8 pt-4 text-xs text-ink-600">
-        Data: {source}. Times in NZ time. Projections and chances are calculated in-app from this season&apos;s results.
+        Data: {source}. Times in NZ time. {comp.team ? "Projections and chances are calculated in-app from every international this year and last." : "Projections and chances are calculated in-app from this season\u2019s results."}
       </footer>
     </div>
   );

@@ -19,7 +19,17 @@ export interface StatDef {
 
 export type SourceDef =
   | { kind: "cd"; nameMatch: string; nameExclude?: string; statDefsPath?: string }
-  | { kind: "espn"; sport: string; league: string; startMonth: number; endMonth: number; crossYear: boolean };
+  | {
+      kind: "espn";
+      sport: string;
+      league: string;
+      startMonth: number;
+      endMonth: number;
+      crossYear: boolean;
+      /** Team environments (e.g. the All Blacks): every league to search, keeping only this team's games. */
+      leagues?: string[];
+      team?: string;
+    };
 
 export interface PointsRule {
   win: number;
@@ -51,6 +61,8 @@ export interface CompDef {
   siblings?: { id: string; label: string }[];
   periods: number;
   periodName: string;
+  /** A national team followed across competitions instead of a league. */
+  team?: { id: string; name: string; nickname: string };
 }
 
 const s = (label: string, short: string, keys: string[], extra: Partial<StatDef> = {}): StatDef => ({ label, short, keys, ...extra });
@@ -258,6 +270,27 @@ export const COMPS: CompDef[] = [
     teamFeatured: RUGBY_TEAM,
     periods: 2,
     periodName: "Half",
+  },
+  {
+    id: "all-blacks",
+    name: "All Blacks",
+    short: "All Blacks",
+    region: "NZ tests",
+    accent: "#e8e8e8",
+    sport: "rugby",
+    // Tests are spread over several ESPN leagues: the Nations Championship (2026 on), the
+    // Rugby Championship, one-off internationals (incl. the Bledisloe) and the World Cup.
+    source: { kind: "espn", sport: "rugby", league: "289234", startMonth: 1, endMonth: 12, crossYear: false, team: "8", leagues: ["17567", "244293", "289234", "164205"] },
+    points: { win: 4, draw: 2, loss: 0, lossBonusMargin: 7 },
+    finals: 0,
+    marginSd: 14,
+    scoreWord: "pts",
+    scorer: { keys: ["tries"], label: "try" },
+    featured: RUGBY_PLAYER,
+    teamFeatured: RUGBY_TEAM,
+    periods: 2,
+    periodName: "Half",
+    team: { id: "8", name: "New Zealand", nickname: "All Blacks" },
   },
   {
     id: "a-league",

@@ -108,13 +108,13 @@ export async function buildPreview(book: SeasonBook, f: Fixture): Promise<Previe
     .filter((x) => x.state === "post" && x.id !== f.id && ((x.home.id === f.home.id && x.away.id === f.away.id) || (x.home.id === f.away.id && x.away.id === f.home.id)))
     .sort((a, b) => (a.date < b.date ? 1 : -1))
     .slice(0, 6);
-  const formPool = [...book.fixtures.filter((x) => x.date < (f.date || "9")), ...prev[0]];
+  const formPool = book.context ? book.context.filter((x) => x.date < (f.date || "9")) : [...book.fixtures.filter((x) => x.date < (f.date || "9")), ...prev[0]];
   return {
     proj,
     markets,
     scorers: scorers.slice(0, 16),
     form: [f.home, f.away].map((s) => ({ teamId: s.id, rows: teamForm(formPool, s.id, 5) })),
     h2h,
-    ladderPos: new Map(book.ladder.map((r) => [r.teamId, r.pos])),
+    ladderPos: book.comp.team ? new Map() : new Map(book.ladder.map((r) => [r.teamId, r.pos])),
   };
 }

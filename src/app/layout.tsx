@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: { default: `${site.name} — ${site.tagline}`, template: `%s | ${site.name}` },
   description:
-    "Live sports stats, betting odds tools and a multi builder for NZ & Australia: NBA, NBL, NRL, Super Rugby, A-League, ANZ Premiership netball and cricket.",
+    "Live sports stats, betting odds tools and a multi builder for NZ & Australia: All Blacks, NRL, Super Rugby, A-League, ANZ Premiership netball, cricket, NBA and NBL.",
   applicationName: site.name,
   openGraph: { siteName: site.name, type: "website", locale: "en_NZ" },
   twitter: { card: "summary_large_image" },

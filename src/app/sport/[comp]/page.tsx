@@ -10,6 +10,7 @@ import { fmt } from "@/lib/format";
 import { statOf } from "@/sports/comps";
 import { currentRound, getSeasonBook, getSeasons, requireComp, resolveSeason, roundKey } from "@/sports/data";
 import { project } from "@/sports/model";
+import { TeamHome } from "@/components/sport/TeamHome";
 
 export const revalidate = 60;
 export const maxDuration = 60;
@@ -19,6 +20,7 @@ export default async function SportHome({ params, searchParams }: { params: Prom
   const sp = await searchParams;
   const [season, seasons] = await Promise.all([resolveSeason(comp, sp.season), getSeasons(comp)]);
   const book = await getSeasonBook(comp, season, false);
+  if (comp.team) return <TeamHome comp={comp} book={book} season={season} seasons={seasons} />;
   const cross = comp.source.kind === "espn" && comp.source.crossYear;
   const fx = book.fixtures;
   const rk = currentRound(fx);

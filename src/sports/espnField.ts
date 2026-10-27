@@ -27,9 +27,13 @@ export function espnCurrentSeason(s: EspnSource, now = new Date()): number {
 
 const logoOf = (t: J) => String(t?.logo ?? t?.logos?.[0]?.href ?? "");
 
+// Rugby nations ESPN sometimes sends without an abbreviation
+const NATION_ABBR: Record<string, string> = { "South Africa": "RSA", "New Zealand": "NZL", Australia: "AUS", Argentina: "ARG", England: "ENG", Ireland: "IRE", Scotland: "SCO", Wales: "WAL", France: "FRA", Italy: "ITA", Fiji: "FIJ", Japan: "JPN", Samoa: "SAM", Tonga: "TGA", Georgia: "GEO", Uruguay: "URU", Namibia: "NAM", Chile: "CHI", Portugal: "POR", Romania: "ROU", Spain: "ESP", "United States": "USA", Canada: "CAN" };
+
 function toSide(c: J): Side {
   const t = c?.team ?? {};
   const name = String(t.displayName ?? t.name ?? t.shortDisplayName ?? "");
+  if (!t.abbreviation && NATION_ABBR[name]) t.abbreviation = NATION_ABBR[name];
   return {
     id: String(t.id ?? c?.id ?? name),
     name,
@@ -79,8 +83,56 @@ export function eventToFixture(comp: CompDef, e: J, season: number): Fixture | n
   return base();
 }
 
+// ------------------------------------------------------------------ team environments
+const LEAGUE_LABEL: Record<string, string> = { "17567": "Nations Championship", "244293": "Rugby Championship", "289234": "Test match", "164205": "Rugby World Cup" };
+
+/** Every game in the team's leagues for a calendar year (all nations, for ratings), tagged with its league. */
+async function teamLeagueEvents(s: EspnSource, year: number): Promise<{ league: string; e: J }[]> {
+  const live = year >= new Date().getUTCFullYear();
+  const lists = await mapLimit(s.leagues ?? [s.league], 4, async (league) => {
+    const j = await getJson(`https://site.api.espn.com/apis/site/v2/sports/${s.sport}/${league}/scoreboard?dates=${year}&limit=1000`, live ? 300 : 12 * 3600);
+    return ((j?.events ?? []) as J[]).map((e) => ({ league, e }));
+  });
+  const seen = new Set<string>();
+  return lists.flat().filter(({ e }) => e?.id && !seen.has(String(e.id)) && seen.add(String(e.id)));
+}
+
+function teamFixture(comp: CompDef, league: string, e: J, year: number): Fixture | null {
+  const f = eventToFixture(comp, e, year);
+  if (!f) return null;
+  f.ref = `${league}/${f.id}`;
+  f.final = false;
+  let label = LEAGUE_LABEL[league] ?? "Test match";
+  const names = [f.home.name, f.away.name].join(" ");
+  if (league !== "164205" && /New Zealand/.test(names) && /Australia/.test(names)) label = `Bledisloe Cup · ${label}`;
+  if (league !== "164205" && /New Zealand/.test(names) && /South Africa/.test(names) && league === "289234") label = "Test match · Springbok tour";
+  f.stage = label;
+  return f;
+}
+
+/** Only the team's tests, in date order, numbered Test 1..N. */
+async function teamFixtures(comp: CompDef, year: number): Promise<Fixture[]> {
+  const s = comp.source as EspnSource;
+  const all = await teamLeagueEvents(s, year);
+  const mine = all
+    .filter(({ e }) => (e.competitions?.[0]?.competitors ?? []).some((c: J) => String(c.team?.id ?? c.id) === s.team))
+    .map(({ league, e }) => teamFixture(comp, league, e, year))
+    .filter((f): f is Fixture => Boolean(f && f.date))
+    .sort((a, b) => (a.date < b.date ? -1 : 1));
+  mine.forEach((f, i) => ((f.round = i + 1), (f.roundLabel = `Test ${i + 1} · ${f.stage}`)));
+  return mine;
+}
+
+/** All international results in the team's leagues — gives opponents a rating beyond their games with us. */
+export async function espnContextFixtures(comp: CompDef, year: number): Promise<Fixture[]> {
+  const s = comp.source as EspnSource;
+  if (!s.team) return [];
+  return (await teamLeagueEvents(s, year)).map(({ league, e }) => teamFixture(comp, league, e, year)).filter((f): f is Fixture => Boolean(f));
+}
+
 export async function espnFixtures(comp: CompDef, year: number): Promise<Fixture[]> {
   const s = comp.source as EspnSource;
+  if (s.team) return teamFixtures(comp, year);
   const { start, end } = seasonWindow(s, year);
   const live = Date.now() < end.getTime() + 7 * 86400_000;
   const rv = live ? 120 : 6 * 3600;
@@ -151,6 +203,7 @@ export async function espnTeams(comp: CompDef): Promise<Side[]> {
 
 export async function espnStandings(comp: CompDef, year: number): Promise<LadderRow[] | null> {
   const s = comp.source as EspnSource;
+  if (s.team) return null;
   const j = await getJson(`https://site.api.espn.com/apis/v2/sports/${s.sport}/${s.league}/standings?season=${year}`, 600);
   const groups: J[] = j?.children?.length ? j.children : j?.standings ? [j] : [];
   const entries: J[] = groups.flatMap((g) => g?.standings?.entries ?? []);
@@ -205,11 +258,15 @@ function flatStats(list: J[] | undefined): { key: string; label: string; value: 
 
 export async function espnMatch(comp: CompDef, fixture: Fixture, revalidate: number): Promise<MatchFile | null> {
   const s = comp.source as EspnSource;
-  const j = await getJson(`${site(s)}/summary?event=${fixture.ref}`, revalidate);
+  // Team environments keep the league in the ref ("17567/603975")
+  const [league, event] = fixture.ref.includes("/") ? fixture.ref.split("/") : [s.league, fixture.ref];
+  const j = await getJson(`https://site.api.espn.com/apis/site/v2/sports/${s.sport}/${league}/summary?event=${event}`, revalidate);
   if (!j) return null;
   const hc = j.header?.competitions?.[0];
   const fx = (hc && eventToFixture(comp, { ...hc, id: fixture.id, season: j.header?.season }, fixture.season)) || fixture;
   fx.round = fixture.round;
+  fx.ref = fixture.ref;
+  fx.stage = fixture.stage ?? fx.stage;
   fx.final = fixture.final || fx.final;
   fx.roundLabel = fixture.roundLabel || fx.roundLabel;
   fx.venue = fx.venue || String(j.gameInfo?.venue?.fullName ?? fixture.venue);

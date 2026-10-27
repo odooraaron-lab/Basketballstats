@@ -24,7 +24,7 @@ export function FixtureTile({ f, proj, ladder }: { f: Fixture; proj?: Projection
         ) : (
           <span className="font-semibold text-ink-400">Full time · {fmtDay(f.date)}</span>
         )}
-        <span className="ml-auto truncate text-ink-600">{f.final ? f.roundLabel : f.venue}</span>
+        <span className="ml-auto truncate text-ink-600">{f.final ? f.roundLabel : f.stage || f.venue}</span>
       </div>
       <div className="space-y-1.5">
         {rows.map(({ s, p, exp }) => {

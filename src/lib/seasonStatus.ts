@@ -62,6 +62,22 @@ function fieldStatus(compId: string, fx: Fixture[], nextSeason: Fixture[]): Spor
     const round = (soon[0] ?? upcoming[0])?.roundLabel;
     return { ...base, state: live ? "live" : "in-season", headline: live ? "Games live now" : soon.length ? `${round || "Next round"} — ${soon.length} game${soon.length > 1 ? "s" : ""} in the next 10 days` : "In season", detail: "", next: upcoming[0]?.date };
   }
+  if (c.team) {
+    const last = [...fx].reverse().find((f) => f.state === "post");
+    const nxt = upcoming[0];
+    const res = last ? (() => {
+      const us = last.home.id === c.team!.id ? last.home : last.away;
+      const them = last.home.id === c.team!.id ? last.away : last.home;
+      return `The last test was ${(us.score ?? 0) > (them.score ?? 0) ? "a win" : (us.score ?? 0) < (them.score ?? 0) ? "a loss" : "a draw"} against ${them.name}, ${us.score}–${them.score}, on ${longDay(last.date)}.`;
+    })() : "";
+    return {
+      ...base,
+      state: "off-season",
+      headline: nxt ? `Between tests — next ${day(nxt.date)}` : "Off-season — tests resume in July",
+      detail: `The ${c.team.nickname} play tests in the July and November windows plus the Rugby Championship / Bledisloe in between; the rest of the year the players are with their Super Rugby clubs. ${res} ${nxt ? `The next test is ${longDay(nxt.date)} against ${nxt.home.id === c.team.id ? nxt.away.name : nxt.home.name}.` : "Next year's test schedule appears here as soon as it's published."} Every result, player stat and try scorer from the year is still here.`.replace(/\s+/g, " ").trim(),
+      next: nxt?.date,
+    };
+  }
   // Off-season: who won, and when it's back
   const finals = fx.filter((f) => f.final && f.state === "post").sort((a, b) => (a.date < b.date ? -1 : 1));
   const decider = finals[finals.length - 1];

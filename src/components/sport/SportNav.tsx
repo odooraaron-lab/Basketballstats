@@ -2,15 +2,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function SportNav({ comp, short, accent, siblings }: { comp: string; short: string; accent: string; siblings?: { id: string; label: string }[] }) {
+export function SportNav({ comp, short, accent, siblings, team }: { comp: string; short: string; accent: string; siblings?: { id: string; label: string }[]; team?: boolean }) {
   const path = usePathname();
   const base = `/sport/${comp}`;
   const items: { href: string; label: string; exact?: boolean }[] = [
     { href: base, label: "Home", exact: true },
-    { href: `${base}/fixtures`, label: "Fixtures" },
-    { href: `${base}/ladder`, label: "Ladder" },
-    { href: `${base}/stats`, label: "Stats" },
-    { href: `${base}/teams`, label: "Teams" },
+    { href: `${base}/fixtures`, label: team ? "Tests" : "Fixtures" },
+    { href: `${base}/ladder`, label: team ? "Record" : "Ladder" },
+    { href: `${base}/stats`, label: team ? "Players" : "Stats" },
+    { href: `${base}/teams`, label: team ? "Opponents" : "Teams" },
   ];
   return (
     <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950/90 backdrop-blur">

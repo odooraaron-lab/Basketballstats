@@ -3,7 +3,7 @@ import "server-only";
 import { notFound } from "next/navigation";
 import { getComp, type CompDef } from "./comps";
 import { cdCompetitions, cdFixtures, cdMatch, type CdComp } from "./cd";
-import { espnCurrentSeason, espnFixtures, espnMatch, espnStandings } from "./espnField";
+import { espnContextFixtures, espnCurrentSeason, espnFixtures, espnMatch, espnStandings } from "./espnField";
 import { mapLimit } from "./http";
 import { aggregate, buildLadder, fitRatings, type Fixture, type LadderRow, type MatchFile, type PlayerSeason, type Ratings, type TeamSeason } from "./model";
 
@@ -64,6 +64,14 @@ export async function findFixture(comp: CompDef, id: string, season?: number): P
     if (f) return f;
   }
   // ESPN events can be fetched directly even if the scoreboard didn't list them
+  if (comp.source.kind === "espn" && comp.source.team) {
+    for (const league of comp.source.leagues ?? []) {
+      const stub: Fixture = { id, comp: comp.id, season: seasons[0], round: null, roundLabel: "", date: "", state: "post", status: "", venue: "", home: { id: "", name: "", abbr: "", logo: "", color: "", score: null }, away: { id: "", name: "", abbr: "", logo: "", color: "", score: null }, winnerId: null, final: false, ref: `${league}/${id}` };
+      const m = await espnMatch(comp, stub, 300);
+      if (m?.fixture.home.id) return m.fixture;
+    }
+    return null;
+  }
   if (comp.source.kind === "espn") {
     const stub: Fixture = { id, comp: comp.id, season: seasons[0], round: null, roundLabel: "", date: "", state: "post", status: "", venue: "", home: { id: "", name: "", abbr: "", logo: "", color: "", score: null }, away: { id: "", name: "", abbr: "", logo: "", color: "", score: null }, winnerId: null, final: false, ref: id };
     const m = await espnMatch(comp, stub, 300);
@@ -85,6 +93,8 @@ export interface SeasonBook {
   ladder: LadderRow[];
   ladderSource: "official" | "computed";
   teamSides: Map<string, Fixture["home"]>;
+  /** National teams: every international in the same leagues (opponents' form). */
+  context?: Fixture[];
 }
 
 const books = new Map<string, { at: number; book: Promise<SeasonBook> }>();
@@ -104,7 +114,15 @@ async function buildBook(comp: CompDef, season: number, withFiles: boolean): Pro
   const ids = new Set(fixtures.flatMap((f) => [f.home.id, f.away.id]));
   const prevUsable = prev.filter((f) => ids.has(f.home.id) && ids.has(f.away.id));
   const current = new Set(fixtures.map((f) => f.id));
-  const ratings = fitRatings([...fixtures, ...prevUsable], 4, (f) => (current.has(f.id) ? 1 : prevWeight));
+  let context: Fixture[] | undefined;
+  let ratings = fitRatings([...fixtures, ...prevUsable], 4, (f) => (current.has(f.id) ? 1 : prevWeight));
+  if (comp.source.kind === "espn" && comp.source.team) {
+    // A national team: rate everyone from all internationals this year and last (last year at half weight)
+    const [ctx, ctxPrev] = await Promise.all([espnContextFixtures(comp, season), espnContextFixtures(comp, season - 1).catch(() => [] as Fixture[])]);
+    const now = new Set(ctx.map((f) => f.id));
+    ratings = fitRatings([...ctx, ...ctxPrev], 4, (f) => (now.has(f.id) ? 1 : 0.5));
+    context = [...ctx, ...ctxPrev];
+  }
   let ladder = buildLadder(fixtures, comp.points);
   let ladderSource: SeasonBook["ladderSource"] = "computed";
   if (comp.source.kind === "espn") {
@@ -117,7 +135,7 @@ async function buildBook(comp: CompDef, season: number, withFiles: boolean): Pro
   }
   const teamSides = new Map<string, Fixture["home"]>();
   for (const f of fixtures) for (const s of [f.home, f.away]) if (!teamSides.has(s.id) || s.logo) teamSides.set(s.id, { ...s, score: null });
-  return { comp, season, fixtures, files, players, teams, ratings, ladder, ladderSource, teamSides };
+  return { comp, season, fixtures, files, players, teams, ratings, ladder, ladderSource, teamSides, context };
 }
 
 /**

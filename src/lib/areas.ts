@@ -12,6 +12,7 @@ export const AREAS: Area[] = [
   { id: "nbl", label: "NBL", href: "/nbl", kind: "section" },
   { id: "nrl", label: "NRL", href: "/sport/nrl", kind: "section" },
   { id: "super-rugby", label: "Super Rugby", href: "/sport/super-rugby", kind: "section" },
+  { id: "all-blacks", label: "All Blacks", href: "/sport/all-blacks", kind: "section" },
   { id: "a-league", label: "A-League", href: "/sport/a-league", kind: "section" },
   { id: "anz-premiership", label: "ANZ Premiership", href: "/sport/anz-premiership", kind: "section" },
   { id: "cricket", label: "Cricket (world)", href: "/cricket", kind: "section" },

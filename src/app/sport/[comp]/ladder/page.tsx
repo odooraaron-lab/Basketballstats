@@ -3,6 +3,7 @@ import { SeasonChips } from "@/components/sport/SeasonChips";
 import { Card, PageTitle } from "@/components/ui";
 import { getSeasonBook, getSeasons, requireComp, resolveSeason } from "@/sports/data";
 import { fmt } from "@/lib/format";
+import { TeamRecord } from "@/components/sport/TeamRecord";
 
 export const revalidate = 120;
 
@@ -10,6 +11,7 @@ export default async function Ladder({ params, searchParams }: { params: Promise
   const comp = requireComp((await params).comp);
   const sp = await searchParams;
   const [season, seasons] = await Promise.all([resolveSeason(comp, sp.season), getSeasons(comp)]);
+  if (comp.team) return <TeamRecord comp={comp} season={season} seasons={seasons} />;
   const book = await getSeasonBook(comp, season, false);
   const cross = comp.source.kind === "espn" && comp.source.crossYear;
   const r = book.ratings;

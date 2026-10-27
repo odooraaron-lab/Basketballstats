@@ -5,6 +5,8 @@ import { SeasonChips } from "@/components/sport/SeasonChips";
 import { Empty, PageTitle } from "@/components/ui";
 import { currentRound, getSeasonBook, getSeasons, requireComp, resolveSeason, roundKey, rounds } from "@/sports/data";
 import { project } from "@/sports/model";
+import { TestList } from "@/components/sport/TeamHome";
+import { Card } from "@/components/ui";
 
 export const revalidate = 60;
 
@@ -13,6 +15,33 @@ export default async function Fixtures({ params, searchParams }: { params: Promi
   const sp = await searchParams;
   const [season, seasons] = await Promise.all([resolveSeason(comp, sp.season), getSeasons(comp)]);
   const book = await getSeasonBook(comp, season, false);
+  if (comp.team) {
+    const upcoming = book.fixtures.filter((f) => f.state !== "post");
+    return (
+      <div className="space-y-5">
+        <SeasonNotice id={comp.id} />
+        <PageTitle sub="Every test in the year, all competitions. All times NZ. Upcoming tests show our projected score and win chance." right={<SeasonChips base={`/sport/${comp.id}/fixtures`} seasons={seasons} season={season} />}>
+          Tests & results
+        </PageTitle>
+        {!book.fixtures.length ? (
+          <Empty>No tests listed for {season} yet.</Empty>
+        ) : (
+          <>
+            {upcoming.length > 0 && (
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {upcoming.map((f) => (
+                  <FixtureTile key={f.id} f={f} proj={f.state === "pre" ? project(book.ratings, comp, f.home.id, f.away.id) : null} />
+                ))}
+              </div>
+            )}
+            <Card pad={false} title={`${season} tests`}>
+              <TestList comp={comp} fx={book.fixtures} />
+            </Card>
+          </>
+        )}
+      </div>
+    );
+  }
   const list = rounds(book.fixtures);
   const rk = sp.r && list.some((r) => r.key === sp.r) ? sp.r : currentRound(book.fixtures) ?? list[0]?.key;
   const fx = book.fixtures.filter((f) => roundKey(f) === rk);

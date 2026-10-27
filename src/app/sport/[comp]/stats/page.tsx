@@ -16,6 +16,8 @@ export default async function Stats({ params, searchParams }: { params: Promise<
   const per = sp.per === "total" ? "total" : "avg";
   const cross = comp.source.kind === "espn" && comp.source.crossYear;
   const base = `/sport/${comp.id}/stats`;
+  // National team: our players by default (?team=all shows the opposition too)
+  const teamFilter = sp.team === "all" ? undefined : sp.team ?? comp.team?.id;
 
   const header = (
     <>
@@ -46,7 +48,7 @@ export default async function Stats({ params, searchParams }: { params: Promise<
       ...defs.map((d) => ({ key: d.label, label: d.short, title: d.label, fmt: (per === "avg" ? (d.fmt === "pct" ? "pct" : "1") : d.fmt === "1" ? "1" : "int") as Column["fmt"], heat: true, invert: d.lowerBetter })),
     ];
     const rows: Row[] = book.players
-      .filter((p) => p.games >= minGames && (!sp.team || p.teamId === sp.team))
+      .filter((p) => p.games >= minGames && (!teamFilter || p.teamId === teamFilter))
       .map((p) => {
         const t = book.teamSides.get(p.teamId);
         return {
@@ -71,6 +73,11 @@ export default async function Stats({ params, searchParams }: { params: Promise<
               {x === "avg" ? `Per game (min ${minGames} games)` : "Season totals"}
             </a>
           ))}
+          {comp.team && (
+            <a href={`${base}?season=${season}&tab=players&per=${per}&team=${teamFilter ? "all" : comp.team.id}`} className="chip">
+              {teamFilter ? `${comp.team.nickname} only · show opponents too` : `Everyone · ${comp.team.nickname} only`}
+            </a>
+          )}
         </div>
         <SortableTable columns={columns} rows={rows} defaultSort={first ? { key: first.label, dir: "desc" } : undefined} searchable maxHeight={720} dense />
       </div>

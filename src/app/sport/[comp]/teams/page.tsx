@@ -10,11 +10,11 @@ export default async function Teams({ params, searchParams }: { params: Promise<
   const comp = requireComp((await params).comp);
   const season = await resolveSeason(comp, (await searchParams).season);
   const book = await getSeasonBook(comp, season, false);
-  const teams = [...book.teamSides.values()].sort((a, b) => a.name.localeCompare(b.name));
+  const teams = [...book.teamSides.values()].filter((t) => t.id !== comp.team?.id).sort((a, b) => a.name.localeCompare(b.name));
   const pos = new Map(book.ladder.map((r) => [r.teamId, r]));
   return (
     <div>
-      <PageTitle sub={`${teams.length} teams`}>Teams</PageTitle>
+      <PageTitle sub={comp.team ? `${teams.length} nations played in ${season}` : `${teams.length} teams`}>{comp.team ? "Opponents" : "Teams"}</PageTitle>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {teams.map((t) => {
           const r = pos.get(t.id);
@@ -23,7 +23,7 @@ export default async function Teams({ params, searchParams }: { params: Promise<
               <TeamMark t={t} size={40} />
               <div className="min-w-0 flex-1">
                 <div className="truncate font-semibold">{t.name}</div>
-                {r && (
+                {r && !comp.team && (
                   <div className="text-xs text-ink-400">
                     {ordinal(r.pos)} · {r.won}-{comp.sport !== "netball" ? `${r.drawn}-` : ""}
                     {r.lost} · {r.points} pts

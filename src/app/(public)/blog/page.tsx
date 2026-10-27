@@ -5,7 +5,7 @@ import { site } from "@/site.config";
 
 export const metadata = {
   title: "Betting stats guides for NZ & Australian sport",
-  description: "Free guides to live stats, betting odds and detailed stats for NRL, Super Rugby, ANZ Premiership netball, A-League, Super Smash, cricket, NBA and NBL.",
+  description: "Free guides to live stats, betting odds and detailed stats for All Blacks, NRL, Super Rugby, ANZ Premiership netball, A-League, Super Smash, cricket, NBA and NBL.",
   alternates: { canonical: "/blog" },
 };
 
