@@ -9,12 +9,55 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --font-display: "Barlow Condensed", "Inter", sans-serif;
   color-scheme: dark;
+  --ink-950: 11 13 16;
+  --ink-900: 17 20 25;
+  --ink-850: 22 26 32;
+  --ink-800: 28 33 41;
+  --ink-700: 40 48 57;
+  --ink-600: 58 67 80;
+  --ink-500: 91 101 115;
+  --ink-400: 135 146 162;
+  --ink-300: 179 188 200;
+  --ink-200: 214 220 228;
+  --ink-100: 238 241 245;
+}
+
+/* Light theme: chosen in account settings, or "system" when the device prefers light */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --ink-950: 255 255 255;
+  --ink-900: 247 248 250;
+  --ink-850: 240 242 245;
+  --ink-800: 228 232 237;
+  --ink-700: 208 214 222;
+  --ink-600: 170 179 191;
+  --ink-500: 110 119 133;
+  --ink-400: 82 92 107;
+  --ink-300: 55 63 76;
+  --ink-200: 36 42 51;
+  --ink-100: 14 17 22;
+}
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] {
+    color-scheme: light;
+    --ink-950: 255 255 255;
+    --ink-900: 247 248 250;
+    --ink-850: 240 242 245;
+    --ink-800: 228 232 237;
+    --ink-700: 208 214 222;
+    --ink-600: 170 179 191;
+    --ink-500: 110 119 133;
+    --ink-400: 82 92 107;
+    --ink-300: 55 63 76;
+    --ink-200: 36 42 51;
+    --ink-100: 14 17 22;
+  }
 }
 
 html,
 body {
-  background: #0b0d10;
-  color: #eef1f5;
+  background: rgb(var(--ink-950));
+  color: rgb(var(--ink-100));
 }
 
 body {
@@ -36,10 +79,10 @@ body {
 
 @layer components {
   .card {
-    @apply rounded-xl border border-ink-800 bg-ink-900;
+    @apply min-w-0 rounded-xl border border-ink-800 bg-ink-900;
   }
   .card-h {
-    @apply display flex items-center justify-between border-b border-ink-800 px-4 py-2.5 text-sm font-semibold text-ink-300;
+    @apply display flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 border-b border-ink-800 px-4 py-2.5 text-sm font-semibold text-ink-300;
   }
   .chip {
     @apply inline-flex items-center rounded-md border border-ink-700 px-2 py-0.5 text-xs text-ink-300;
@@ -78,7 +121,7 @@ body {
   width: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #283039;
+  background: rgb(var(--ink-700));
   border-radius: 8px;
 }
 
@@ -103,3 +146,17 @@ body {
   #scan-report .bar { background: #bbb !important; }
   #scan-report .bar-hit { background: #2e9a62 !important; }
 }
+
+/* Long-form text: blog posts and legal pages */
+.prose-cs { @apply text-[1.02rem] leading-relaxed text-ink-200; }
+.prose-cs > * + * { @apply mt-4; }
+.prose-cs h2 { @apply display mt-10 text-2xl font-extrabold text-ink-100; }
+.prose-cs h3 { @apply display mt-7 text-xl font-bold text-ink-100; }
+.prose-cs a { @apply text-court underline decoration-court/40 underline-offset-2 hover:decoration-court; }
+.prose-cs ul { @apply list-disc space-y-1.5 pl-6; }
+.prose-cs ol { @apply list-decimal space-y-1.5 pl-6; }
+.prose-cs strong { @apply text-ink-100; }
+.prose-cs blockquote { @apply rounded-r-lg border-l-4 border-court bg-court/10 px-4 py-3 text-ink-200; }
+.prose-cs table { @apply w-full border-collapse text-sm; }
+.prose-cs th { @apply border-b border-ink-700 px-2 py-1.5 text-left text-xs font-semibold text-ink-400; }
+.prose-cs td { @apply border-b border-ink-800 px-2 py-1.5; }

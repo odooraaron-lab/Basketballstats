@@ -1,6 +1,20 @@
-# Courtside — private sports stat tracker
+# Courtside — live sports stats & betting research (NZ/AU)
 
-A password-protected Next.js app that pulls live NBA and NBL (Australia/New Zealand) data from ESPN's public JSON feeds and computes the advanced analytics itself. A league switch at the very top of every page flips between the two; the app remembers the last one you picked.
+A Next.js subscription site: a public, SEO-focused landing page and blog, and a members' app (NZ$9.99/month via Stripe) covering the NBA, NBL, NRL, Super Rugby Pacific, A-League Men & Women, ANZ Premiership, world cricket and the Super Smash. Live data comes from ESPN's and Champion Data's JSON feeds; the advanced analytics, projections and multi tools are computed in-app.
+
+## Site structure
+
+| Route | Who | What |
+|---|---|---|
+| `/` | public | Landing page (live "what's in season" board, features, value comparison, pricing, FAQ, JSON-LD) |
+| `/blog`, `/blog/sport/<zone>`, `/blog/<slug>` | public | 80 guides, 10 per sport zone (`src/content/blog/`) |
+| `/login`, `/signup`, `/forgot`, `/reset`, `/pricing`, `/terms`, `/privacy`, `/responsible-gambling` | public | Auth and legal |
+| `/app` and every sport section | paid members | The stat tracker. Unpaid accounts are sent to `/account/billing` |
+| `/account` | signed in | Theme (dark / light / system), show/hide areas, home area, password, sign out everywhere, delete account |
+| `/account/billing` | signed in | Subscribe (Stripe Checkout) and manage (Stripe billing portal) |
+| `/admin` | owner/admins | Overview (members, MRR, signups, funnel, activity), traffic, member list with comp / admin / sign-out actions, setup checks |
+
+Access = admin, or a comp date in the future, or a Stripe subscription that is active/trialing (1-day grace) or past_due (3-day grace). Off-season competitions show a banner explaining when they return (`src/lib/seasonStatus.ts`).
 
 ## What's in it
 
@@ -55,13 +69,18 @@ Matching between ESPN and NBA.com uses normalised player names + team, and NBA.c
 ## Deploy to Vercel
 
 1. In Vercel: **Add New → Project → Import** `odooraaron-lab/Basketballstats`. Framework is detected as Next.js; no build settings needed.
-2. **Settings → Environment Variables** — add:
-   - `APP_USERNAME` — your login name
-   - `APP_PASSWORD` — your password
-   - `AUTH_SECRET` — a long random string (e.g. run `openssl rand -hex 32`)
-   - optional `NEXT_PUBLIC_DISPLAY_TZ` — defaults to `Pacific/Auckland`
-   - optional `ANTHROPIC_API_KEY` — makes Odds check read screenshots with Claude vision (more accurate); without it the phone reads them itself
-3. Deploy (redeploy after changing env vars). Every page except `/login` requires the session cookie; the site is also marked `noindex`.
+2. **Database** — create a free Postgres at [neon.tech](https://neon.tech) (or Vercel → Storage → Neon) and copy the connection string. Tables are created automatically on first use (or press *Create tables* in `/admin/setup`).
+3. **Stripe** — Developers → API keys → copy the secret key. Developers → Webhooks → add endpoint `https://<your-domain>/api/stripe/webhook` with events `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`, `invoice.payment_failed`; copy the signing secret. Settings → Billing → Customer portal → enable it. Everything Courtside creates is tagged `site=courtside` in metadata, so it's easy to filter in a shared Stripe account.
+4. **Settings → Environment Variables** — add everything in `.env.example`:
+   - `APP_USERNAME`, `APP_PASSWORD` — the owner login (admin; works even if the database is down)
+   - `AUTH_SECRET` — a long random string (`openssl rand -hex 32`)
+   - `DATABASE_URL` — members, page views, events
+   - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`; optional `STRIPE_PRICE_ID` (else an inline NZ$9.99/month price is used), optional `STRIPE_TRIAL_DAYS`
+   - `NEXT_PUBLIC_SITE_URL` — canonical URL for SEO, sitemap and Stripe return links
+   - `RESEND_API_KEY`, `EMAIL_FROM` — password-reset emails ([resend.com](https://resend.com)); without them the reset link is only logged
+   - `SUPPORT_EMAIL`; optional `NEXT_PUBLIC_DISPLAY_TZ` (defaults to `Pacific/Auckland`), optional `ANTHROPIC_API_KEY` (Odds check reads screenshots with Claude vision)
+5. Deploy (redeploy after changing env vars), sign in with the owner login and open `/admin/setup` — it shows a green tick for each piece that's configured.
+6. Submit `https://<your-domain>/sitemap.xml` in Google Search Console.
 
 ## Local development
 
@@ -81,6 +100,9 @@ npm run typecheck
 - `src/lib/league.ts` — league-wide team table, averages, projections
 - `sync/sync_nba.py` — nba_api pipeline (run locally) → `data/nba/`
 - `src/lib/nbacom.ts`, `src/lib/tracking.ts` — readers + ESPN↔NBA.com matching for the synced data
-- `src/middleware.ts`, `src/lib/auth.ts` — login gate (HMAC-signed cookie)
+- `src/middleware.ts`, `src/lib/auth.ts`, `src/lib/session.ts` — public vs members routes, HMAC-signed session cookie, `requireMember` / `requireAdmin`
+- `src/lib/db.ts`, `src/lib/users.ts`, `src/lib/stripe.ts` — Postgres, members, Stripe checkout/portal/webhook sync
+- `src/lib/adminStats.ts`, `src/components/Tracker.tsx` — first-party analytics for the admin pages
+- `src/app/(public)/`, `src/content/blog/` — landing page, legal pages, blog
 
-Data: ESPN public feeds (unofficial, undocumented), cached with short revalidation (live games ~20s). Personal use only.
+Data: ESPN public feeds (unofficial, undocumented), cached with short revalidation (live games ~20s). These feeds are unofficial; licence the data before relying on them commercially.

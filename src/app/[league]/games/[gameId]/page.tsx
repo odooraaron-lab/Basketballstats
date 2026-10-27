@@ -98,8 +98,8 @@ export default async function GamePage({
     <div className="card overflow-hidden">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 p-3 sm:gap-4 sm:p-5" style={{ background: `linear-gradient(90deg, ${awayColor}30, transparent 35%, transparent 65%, ${homeColor}30)` }}>
         {[card.away, card.home].map((s, i) => (
-          <Link key={s.team.id} href={`/${league.id}/teams/${s.team.id}`} className={`flex min-w-0 items-center gap-2 sm:gap-3 ${i === 1 ? "order-3 flex-row-reverse text-right" : ""}`}>
-            <TeamLogo src={s.team.logo} alt={s.team.abbr} size={64} className="!h-10 !w-10 sm:!h-16 sm:!w-16" />
+          <Link key={s.team.id} href={`/${league.id}/teams/${s.team.id}`} className={`flex min-w-0 items-center gap-1.5 sm:gap-3 ${i === 1 ? "order-3 flex-row-reverse text-right" : ""}`}>
+            <TeamLogo src={s.team.logo} alt={s.team.abbr} size={64} className="!h-8 !w-8 shrink-0 sm:!h-16 sm:!w-16" />
             <div className="min-w-0">
               <div className="display truncate text-base font-extrabold leading-none hover:text-court sm:text-2xl">
                 <span className="sm:hidden">{s.team.abbr}</span>
@@ -108,12 +108,12 @@ export default async function GamePage({
               <div className="num text-xs text-ink-400">{s.record}</div>
             </div>
             {card.state !== "pre" && (
-              <div className={`num ${i === 1 ? "mr-auto" : "ml-auto"} text-2xl font-bold sm:text-4xl ${s.winner || card.state !== "post" ? "text-ink-100" : "text-ink-500"}`}>{s.score}</div>
+              <div className={`num ${i === 1 ? "mr-auto" : "ml-auto"} shrink-0 text-xl font-bold sm:text-4xl ${s.winner || card.state !== "post" ? "text-ink-100" : "text-ink-500"}`}>{s.score}</div>
             )}
           </Link>
         ))}
         <div className="order-2 text-center">
-          <div className={`display max-w-[7rem] text-xs font-bold sm:max-w-none sm:text-sm ${card.state === "in" ? "text-loss" : "text-ink-300"}`}>{card.state === "pre" ? fmtDayTime(card.date) : card.detail}</div>
+          <div className={`display max-w-[5.5rem] text-[11px] font-bold sm:max-w-none sm:text-sm ${card.state === "in" ? "text-loss" : "text-ink-300"}`}>{card.state === "pre" ? fmtDayTime(card.date) : card.detail}</div>
           {card.odds && card.state === "pre" && <div className="mt-1 text-[11px] text-ink-500">{card.odds.details} · O/U {card.odds.overUnder ?? "–"}</div>}
         </div>
       </div>

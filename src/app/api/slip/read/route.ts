@@ -1,3 +1,4 @@
+import { getViewer } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { readScreenshot } from "@/lib/slip";
 
@@ -6,6 +7,7 @@ export const maxDuration = 60;
 // Reads a betting screenshot with Claude vision. Returns 501 when no API key is set,
 // in which case the browser falls back to on-device OCR.
 export async function POST(req: Request) {
+  if (!(await getViewer())?.hasAccess) return NextResponse.json({ error: "Membership required" }, { status: 402 });
   const form = await req.formData();
   const file = form.get("image");
   if (!(file instanceof Blob)) return NextResponse.json({ error: "No image" }, { status: 400 });

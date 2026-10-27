@@ -1,3 +1,4 @@
+import { SeasonNotice } from "@/components/SeasonNotice";
 import Link from "next/link";
 import { Headshot, TeamLogo } from "@/components/Img";
 import { Card, Empty, GameTile, PageTitle, Stat } from "@/components/ui";
@@ -51,6 +52,7 @@ export default async function Dashboard({ params }: { params: Promise<{ league: 
   return (
     <div className="space-y-6">
       <PageTitle sub={`${league.name} · ${season.label} season`}>Dashboard</PageTitle>
+      <SeasonNotice id={league.id} />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <Stat label="League PPG" value={fmt(table.averages?.ppg, "1")} sub={seasonLabel(tableYear)} />

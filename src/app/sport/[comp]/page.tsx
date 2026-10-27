@@ -1,3 +1,4 @@
+import { SeasonNotice } from "@/components/SeasonNotice";
 import Link from "next/link";
 import { Suspense } from "react";
 import { FixtureTile } from "@/components/sport/FixtureTile";
@@ -30,6 +31,7 @@ export default async function SportHome({ params, searchParams }: { params: Prom
 
   return (
     <div className="space-y-6">
+      <SeasonNotice id={comp.id === "a-league-w" ? "a-league-w" : comp.id} />
       <PageTitle
         sub={`${seasonName(season, cross)} season · ${done.length} of ${fx.length} matches played${!next && fx.length ? " · season complete" : ""}`}
         right={<SeasonChips base={`/sport/${comp.id}`} seasons={seasons} season={season} crossYear={cross} />}

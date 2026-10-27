@@ -204,7 +204,7 @@ export default async function PlayerPage({
 
   return (
     <div className="space-y-5">
-      <div className="card relative overflow-hidden" style={{ background: `linear-gradient(110deg, ${teamColor}40 0%, #111419 60%)` }}>
+      <div className="card relative overflow-hidden" style={{ background: `linear-gradient(110deg, ${teamColor}40 0%, rgb(var(--ink-900)) 60%)` }}>
         <div className="flex flex-wrap items-end gap-6 p-5">
           <Headshot src={a.headshot} fallback={nbaHeadshot(nbaRow?.PLAYER_ID as number)} name={a.name} size={132} ring={teamColor} />
           <div className="min-w-[14rem] flex-1">

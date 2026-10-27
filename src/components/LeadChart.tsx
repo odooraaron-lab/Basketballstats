@@ -43,23 +43,23 @@ export function LeadChart({
       </defs>
       {ticks.map((t) => (
         <g key={t}>
-          <line x1={pad.l} x2={W - pad.r} y1={y(t)} y2={y(t)} stroke={t === 0 ? "#3a4350" : "#1c2129"} />
-          <text x={pad.l - 6} y={y(t) + 3} fontSize="10" textAnchor="end" fill="#5b6573" fontFamily="var(--font-mono)">
+          <line x1={pad.l} x2={W - pad.r} y1={y(t)} y2={y(t)} stroke={t === 0 ? "rgb(var(--ink-600))" : "rgb(var(--ink-800))"} />
+          <text x={pad.l - 6} y={y(t) + 3} fontSize="10" textAnchor="end" fill="rgb(var(--ink-500))" fontFamily="var(--font-mono)">
             {Math.abs(t)}
           </text>
         </g>
       ))}
       {periodBreaks.map((b) => (
         <g key={b.label}>
-          <line x1={x(b.t)} x2={x(b.t)} y1={pad.t} y2={H - pad.b} stroke="#283039" strokeDasharray="3 3" />
-          <text x={x(b.t) + 4} y={H - 6} fontSize="10" fill="#5b6573" fontFamily="var(--font-display)">
+          <line x1={x(b.t)} x2={x(b.t)} y1={pad.t} y2={H - pad.b} stroke="rgb(var(--ink-700))" strokeDasharray="3 3" />
+          <text x={x(b.t) + 4} y={H - 6} fontSize="10" fill="rgb(var(--ink-500))" fontFamily="var(--font-display)">
             {b.label}
           </text>
         </g>
       ))}
       <path d={area} fill={homeColor} opacity="0.35" clipPath="url(#above)" />
       <path d={area} fill={awayColor} opacity="0.35" clipPath="url(#below)" />
-      <path d={d} fill="none" stroke="#d6dce4" strokeWidth="1.4" />
+      <path d={d} fill="none" stroke="rgb(var(--ink-200))" strokeWidth="1.4" />
       <text x={pad.l + 4} y={pad.t + 10} fontSize="11" fill={homeColor} fontWeight="700" fontFamily="var(--font-display)">
         {homeAbbr} LEADS
       </text>

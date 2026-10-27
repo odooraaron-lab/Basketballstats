@@ -1,3 +1,4 @@
+import { getViewer } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { LEAGUES } from "@/leagues/registry";
 import { resolveSeason } from "@/lib/league";
@@ -7,6 +8,7 @@ import type { Market, SlipRow } from "@/lib/slipCore";
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
+  if (!(await getViewer())?.hasAccess) return NextResponse.json({ error: "Membership required" }, { status: 402 });
   const body = (await req.json()) as { league?: string; market?: Market; rows?: SlipRow[] };
   const league = LEAGUES[body.league ?? "nba"];
   if (!league || !Array.isArray(body.rows)) return NextResponse.json({ error: "Bad request" }, { status: 400 });

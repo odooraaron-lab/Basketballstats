@@ -10,14 +10,18 @@
     "test": "node --test --experimental-strip-types tests/*.test.ts"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.2.0",
     "next": "15.5.28",
+    "pg": "^8.23.1",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "server-only": "^0.0.1",
+    "stripe": "^23.0.1",
     "tesseract.js": "^5.1.1"
   },
   "devDependencies": {
     "@types/node": "^22",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.20",

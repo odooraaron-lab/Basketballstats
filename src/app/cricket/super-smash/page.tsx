@@ -1,3 +1,4 @@
+import { SeasonNotice } from "@/components/SeasonNotice";
 import Link from "next/link";
 import { Suspense } from "react";
 import { TeamLogo } from "@/components/Img";
@@ -67,6 +68,7 @@ export default async function SuperSmash({ searchParams }: { searchParams: Promi
 
   return (
     <div className="space-y-6">
+      {!sp.season && <SeasonNotice id="super-smash" />}
       <PageTitle
         sub={`New Zealand's men's T20 competition · ${label(shown)} season · times in NZ`}
         right={

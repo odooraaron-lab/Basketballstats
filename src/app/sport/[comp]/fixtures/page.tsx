@@ -1,3 +1,4 @@
+import { SeasonNotice } from "@/components/SeasonNotice";
 import Link from "next/link";
 import { FixtureTile } from "@/components/sport/FixtureTile";
 import { SeasonChips } from "@/components/sport/SeasonChips";
@@ -25,6 +26,7 @@ export default async function Fixtures({ params, searchParams }: { params: Promi
 
   return (
     <div className="space-y-5">
+      <SeasonNotice id={comp.id === "a-league-w" ? "a-league-w" : comp.id} />
       <PageTitle sub="All times NZ. Upcoming games show our projected score and win chance." right={<SeasonChips base={`/sport/${comp.id}/fixtures`} seasons={seasons} season={season} crossYear={cross} />}>
         Fixtures & results
       </PageTitle>

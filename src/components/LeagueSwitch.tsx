@@ -34,8 +34,22 @@ const OTHER: { id: string; href: string; label: string; region: string; accent: 
   { id: "super-smash", href: "/cricket/super-smash", label: "Super Smash", region: "NZ T20", accent: "#f2c400", title: "Super Smash — NZ men's T20" },
 ];
 
-export function LeagueSwitch({ current: given, leagues }: { current: string; leagues: LeagueOption[] }) {
+export function LeagueSwitch({
+  current: given,
+  leagues: allLeagues,
+  hidden = [],
+  isAdmin = false,
+}: {
+  current: string;
+  leagues: LeagueOption[];
+  /** Areas the member hid in Settings (the current one always shows). */
+  hidden?: string[];
+  isAdmin?: boolean;
+}) {
   const path = usePathname();
+  const shown = (id: string) => !hidden.includes(id) || id === given || (id === "super-smash" && path.startsWith("/cricket/super-smash"));
+  const leagues = allLeagues.filter((l) => shown(l.id));
+  const others = OTHER.filter((o) => shown(o.id));
   const current = path.startsWith("/cricket/super-smash") ? "super-smash" : given;
   const remember = (id: string) => {
     try {
@@ -48,7 +62,7 @@ export function LeagueSwitch({ current: given, leagues }: { current: string; lea
     <div className="border-b border-ink-800 bg-ink-900">
       <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-1.5">
         <span className="display hidden text-[11px] font-semibold text-ink-500 sm:inline">League</span>
-        <div className="flex gap-1 overflow-x-auto rounded-lg bg-ink-950 p-0.5" role="tablist" aria-label="Choose league">
+        <div className="flex min-w-0 gap-1 overflow-x-auto rounded-lg bg-ink-950 p-0.5" role="tablist" aria-label="Choose league">
           {leagues.map((l) => {
             const active = l.id === current;
             return (
@@ -70,7 +84,7 @@ export function LeagueSwitch({ current: given, leagues }: { current: string; lea
             );
           })}
           <span className="mx-0.5 w-px self-stretch bg-ink-800" />
-          {OTHER.map((o) => {
+          {others.map((o) => {
             const active = current === o.id;
             return (
               <Link
@@ -88,6 +102,16 @@ export function LeagueSwitch({ current: given, leagues }: { current: string; lea
               </Link>
             );
           })}
+        </div>
+        <div className="ml-auto flex shrink-0 items-center gap-1 pl-2 text-xs">
+          {isAdmin && (
+            <Link href="/admin" className={`rounded-md px-2 py-1 ${path.startsWith("/admin") ? "bg-ink-800 text-ink-100" : "text-ink-400 hover:text-ink-100"}`}>
+              Admin
+            </Link>
+          )}
+          <Link href="/account" className={`rounded-md px-2 py-1 ${path.startsWith("/account") ? "bg-ink-800 text-ink-100" : "text-ink-400 hover:text-ink-100"}`} title="Account & settings">
+            <span aria-hidden>⚙</span> <span className="hidden sm:inline">Account</span>
+          </Link>
         </div>
       </div>
     </div>

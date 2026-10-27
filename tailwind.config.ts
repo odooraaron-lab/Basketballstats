@@ -5,19 +5,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: {
-          950: "#0b0d10",
-          900: "#111419",
-          850: "#161a20",
-          800: "#1c2129",
-          700: "#283039",
-          600: "#3a4350",
-          500: "#5b6573",
-          400: "#8792a2",
-          300: "#b3bcc8",
-          200: "#d6dce4",
-          100: "#eef1f5",
-        },
+        ink: Object.fromEntries(
+          ["950", "900", "850", "800", "700", "600", "500", "400", "300", "200", "100"].map((k) => [k, `rgb(var(--ink-${k}) / <alpha-value>)`]),
+        ),
         court: { DEFAULT: "#f26b1d", soft: "#f8a26b", dim: "#7a3a13" },
         win: "#3fb57a",
         loss: "#e25c5c",

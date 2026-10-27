@@ -1,8 +1,21 @@
-// Minimal signed-cookie session. Works in both the Edge middleware and Node route handlers
-// because it only uses Web Crypto.
+// Signed-cookie sessions. Web Crypto only, so the same code verifies sessions in the Edge
+// middleware and in Node route handlers.
+//
+// Token: <uid>.<role>.<version>.<expiry>.<hmac>
+//   uid     — numeric user id, or "owner" for the site owner (APP_USERNAME / APP_PASSWORD)
+//   role    — "member" | "admin"
+//   version — bumped in the database to sign a user out everywhere
 
-export const SESSION_COOKIE = "bs_session";
+export const SESSION_COOKIE = "cs_session";
+/** Non-secret hint cookie so static pages (the landing page) can show "Open app". */
+export const SIGNED_IN_HINT = "cs_in";
 export const SESSION_DAYS = 30;
+
+export interface SessionClaims {
+  uid: string;
+  role: "member" | "admin";
+  ver: number;
+}
 
 const enc = new TextEncoder();
 
@@ -11,13 +24,7 @@ function secret(): string | null {
 }
 
 async function hmac(data: string, key: string): Promise<string> {
-  const k = await crypto.subtle.importKey(
-    "raw",
-    enc.encode(key),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
+  const k = await crypto.subtle.importKey("raw", enc.encode(key), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   const sig = await crypto.subtle.sign("HMAC", k, enc.encode(data));
   return Array.from(new Uint8Array(sig))
     .map((b) => b.toString(16).padStart(2, "0"))
@@ -36,32 +43,34 @@ export function safeEqual(a: string, b: string): boolean {
 }
 
 export function authConfigured(): boolean {
-  return Boolean(process.env.APP_PASSWORD && process.env.AUTH_SECRET);
+  return Boolean(process.env.AUTH_SECRET);
 }
 
-export function checkCredentials(username: string, password: string): boolean {
+/** The owner login from environment variables — always an admin, works without a database. */
+export function checkOwnerCredentials(username: string, password: string): boolean {
   const u = process.env.APP_USERNAME || "";
   const p = process.env.APP_PASSWORD || "";
-  if (!p) return false;
-  const userOk = u ? safeEqual(username.trim().toLowerCase(), u.trim().toLowerCase()) : true;
-  return safeEqual(password, p) && userOk;
+  if (!u || !p) return false;
+  return safeEqual(username.trim().toLowerCase(), u.trim().toLowerCase()) && safeEqual(password, p);
 }
 
-export async function createSession(username: string): Promise<string> {
+export async function createSession(c: SessionClaims): Promise<string> {
   const key = secret();
   if (!key) throw new Error("AUTH_SECRET is not set");
   const exp = Date.now() + SESSION_DAYS * 86400_000;
-  const payload = `${encodeURIComponent(username)}.${exp}`;
+  const payload = `${c.uid}.${c.role}.${c.ver}.${exp}`;
   return `${payload}.${await hmac(payload, key)}`;
 }
 
-export async function verifySession(token: string | undefined | null): Promise<boolean> {
+export async function verifySession(token: string | undefined | null): Promise<SessionClaims | null> {
   const key = secret();
-  if (!key || !token) return false;
+  if (!key || !token) return null;
   const parts = token.split(".");
-  if (parts.length !== 3) return false;
-  const [user, exp, sig] = parts;
-  if (!Number(exp) || Number(exp) < Date.now()) return false;
-  const expected = await hmac(`${user}.${exp}`, key);
-  return safeEqual(sig, expected);
+  if (parts.length !== 5) return null;
+  const [uid, role, ver, exp, sig] = parts;
+  if (!Number(exp) || Number(exp) < Date.now()) return null;
+  if (role !== "member" && role !== "admin") return null;
+  const expected = await hmac(`${uid}.${role}.${ver}.${exp}`, key);
+  if (!safeEqual(sig, expected)) return null;
+  return { uid, role, ver: Number(ver) || 1 };
 }

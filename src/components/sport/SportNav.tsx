@@ -16,7 +16,7 @@ export function SportNav({ comp, short, accent, siblings }: { comp: string; shor
     <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2.5">
         <Link href={base} className="display flex items-center gap-2 text-xl font-extrabold">
-          Court<span className="text-court">side</span>
+          <span>Court<span className="text-court">side</span></span>
           <span className="rounded px-1.5 py-0.5 text-xs font-bold text-ink-950" style={{ background: accent }}>
             {short}
           </span>
@@ -40,7 +40,7 @@ export function SportNav({ comp, short, accent, siblings }: { comp: string; shor
             );
           })}
         </nav>
-        <form action="/api/logout" method="post" className="ml-auto md:ml-0">
+        <form action="/api/auth/logout" method="post" className="ml-auto md:ml-0">
           <button className="text-xs text-ink-500 hover:text-ink-200" type="submit">
             Log out
           </button>

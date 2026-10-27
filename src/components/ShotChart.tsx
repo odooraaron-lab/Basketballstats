@@ -25,7 +25,7 @@ function threePath(g: ThreePointGeo) {
 
 export function Court({
   children,
-  stroke = "#3a4350",
+  stroke = "rgb(var(--ink-600))",
   three = NBA_THREE,
 }: {
   children?: React.ReactNode;
@@ -195,7 +195,7 @@ export function ShotChart({
                 const x = sx(s.x!);
                 const y = sy(s.y!);
                 return s.made ? (
-                  <circle key={s.playId} cx={x} cy={y} r={6} fill={c} stroke="#0b0d10" strokeWidth="1.5" opacity={0.95}>
+                  <circle key={s.playId} cx={x} cy={y} r={6} fill={c} stroke="rgb(var(--ink-950))" strokeWidth="1.5" opacity={0.95}>
                     <title>{s.text}</title>
                   </circle>
                 ) : (

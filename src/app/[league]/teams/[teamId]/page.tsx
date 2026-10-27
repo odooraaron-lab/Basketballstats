@@ -208,7 +208,7 @@ export default async function TeamPage({
       {/* Header */}
       <div
         className="card relative overflow-hidden p-5"
-        style={{ background: `linear-gradient(110deg, ${color}33 0%, #111419 55%)` }}
+        style={{ background: `linear-gradient(110deg, ${color}33 0%, rgb(var(--ink-900)) 55%)` }}
       >
         <div className="flex flex-wrap items-center gap-5">
           <TeamLogo src={team.logo} alt={team.abbr} size={84} />

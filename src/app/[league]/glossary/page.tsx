@@ -47,6 +47,7 @@ export default async function GlossaryPage({ params }: { params: Promise<{ leagu
       </Card>
 
       <Card title="Stat definitions" pad={false}>
+        <div className="overflow-x-auto">
         <table className="stat-table">
           <thead>
             <tr>
@@ -67,6 +68,7 @@ export default async function GlossaryPage({ params }: { params: Promise<{ leagu
             ))}
           </tbody>
         </table>
+        </div>
       </Card>
 
       <Card title="Expected FG% by zone (xPPS baseline)">
