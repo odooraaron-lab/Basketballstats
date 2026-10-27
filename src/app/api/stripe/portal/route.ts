@@ -1,7 +1,6 @@
 import { back } from "@/lib/http";
 import { getViewer } from "@/lib/session";
 import { stripe, stripeConfigured } from "@/lib/stripe";
-import { site } from "@/site.config";
 
 export async function POST(req: Request) {
   const v = await getViewer();
