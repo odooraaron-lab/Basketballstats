@@ -25,7 +25,8 @@ A password-protected Next.js app that pulls live NBA and NBL (Australia/New Zeal
 
 ### Field sports data
 - **NRL and ANZ Premiership** use Champion Data's match-centre feeds (`mc.championdata.com`, the same JSON behind the nrl.com and netball match centres): `competitions.json` → `{id}/fixture.json` → `{id}/{matchId}.json`, giving official per-player stats (run metres, tackle breaks, goal assists, gains, Nissan Net Points…).
-- **Super Rugby Pacific** (`rugby/242041`) and **A-League Men/Women** (`soccer/aus.1`, `aus.w.1`) use ESPN's scoreboard, standings and match summaries.
+- **Super Rugby Pacific** (`rugby/242041`) and **A-League Men/Women** (`soccer/aus.1`, `aus.w.1`) use ESPN's scoreboard (queried by month/year — ESPN's date-range queries return nothing), standings and match summaries. ESPN has no rugby box score, so Super Rugby player stats (tries, points, conversions, penalty goals, starts, bench appearances, cards) are built from lineups and scoring events. Finals are detected as the short rounds at the end of a season.
+- **Super Smash** uses ESPN competition `8654` ("New Zealand Domestic Twenty20") with `?season=<start year>`; the day-by-day cricket panel only keeps a few months of history.
 - Each competition is defined in `src/sports/comps.ts` (source, ladder points, finals spots, featured stats, margin spread for win chances). Projections come from an attack/defence rating fitted to the season's results with home advantage (`src/sports/model.ts`, unit-tested).
 
 ### League environments

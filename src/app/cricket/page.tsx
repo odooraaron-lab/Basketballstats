@@ -107,7 +107,7 @@ function MatchTile({ m, date }: { m: Match; date: string }) {
         ) : (
           <span className="font-semibold text-ink-400">Result</span>
         )}
-        <span className="ml-auto truncate text-ink-600">{m.description}</span>
+        <span className="ml-auto truncate text-ink-600">{m.description.split(",")[0]}</span>
       </div>
       <div className="space-y-1.5">
         {m.teams.map((t) => (

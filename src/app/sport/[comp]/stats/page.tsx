@@ -1,7 +1,7 @@
 import { SeasonChips } from "@/components/sport/SeasonChips";
 import { SortableTable, type Column, type Row } from "@/components/SortableTable";
 import { Empty, PageTitle, Tabs } from "@/components/ui";
-import { statOf } from "@/sports/comps";
+import { perGame, statOf } from "@/sports/comps";
 import { getSeasonBook, getSeasons, requireComp, resolveSeason } from "@/sports/data";
 
 export const revalidate = 300;
@@ -56,8 +56,7 @@ export default async function Stats({ params, searchParams }: { params: Promise<
             team: t?.abbr ?? "",
             gp: p.games,
             ...Object.fromEntries(defs.map((d) => {
-              const v = statOf(p.totals, d);
-              return [d.label, v == null ? null : per === "avg" ? v / p.games : v];
+              return [d.label, per === "avg" ? perGame(p.totals, p.games, d) : d.rate ? statOf(p.totals, d) : statOf(p.totals, d)];
             })),
           },
         };

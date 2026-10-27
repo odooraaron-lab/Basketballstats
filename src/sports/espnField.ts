@@ -5,7 +5,7 @@ import type { CompDef, SourceDef } from "./comps";
 import { humanise } from "./comps";
 import { colorFor, getJson, mapLimit, num, type J } from "./http";
 import type { Fixture, LadderRow, MatchEvent, MatchFile, PlayerLine, Side, TeamStatRow } from "./model";
-import { assignRounds } from "./model";
+import { assignRounds, teamStatsFromPlayers } from "./model";
 
 type EspnSource = Extract<SourceDef, { kind: "espn" }>;
 const site = (s: EspnSource) => `https://site.api.espn.com/apis/site/v2/sports/${s.sport}/${s.league}`;
@@ -87,15 +87,17 @@ export async function espnFixtures(comp: CompDef, year: number): Promise<Fixture
   const events = new Map<string, J>();
   const take = (j: J) => (j?.events ?? []).forEach((e: J) => e?.id && events.set(String(e.id), e));
 
-  // 1) whole season in one call; 2) month by month; 3) every team's schedule.
-  take(await getJson(`${site(s)}/scoreboard?dates=${ymd(start)}-${ymd(end)}&limit=1000`, rv));
+  // ESPN's date-range queries return nothing, but whole months (dates=YYYYMM) work.
+  const months: string[] = [];
+  for (let d = new Date(start); d <= end; d = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1)))
+    months.push(`${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, "0")}`);
+  const nowKey = ymd(new Date()).slice(0, 6);
+  // Whole calendar years too: month queries occasionally drop a game near a month boundary.
+  const years = [...new Set(months.map((m) => m.slice(0, 4)))];
+  const queries = [...years.map((y) => [`dates=${y}&limit=1000`, `${y}` < nowKey.slice(0, 4) ? 6 * 3600 : rv] as const), ...months.map((m) => [`dates=${m}&limit=500`, m < nowKey ? 6 * 3600 : rv] as const)];
+  (await mapLimit(queries, 4, ([q, r]) => getJson(`${site(s)}/scoreboard?${q}`, r))).forEach(take);
   if (events.size < 4) {
-    const months: [Date, Date][] = [];
-    for (let d = new Date(start); d <= end; d = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1)))
-      months.push([d, new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0))]);
-    (await mapLimit(months, 4, ([a, b]) => getJson(`${site(s)}/scoreboard?dates=${ymd(a)}-${ymd(b)}&limit=500`, rv))).forEach(take);
-  }
-  if (events.size < 4) {
+    // Fallback: every team's schedule
     const teams = await espnTeams(comp);
     const scheds = await mapLimit(teams, 6, async (t) => {
       const res = await getJson(`${site(s)}/teams/${t.id}/schedule?season=${year}`, rv);
@@ -107,7 +109,38 @@ export async function espnFixtures(comp: CompDef, year: number): Promise<Fixture
   const out = [...events.values()]
     .map((e) => eventToFixture(comp, e, year))
     .filter((f): f is Fixture => Boolean(f && f.date && Date.parse(f.date) >= start.getTime() - 86400_000 && Date.parse(f.date) <= end.getTime() + 86400_000));
-  return assignRounds(out).sort((a, b) => (a.date < b.date ? -1 : 1));
+  return markFinals(assignRounds(out.sort((a, b) => (a.date < b.date ? -1 : 1))));
+}
+
+/**
+ * ESPN doesn't flag finals for these leagues. Finals are the trailing rounds that are much
+ * smaller than a normal round (≤ 30% of the teams' games), or games with undecided (TBC) teams.
+ */
+export function markFinals(fx: Fixture[]): Fixture[] {
+  const teams = new Set(fx.flatMap((f) => [f.home.id, f.away.id]));
+  const tbc = (f: Fixture) => /^(tba|tbc|tbd)$/i.test(f.home.name) || /^(tba|tbc|tbd)$/i.test(f.away.name);
+  const byRound = new Map<number, Fixture[]>();
+  for (const f of fx) if (f.round != null && !f.final) byRound.set(f.round, [...(byRound.get(f.round) ?? []), f]);
+  const rounds = [...byRound.keys()].sort((a, b) => a - b);
+  const small = Math.max(1, Math.ceil(teams.size * 0.3));
+  const finalsRounds: number[] = [];
+  for (let i = rounds.length - 1; i >= 0; i--) {
+    const fs = byRound.get(rounds[i])!;
+    if (fs.length <= small || fs.every(tbc)) finalsRounds.unshift(rounds[i]);
+    else break;
+  }
+  // Need a real regular season before it (don't flag a short early-season draw)
+  if (finalsRounds.length && finalsRounds.length < rounds.length / 3) {
+    const n = finalsRounds.length;
+    finalsRounds.forEach((r, i) => {
+      const fs = byRound.get(r)!;
+      const left = n - i; // 1 = last
+      const label = left === 1 && fs.length === 1 ? "Grand Final" : left === 2 && fs.length <= 2 ? "Semi Finals" : `Finals week ${i + 1}`;
+      fs.forEach((f) => ((f.final = true), (f.roundLabel = label)));
+    });
+  }
+  for (const f of fx) if (!f.final && tbc(f)) (f.final = true), (f.roundLabel = "Finals");
+  return fx;
 }
 
 export async function espnTeams(comp: CompDef): Promise<Side[]> {
@@ -139,14 +172,14 @@ export async function espnStandings(comp: CompDef, year: number): Promise<Ladder
       teamId: String(t.id),
       team: { id: String(t.id), name: String(t.displayName ?? t.name), abbr: String(t.abbreviation ?? "").toUpperCase(), logo: logoOf(t), color: t.color ? `#${t.color}` : colorFor(String(t.displayName)), score: null },
       played: g("gamesPlayed", "played"),
-      won: g("wins"),
-      drawn: g("ties", "draws"),
-      lost: g("losses"),
-      byes: g("byes"),
+      won: g("wins", "gamesWon"),
+      drawn: g("ties", "draws", "gamesDrawn"),
+      lost: g("losses", "gamesLost"),
+      byes: g("byes", "gamesBye"),
       pf,
       pa,
-      diff: st.has("pointDifferential") ? g("pointDifferential") : pf - pa,
-      bonus: g("bonusPoints", "bonusPointsTry", "bonus") + (st.has("bonusPointsTry") ? g("bonusPointsLosing") : 0),
+      diff: st.has("pointDifferential") ? g("pointDifferential") : st.has("pointsDifference") ? g("pointsDifference") : pf - pa,
+      bonus: st.has("bonusPoints") ? g("bonusPoints") : g("bonusPointsTry") + g("bonusPointsLosing"),
       points: g("points"),
       form: [],
       homeRec: "",
@@ -177,7 +210,8 @@ export async function espnMatch(comp: CompDef, fixture: Fixture, revalidate: num
   const hc = j.header?.competitions?.[0];
   const fx = (hc && eventToFixture(comp, { ...hc, id: fixture.id, season: j.header?.season }, fixture.season)) || fixture;
   fx.round = fixture.round;
-  fx.roundLabel = fx.final ? fx.roundLabel : fixture.roundLabel;
+  fx.final = fixture.final || fx.final;
+  fx.roundLabel = fixture.roundLabel || fx.roundLabel;
   fx.venue = fx.venue || String(j.gameInfo?.venue?.fullName ?? fixture.venue);
   const h = fx.home.id;
   const a = fx.away.id;
@@ -232,30 +266,74 @@ export async function espnMatch(comp: CompDef, fixture: Fixture, revalidate: num
     }
   }
 
-  // Events: keyEvents (soccer) → scoring plays → header details
+  // Events: keyEvents (soccer) → scoring plays → header details (rugby)
   const events: MatchEvent[] = [];
   const evs: J[] = j.keyEvents?.length ? j.keyEvents : (j.plays ?? []).filter((p: J) => p.scoringPlay).length ? (j.plays ?? []).filter((p: J) => p.scoringPlay) : hc?.details ?? [];
+  let rh = 0, ra = 0;
   for (const e of evs) {
     const kind = String(e.type?.text ?? e.type?.type ?? (e.scoringPlay ? "Score" : "")).trim();
-    if (/kickoff|kick off|start|end|halftime|half-time|full ?time/i.test(kind) && !e.scoringPlay) continue;
+    if (!/goal|try|conversion|card|penalty|substitut|var/i.test(kind) && !e.scoringPlay) continue;
+    if (/substitut/i.test(kind) && s.sport === "rugby") continue; // dozens per match; counted in player stats instead
     const who = (e.participants ?? e.athletesInvolved ?? []).map((p: J) => p.athlete?.displayName ?? p.displayName).filter(Boolean).join(", ");
+    const teamId = String(e.team?.id ?? "");
+    const scoring = Boolean(e.scoringPlay ?? /goal|try|conversion/i.test(kind)) && !/miss|saved/i.test(kind);
+    if (s.sport === "soccer" && scoring) teamId === h ? rh++ : teamId === a && ra++;
     events.push({
       clock: String(e.clock?.displayValue ?? e.clock ?? ""),
       period: num(e.period?.number) ?? undefined,
-      teamId: String(e.team?.id ?? ""),
+      teamId,
       kind: kind.toLowerCase(),
-      text: String(e.text ?? e.shortText ?? [who, kind].filter(Boolean).join(" — ")),
-      scoring: Boolean(e.scoringPlay ?? /goal|try|penalty goal|conversion|drop goal/i.test(kind)),
-      homeScore: num(e.homeScore) ?? undefined,
-      awayScore: num(e.awayScore) ?? undefined,
+      text: s.sport === "rugby" ? who || kind : String(e.text ?? e.shortText ?? [who, kind].filter(Boolean).join(" — ")),
+      scoring,
+      homeScore: num(e.homeScore) ?? (s.sport === "soccer" && scoring ? rh : undefined),
+      awayScore: num(e.awayScore) ?? (s.sport === "soccer" && scoring ? ra : undefined),
     });
   }
 
+  // Rugby: ESPN has no player box score, so build one from lineups + scoring/card/sub events
+  if (s.sport === "rugby") {
+    const byId = new Map(players.map((p) => [p.id, p]));
+    for (const p of players) {
+      const jersey = Number(p.number);
+      p.starter = jersey >= 1 && jersey <= 15;
+      p.stats = p.starter ? { starts: 1 } : {};
+    }
+    const add = (id: string, k: string, v = 1) => {
+      const p = byId.get(id);
+      if (p) p.stats[k] = (p.stats[k] ?? 0) + v;
+    };
+    const POINTS: Record<string, [string, number]> = { try: ["tries", 5], conversion: ["conversions", 2], "penalty goal": ["penaltyGoals", 3], "drop goal": ["dropGoals", 3] };
+    for (const e of hc?.details ?? []) {
+      const kind = String(e.type?.text ?? "").toLowerCase();
+      const id = String(e.participants?.[0]?.athlete?.id ?? "");
+      if (!id) continue;
+      if (POINTS[kind]) {
+        add(id, POINTS[kind][0]);
+        add(id, "points", POINTS[kind][1]);
+      } else if (kind === "substitute on") add(id, "subIns");
+      else if (/yellow/.test(kind)) add(id, "yellowCards");
+      else if (/red/.test(kind)) add(id, "redCards");
+    }
+  }
+  if (!teamStats.length && players.some((p) => Object.keys(p.stats).length)) {
+    const label = new Map(comp.teamFeatured.flatMap((d) => d.keys.map((k) => [k, d.label] as const)));
+    teamStats.push(...teamStatsFromPlayers(players, h, a, (k) => label.get(k) ?? humanise(k)).filter((r) => !/^(starts|subIns)$/.test(r.key)));
+  }
+
+  // Score by half: linescores when they add up, else from the event running score
   const periods: { home: number | null; away: number | null }[] = [];
   const ls = (id: string) => ((hc?.competitors ?? []).find((c: J) => String(c.team?.id ?? c.id) === id)?.linescores ?? []) as J[];
-  const lh = ls(h);
-  const la = ls(a);
-  for (let i = 0; i < Math.max(lh.length, la.length); i++) periods.push({ home: num(lh[i]?.value ?? lh[i]?.displayValue), away: num(la[i]?.value ?? la[i]?.displayValue) });
+  const lh = ls(h).map((x) => num(x?.value ?? x?.displayValue) ?? 0);
+  const la = ls(a).map((x) => num(x?.value ?? x?.displayValue) ?? 0);
+  const sum = (xs: number[]) => xs.reduce((t, v) => t + v, 0);
+  const plausible = lh.length >= 2 && lh.length <= 4 && sum(lh) === fx.home.score && sum(la) === fx.away.score && lh.filter((v, i) => v || la[i]).length > 1;
+  if (plausible) for (let i = 0; i < lh.length; i++) periods.push({ home: lh[i], away: la[i] });
+  else if (fx.state === "post" && events.some((e) => e.homeScore != null && e.period === 1)) {
+    const ht = [...events].filter((e) => e.period === 1 && e.homeScore != null).pop();
+    const h1 = ht?.homeScore ?? 0;
+    const a1 = ht?.awayScore ?? 0;
+    periods.push({ home: h1, away: a1 }, { home: (fx.home.score ?? 0) - h1, away: (fx.away.score ?? 0) - a1 });
+  }
 
   return {
     fixture: fx,

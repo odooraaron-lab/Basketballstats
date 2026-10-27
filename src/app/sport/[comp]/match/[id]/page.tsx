@@ -5,7 +5,7 @@ import { SortableTable, type Column, type Row } from "@/components/SortableTable
 import { TeamMark } from "@/components/sport/TeamMark";
 import { Card, CompareBar, Empty, Stat } from "@/components/ui";
 import { fmt, fmtDayTime } from "@/lib/format";
-import { statOf, type CompDef } from "@/sports/comps";
+import { perGame, statOf, type CompDef } from "@/sports/comps";
 import { findFixture, getMatchFile, getSeasonBook, requireComp, type SeasonBook } from "@/sports/data";
 import type { Fixture, MatchEvent, MatchFile, PlayerLine } from "@/sports/model";
 import { buildPreview } from "@/sports/preview";
@@ -199,7 +199,7 @@ function FlowSummary({ m, events }: { m: MatchFile; events: MatchEvent[] }) {
   return (
     <div className="grid grid-cols-2 gap-3">
       <Stat label="Lead changes" value={changes} />
-      <Stat label="Goals" value={events.length} />
+      <Stat label="Goals" value={events.length} sub="incl. super shots" />
       <Stat label={`${f.home.abbr} biggest lead`} value={maxH} />
       <Stat label={`${f.away.abbr} biggest lead`} value={maxA} />
       <Stat label={`${f.home.abbr} best run`} value={bestH} sub="unanswered goals" />
@@ -242,7 +242,8 @@ function TopPerformers({ comp, m }: { comp: CompDef; m: MatchFile }) {
 }
 
 function PlayerTable({ comp, m, teamId, title }: { comp: CompDef; m: MatchFile; teamId: string; title: string }) {
-  const players = m.players.filter((p) => p.teamId === teamId && Object.keys(p.stats).length);
+  // Hide named reserves who didn't take the field
+  const players = m.players.filter((p) => p.teamId === teamId && (p.starter || Object.entries(p.stats).some(([k, v]) => v > 0 && !/^(starts|appearances)$/.test(k))));
   if (!players.length) return null;
   const defs = comp.featured.filter((d) => players.some((p) => statOf(p.stats, d) != null));
   const known = new Set(defs.flatMap((d) => d.keys));
@@ -390,19 +391,15 @@ function SeasonCompare({ comp, book, f }: { comp: CompDef; book: SeasonBook; f: 
   const th = book.teams.find((t) => t.teamId === f.home.id);
   const ta = book.teams.find((t) => t.teamId === f.away.id);
   if (!th || !ta) return null;
-  const keys = new Map<string, string>();
-  for (const m of book.files) for (const r of m.teamStats) if (!keys.has(r.key)) keys.set(r.key, r.label);
-  const featured = comp.teamFeatured.flatMap((d) => d.keys).filter((k) => keys.has(k));
-  const list = (featured.length ? featured : [...keys.keys()]).slice(0, 12);
-  const lower = new Set(comp.teamFeatured.filter((d) => d.lowerBetter).flatMap((d) => d.keys));
+  const defs = comp.teamFeatured.filter((d) => statOf(th.totals, d) != null).slice(0, 14);
   return (
     <Card title="Season averages per game">
       <div className="mb-1 flex justify-between text-xs font-semibold">
         <span style={{ color: f.home.color }}>{f.home.abbr}</span>
         <span style={{ color: f.away.color }}>{f.away.abbr}</span>
       </div>
-      {list.map((k) => (
-        <CompareBar key={k} label={keys.get(k)!} a={th.games ? (th.totals[k] ?? 0) / th.games : null} b={ta.games ? (ta.totals[k] ?? 0) / ta.games : null} colorA={f.home.color} colorB={f.away.color} lowerBetter={lower.has(k)} />
+      {defs.map((d) => (
+        <CompareBar key={d.label} label={d.label} a={perGame(th.totals, th.games, d)} b={perGame(ta.totals, ta.games, d)} colorA={f.home.color} colorB={f.away.color} lowerBetter={d.lowerBetter} />
       ))}
     </Card>
   );

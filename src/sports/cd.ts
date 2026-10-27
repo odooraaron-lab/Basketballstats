@@ -45,15 +45,15 @@ const TEAMS: [RegExp, string, string][] = [
   [/mystics/i, "MYS", "#1f8fe0"],
   [/stars/i, "STA", "#00a3ad"],
   [/steel/i, "STE", "#8e44ad"],
-  [/magic/i, "MAG", "#e8b92b"],
+  [/magic/i, "MAG", "#f15a24"],
 ];
 
-function side(id: unknown, name: string, score: unknown): Side {
+function side(id: unknown, name: string, score: unknown, code?: unknown): Side {
   const meta = TEAMS.find(([re]) => re.test(name));
   return {
     id: String(id ?? name),
     name,
-    abbr: meta?.[1] ?? name.replace(/[^A-Za-z ]/g, "").split(" ").map((w) => w[0]).join("").slice(0, 3).toUpperCase(),
+    abbr: meta?.[1] ?? (code ? String(code) : name.replace(/[^A-Za-z ]/g, "").split(" ").map((w) => w[0]).join("").slice(0, 3).toUpperCase()),
     logo: "",
     color: meta?.[2] ?? colorFor(name),
     score: num(score),
@@ -87,19 +87,20 @@ export async function cdFixtures(comp: CompDef, cds: CdComp[]): Promise<Fixture[
     const matches: J[] = j?.fixture?.match ?? [];
     for (const m of matches) {
       const date = String(m.utcStartTime ?? m.localStartTime ?? "");
-      const home = side(m.homeSquadId, String(m.homeSquadName ?? m.homeSquadNickname ?? "Home"), m.homeSquadScore);
-      const away = side(m.awaySquadId, String(m.awaySquadName ?? m.awaySquadNickname ?? "Away"), m.awaySquadScore);
+      const home = side(m.homeSquadId, String(m.homeSquadName ?? m.homeSquadNickname ?? "Home"), m.homeSquadScore, m.homeSquadCode);
+      const away = side(m.awaySquadId, String(m.awaySquadName ?? m.awaySquadNickname ?? "Away"), m.awaySquadScore, m.awaySquadCode);
       const status = String(m.matchStatus ?? "");
       const state = stateOf(status, date, home.score != null && away.score != null && home.score + away.score > 0);
       if (state === "pre") (home.score = null), (away.score = null);
       const round = num(m.roundNumber);
-      const final = finalsComp || (c.rounds != null && round != null && round > c.rounds) || /final/i.test(String(m.matchType ?? m.roundName ?? ""));
+      const final = finalsComp || m.matchType === "F" || Boolean(m.finalCode);
       out.push({
         id: `${c.id}-${m.matchId}`,
         comp: comp.id,
         season: c.season,
         round,
-        roundLabel: final ? String(m.roundName ?? (round != null ? `Finals week ${round - (c.rounds ?? round) || 1}` : "Finals")) : round != null ? `Round ${round}` : "",
+        roundLabel: final ? `Finals week ${round ?? 1}` : round != null ? `Round ${round}` : "",
+        stage: final ? FINAL_NAMES[String(m.finalCode ?? "")] ?? (m.finalShortCode ? String(m.finalShortCode) : undefined) : undefined,
         date,
         state,
         status: state === "post" ? "Full time" : state === "in" ? status || "Live" : "",
@@ -112,8 +113,26 @@ export async function cdFixtures(comp: CompDef, cds: CdComp[]): Promise<Fixture[
       });
     }
   });
+  // Name each finals week after its games (e.g. all grand final → "Grand Final")
+  const weeks = new Map<string, Fixture[]>();
+  for (const f of out) if (f.final) weeks.set(`${f.season}:${f.round}`, [...(weeks.get(`${f.season}:${f.round}`) ?? []), f]);
+  for (const fs of weeks.values()) {
+    const stages = [...new Set(fs.map((f) => f.stage).filter(Boolean))];
+    const label = stages.length === 1 ? (fs.length > 1 ? `${stages[0]}s` : stages[0]!) : `Finals week ${fs[0].round ?? 1}`;
+    fs.forEach((f) => (f.roundLabel = label));
+  }
   return out.sort((a, b) => (a.date < b.date ? -1 : 1));
 }
+
+const FINAL_NAMES: Record<string, string> = {
+  QUAL: "Qualifying Final",
+  ELIM: "Elimination Final",
+  SEMI: "Semi Final",
+  PRELIM: "Preliminary Final",
+  MINOR: "Minor Semi Final",
+  MAJOR: "Major Semi Final",
+  GRAND: "Grand Final",
+};
 
 // Keys in match files that aren't stats.
 const NOT_STAT = /(^|_)(id|ids)$|Id$|^period$|^jumper|Number$|Code$|^squad|^player|Time$|^created|^updated|^order/i;
@@ -124,15 +143,16 @@ function numericStats(o: J): Record<string, number> {
   return s;
 }
 
-let defsCache: { at: number; map: Map<string, string> } | null = null;
+const defsCache = new Map<string, { at: number; map: Map<string, string> }>();
 async function statLabels(src: CdSource): Promise<Map<string, string>> {
   if (!src.statDefsPath) return new Map();
-  if (defsCache && Date.now() - defsCache.at < 6 * 3600_000) return defsCache.map;
+  const hit = defsCache.get(src.statDefsPath);
+  if (hit && Date.now() - hit.at < 6 * 3600_000) return hit.map;
   const j = await getJson(`${CD}${src.statDefsPath}`, 24 * 3600);
-  const list: J[] = j?.definitions ?? j?.statisticDefinitions ?? j?.statistics ?? (Array.isArray(j) ? j : []);
+  const list: J[] = j?.statisticDefinitions?.statistic ?? j?.definitions ?? j?.statistics ?? (Array.isArray(j) ? j : []);
   const map = new Map<string, string>();
   for (const d of list) if (d?.dataName) map.set(String(d.dataName), String(d.longName ?? d.shortName ?? d.dataName));
-  defsCache = { at: Date.now(), map };
+  defsCache.set(src.statDefsPath, { at: Date.now(), map });
   return map;
 }
 
@@ -143,7 +163,8 @@ export async function cdMatch(comp: CompDef, fixture: Fixture, revalidate: numbe
   const ms = j?.matchStats;
   if (!ms) return null;
   const featuredLabel = new Map(comp.featured.flatMap((d) => d.keys.map((k) => [k, d.label] as const)));
-  const label = (k: string) => labelsMap.get(k) ?? featuredLabel.get(k) ?? humanise(k);
+  for (const d of comp.teamFeatured) for (const k of d.keys) if (!featuredLabel.has(k)) featuredLabel.set(k, d.label);
+  const label = (k: string) => featuredLabel.get(k) ?? labelsMap.get(k) ?? humanise(k);
 
   const info = new Map<string, J>();
   for (const p of ms.playerInfo?.player ?? []) info.set(String(p.playerId), p);
@@ -159,15 +180,15 @@ export async function cdMatch(comp: CompDef, fixture: Fixture, revalidate: numbe
     const id = String(p.playerId ?? "");
     const pi = info.get(id) ?? {};
     const teamId = String(p.squadId ?? pi.squadId ?? "");
-    const pos = String(p.startingPositionCode ?? startPos.get(id) ?? pi.position ?? p.currentPositionCode ?? "");
+    const pos = String(p.position ?? p.startingPositionCode ?? startPos.get(id) ?? pi.position ?? p.currentPositionCode ?? "");
     const name = String(pi.displayName ?? (pi.firstname ? `${pi.firstname} ${pi.surname ?? ""}` : pi.shortDisplayName ?? `#${id}`)).trim();
     players.push({
       id,
       name,
       teamId,
-      number: p.jumperNumber != null ? String(p.jumperNumber) : pi.jumperNumber != null ? String(pi.jumperNumber) : undefined,
-      position: pos && pos !== "-" ? pos : undefined,
-      starter: pos ? !/^(I|IC|BENCH|RES|-)$/i.test(pos) : undefined,
+      number: Number(p.jumperNumber ?? pi.jumperNumber) > 0 ? String(p.jumperNumber ?? pi.jumperNumber) : undefined,
+      position: pos && pos !== "-" ? (pos === "Interchange" ? "Bench" : pos) : comp.sport === "netball" ? "Bench" : undefined,
+      starter: pos ? !/^(I|IC|BENCH|RES|-|S)$|interchange|reserve|replacement/i.test(pos) : undefined,
       stats: numericStats(p),
     });
   }
@@ -218,7 +239,7 @@ export async function cdMatch(comp: CompDef, fixture: Fixture, revalidate: numbe
     else if (team === a) as += pts;
     const kind = String(e.scoreName ?? "score").replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase();
     // Netball score flow is every goal; keep the timeline to tries/goals for league only.
-    events.push({ clock: clock(e.period, e.periodSeconds), period: num(e.period) ?? undefined, teamId: team, kind, text: [nameOf(e.playerId), kind].filter(Boolean).join(" — "), scoring: true, homeScore: hs, awayScore: as });
+    events.push({ clock: clock(e.period, e.periodSeconds), period: num(e.period) ?? undefined, teamId: team, kind, text: [nameOf(e.playerId), kind].filter(Boolean).join(" — "), scoring: pts > 0, homeScore: hs, awayScore: as });
   }
   for (const b of ms.sinBins?.binned ?? []) events.push({ clock: clock(b.period, b.periodSeconds), period: num(b.period) ?? undefined, teamId: String(b.squadId ?? ""), kind: "sin bin", text: `${nameOf(b.playerId)} — sin bin`, scoring: false });
   for (const r of ms.reports?.onReport ?? []) events.push({ clock: clock(r.period, r.periodSeconds), period: num(r.period) ?? undefined, teamId: String(r.squadId ?? ""), kind: "on report", text: `${nameOf(r.playerId)} — on report${r.offence ? ` (${r.offence})` : ""}`, scoring: false });

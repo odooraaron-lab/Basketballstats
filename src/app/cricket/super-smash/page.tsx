@@ -2,31 +2,29 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { TeamLogo } from "@/components/Img";
 import { Card, Empty, PageTitle, Stat } from "@/components/ui";
-import { getMatch, getMatchesBetween, ballsOf, type Match } from "@/lib/cricket";
+import { getCompetitionSeason, getMatch, ballsOf, type Match } from "@/lib/cricket";
 import { fmt, fmtDay, fmtTime, localDayKey } from "@/lib/format";
 import { t20Ladder, type T20Result } from "@/lib/t20Ladder";
 
 export const revalidate = 300;
 export const maxDuration = 60;
 
-const isSmash = (m: Match) => /super smash/i.test(`${m.leagueName} ${m.name}`) && !m.women;
-const isFinal = (m: Match) => /final|eliminator|qualifier/i.test(m.description);
-
-/** Season Y runs late November Y to early March Y+1. */
-function defaultSeason(now = new Date()) {
-  const k = localDayKey(now);
-  const y = Number(k.slice(0, 4));
-  const m = Number(k.slice(4, 6));
-  return m >= 11 ? y : y - 1;
-}
-
-const offSeason = () => {
-  const m = localDayKey(new Date()).slice(4, 6);
-  return m >= "04" && m <= "10";
+// ESPN files Super Smash as competition 8654 ("New Zealand Domestic Twenty20"); seasons are
+// keyed by their starting year (2025 = the 2025–26 summer).
+const SMASH_ID = "8654";
+const FRANCHISE: Record<string, string> = {
+  Auckland: "Auckland Aces",
+  Canterbury: "Canterbury Kings",
+  "Central Districts": "Central Stags",
+  "Northern Districts": "Northern Brave",
+  Otago: "Otago Volts",
+  Wellington: "Wellington Firebirds",
 };
+const brand = (m: Match): Match => ({ ...m, teams: m.teams.map((t) => ({ ...t, name: FRANCHISE[t.name] ?? t.name })) });
+const isFinal = (m: Match) => /final|eliminator|qualifier/i.test(m.description.split(",")[0]);
 
 async function seasonMatches(y: number) {
-  return getMatchesBetween(`${y}1120`, `${y + 1}0310`, isSmash);
+  return (await getCompetitionSeason(SMASH_ID, y)).map(brand);
 }
 
 function toResult(m: Match): T20Result {
@@ -42,15 +40,16 @@ function toResult(m: Match): T20Result {
 
 export default async function SuperSmash({ searchParams }: { searchParams: Promise<{ season?: string }> }) {
   const sp = await searchParams;
-  const cur = defaultSeason();
-  const season = Number(sp.season) > 2000 ? Number(sp.season) : cur;
-  let matches = await seasonMatches(season);
-  let shown = season;
-  // Off-season and next season's draw not out yet → show the season just finished
-  if (!sp.season && !matches.length) {
-    shown = season - 1;
-    matches = await seasonMatches(shown);
-  }
+  const y = Number(localDayKey(new Date()).slice(0, 4));
+  const candidates = [y, y - 1, y - 2, y - 3];
+  const all = await Promise.all(candidates.map((c) => seasonMatches(c).catch(() => [] as Match[])));
+  const available = candidates.filter((_, i) => all[i].length);
+  // Default: the newest season that has results (the next draw is shown as "coming up")
+  const withResults = candidates.find((_, i) => all[i].some((m) => m.state !== "pre")) ?? available[0] ?? y;
+  const shown = Number(sp.season) > 2000 ? Number(sp.season) : withResults;
+  const matches = all[candidates.indexOf(shown)] ?? (await seasonMatches(shown));
+  const next = available.find((c) => c > shown && all[candidates.indexOf(c)].some((m) => m.state === "pre"));
+  const nextFirst = next != null ? all[candidates.indexOf(next)].find((m) => m.state === "pre") : undefined;
   const done = matches.filter((m) => m.state === "post");
   const ladder = t20Ladder(done.map(toResult));
   const firsts = done.map((m) => m.teams.find((t) => t.innings[0]?.period === 1)?.innings[0]?.runs ?? null).filter((v): v is number => v != null);
@@ -60,10 +59,10 @@ export default async function SuperSmash({ searchParams }: { searchParams: Promi
     return !w.innings.some((i) => i.period === 1);
   }).length;
   // Off-season (Apr–Oct) also offers the coming season in case the draw is out
-  const seasons = [...new Set([offSeason() ? cur + 1 : cur, cur, cur - 1, cur - 2])];
+  const seasons = available;
   const label = (y: number) => `${y}–${String(y + 1).slice(2)}`;
   const live = matches.filter((m) => m.state === "in");
-  const upcoming = matches.filter((m) => m.state === "pre").slice(0, 6);
+  const upcoming = matches.filter((m) => m.state === "pre").slice(0, done.length ? 6 : 40);
   const results = [...done].reverse();
 
   return (
@@ -82,6 +81,14 @@ export default async function SuperSmash({ searchParams }: { searchParams: Promi
       >
         Super Smash
       </PageTitle>
+      {next != null && nextFirst && (
+        <Link href={`/cricket/super-smash?season=${next}`} className="card flex items-center justify-between gap-3 px-4 py-3 text-sm hover:border-ink-600">
+          <span>
+            <b className="text-court">{label(next)} draw is out</b> — starts {fmtDay(nextFirst.date)} with {nextFirst.teams.map((t) => t.name).join(" v ")}
+          </span>
+          <span className="text-ink-400">See fixtures →</span>
+        </Link>
+      )}
       {!matches.length ? (
         <Empty>No Super Smash matches found for {label(shown)}. The draw usually appears in November.</Empty>
       ) : (
@@ -95,7 +102,7 @@ export default async function SuperSmash({ searchParams }: { searchParams: Promi
 
           {(live.length > 0 || upcoming.length > 0) && (
             <section>
-              <h2 className="display mb-2 text-lg font-bold text-ink-200">{live.length ? "Live & next" : "Coming up"}</h2>
+              <h2 className="display mb-2 text-lg font-bold text-ink-200">{live.length ? "Live & next" : done.length ? "Coming up" : "Fixtures"}</h2>
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {[...live, ...upcoming].map((m) => (
                   <Tile key={m.id} m={m} />
@@ -178,7 +185,7 @@ function Tile({ m }: { m: Match }) {
     <Link href={`/cricket/match/${m.leagueId}/${m.id}?d=${localDayKey(m.date)}`} className="card block p-3 hover:border-ink-600">
       <div className="mb-2 flex items-center gap-2 text-[11px]">
         {m.state === "in" ? <span className="font-semibold text-loss">LIVE</span> : <span className="text-ink-400">{fmtDay(m.date)} · {fmtTime(m.date)}</span>}
-        <span className="ml-auto truncate text-ink-600">{m.description}</span>
+        <span className="ml-auto truncate text-ink-600">{m.description.split(",")[0]}</span>
       </div>
       {m.teams.map((t) => (
         <div key={t.id} className="flex items-center gap-2.5 py-0.5">

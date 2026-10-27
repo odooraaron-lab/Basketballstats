@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { TeamMark } from "@/components/sport/TeamMark";
 import { Card, PageTitle, Stat } from "@/components/ui";
 import { fmt, fmtDay } from "@/lib/format";
-import { statOf } from "@/sports/comps";
+import { perGame, statOf } from "@/sports/comps";
 import { getSeasonBook, requireComp, resolveSeason } from "@/sports/data";
 
 export const revalidate = 300;
@@ -22,8 +22,9 @@ export default async function PlayerPage({ params, searchParams }: { params: Pro
   // League rank per game among regulars
   const regulars = book.players.filter((x) => x.games >= Math.max(2, Math.round(Math.max(...book.players.map((y) => y.games)) * 0.3)));
   const rankOf = (d: (typeof defs)[number]) => {
-    const mine = (statOf(p.totals, d) ?? 0) / p.games;
-    return 1 + regulars.filter((x) => (statOf(x.totals, d) ?? 0) / x.games > mine).length;
+    const mine = perGame(p.totals, p.games, d) ?? 0;
+    const better = (x: number) => (d.lowerBetter ? x < mine : x > mine);
+    return 1 + regulars.filter((x) => better(perGame(x.totals, x.games, d) ?? 0)).length;
   };
   const logs = [...p.logs].reverse();
   return (
@@ -35,7 +36,7 @@ export default async function PlayerPage({ params, searchParams }: { params: Pro
       </PageTitle>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {tiles.map((d) => (
-          <Stat key={d.label} label={`${d.label} / game`} value={fmt((statOf(p.totals, d) ?? 0) / p.games, "1")} sub={`${fmt(statOf(p.totals, d), "int")} total · ${rankOf(d)} of ${regulars.length}`} tone="accent" />
+          <Stat key={d.label} label={`${d.label} / game`} value={fmt(perGame(p.totals, p.games, d), "1")} sub={`${d.rate ? "season" : `${fmt(statOf(p.totals, d), "int")} total`} · ${rankOf(d)} of ${regulars.length}`} tone="accent" />
         ))}
       </div>
       <Card pad={false} title="Game log">
@@ -62,7 +63,7 @@ export default async function PlayerPage({ params, searchParams }: { params: Pro
                     <td className="!text-left font-sans text-xs">{l.home ? "v" : "@"} {opp?.abbr ?? ""}</td>
                     <td className={l.result === "W" ? "!text-win" : l.result === "L" ? "!text-loss" : ""}>{l.result}</td>
                     {defs.map((d) => (
-                      <td key={d.label}>{fmt(statOf(l.stats, d), "int")}</td>
+                      <td key={d.label}>{fmt(statOf(l.stats, d), d.rate || d.fmt === "1" ? "1" : "int")}</td>
                     ))}
                   </tr>
                 );
@@ -72,7 +73,7 @@ export default async function PlayerPage({ params, searchParams }: { params: Pro
               <tr className="font-semibold">
                 <td className="!text-left font-sans" colSpan={3}>Average</td>
                 {defs.map((d) => (
-                  <td key={d.label}>{fmt((statOf(p.totals, d) ?? 0) / p.games, "1")}</td>
+                  <td key={d.label}>{fmt(perGame(p.totals, p.games, d), "1")}</td>
                 ))}
               </tr>
             </tfoot>

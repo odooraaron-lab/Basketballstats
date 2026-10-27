@@ -25,6 +25,7 @@ export interface Fixture {
   away: Side;
   winnerId: string | null; // null = draw or not finished
   final: boolean; // finals series
+  stage?: string; // e.g. "Qualifying Final"
   /** Source-specific ids needed to fetch the match file. */
   ref: string;
 }
@@ -184,6 +185,7 @@ export interface TeamSeason {
 export function aggregate(files: MatchFile[]): { players: PlayerSeason[]; teams: TeamSeason[] } {
   const players = new Map<string, PlayerSeason>();
   const teams = new Map<string, TeamSeason>();
+  const posCount = new Map<string, Map<string, number>>();
   const sorted = [...files].sort((a, b) => (a.fixture.date < b.fixture.date ? -1 : 1));
   for (const m of sorted) {
     const f = m.fixture;
@@ -197,7 +199,11 @@ export function aggregate(files: MatchFile[]): { players: PlayerSeason[]; teams:
       if (!r) players.set(p.id, (r = { id: p.id, name: p.name, teamId: p.teamId, position: p.position, headshot: p.headshot, games: 0, totals: {}, logs: [] }));
       r.games++;
       r.teamId = p.teamId; // latest team
-      if (p.position) r.position = p.position;
+      if (p.position && !/^(bench|sub|r|interchange|reserve)$/i.test(p.position)) {
+        const pc = posCount.get(p.id) ?? new Map<string, number>();
+        pc.set(p.position, (pc.get(p.position) ?? 0) + 1);
+        posCount.set(p.id, pc);
+      } else if (p.position && !r.position) r.position = p.position;
       for (const [k, v] of Object.entries(p.stats)) if (Number.isFinite(v)) r.totals[k] = (r.totals[k] ?? 0) + v;
       const home = p.teamId === f.home.id;
       r.logs.push({ fixtureId: f.id, date: f.date, oppId: home ? f.away.id : f.home.id, home, result: resOf(p.teamId), stats: p.stats });
@@ -214,6 +220,10 @@ export function aggregate(files: MatchFile[]): { players: PlayerSeason[]; teams:
         if (them != null) t.against[row.key] = (t.against[row.key] ?? 0) + them;
       }
     }
+  }
+  for (const [id, pc] of posCount) {
+    const r = players.get(id);
+    if (r) r.position = [...pc.entries()].sort((a, b) => b[1] - a[1])[0][0];
   }
   return { players: [...players.values()], teams: [...teams.values()] };
 }
@@ -248,27 +258,33 @@ export interface Ratings {
  *   away score = base - homeAdv/2 + att[away] + def[home]
  * Shrunk toward zero with `prior` phantom average games so early-season ratings stay sane.
  */
-export function fitRatings(fixtures: Fixture[], prior = 4): Ratings {
-  const done = fixtures.filter((f) => f.state === "post" && f.home.score != null && f.away.score != null);
+export function fitRatings(fixtures: Fixture[], prior = 4, weight: (f: Fixture) => number = () => 1): Ratings {
+  const done = fixtures.filter((f) => f.state === "post" && f.home.score != null && f.away.score != null && weight(f) > 0);
   const att = new Map<string, number>();
   const def = new Map<string, number>();
   const games = new Map<string, number>();
   for (const f of fixtures) for (const id of [f.home.id, f.away.id]) (att.set(id, 0), def.set(id, 0), games.set(id, 0));
   if (!done.length) return { base: 0, homeAdv: 0, att, def, games, n: 0 };
-  for (const f of done) for (const id of [f.home.id, f.away.id]) games.set(id, (games.get(id) ?? 0) + 1);
-  const base = done.reduce((s, f) => s + f.home.score! + f.away.score!, 0) / (2 * done.length);
-  let homeAdv = done.reduce((s, f) => s + f.home.score! - f.away.score!, 0) / done.length;
-  homeAdv = (homeAdv * done.length) / (done.length + 20); // heavy shrink: home edge is noisy
+  let wsum = 0;
+  for (const f of done) {
+    const w = weight(f);
+    wsum += w;
+    for (const id of [f.home.id, f.away.id]) games.set(id, (games.get(id) ?? 0) + w);
+  }
+  const base = done.reduce((t, f) => t + weight(f) * (f.home.score! + f.away.score!), 0) / (2 * wsum);
+  let homeAdv = done.reduce((t, f) => t + weight(f) * (f.home.score! - f.away.score!), 0) / wsum;
+  homeAdv = (homeAdv * wsum) / (wsum + 20); // heavy shrink: home edge is noisy
   for (let iter = 0; iter < 30; iter++) {
     const aSum = new Map<string, number>();
     const dSum = new Map<string, number>();
     for (const f of done) {
+      const w = weight(f);
       const h = f.home.id;
       const a = f.away.id;
-      aSum.set(h, (aSum.get(h) ?? 0) + (f.home.score! - base - homeAdv / 2 - def.get(a)!));
-      aSum.set(a, (aSum.get(a) ?? 0) + (f.away.score! - base + homeAdv / 2 - def.get(h)!));
-      dSum.set(a, (dSum.get(a) ?? 0) + (f.home.score! - base - homeAdv / 2 - att.get(h)!));
-      dSum.set(h, (dSum.get(h) ?? 0) + (f.away.score! - base + homeAdv / 2 - att.get(a)!));
+      aSum.set(h, (aSum.get(h) ?? 0) + w * (f.home.score! - base - homeAdv / 2 - def.get(a)!));
+      aSum.set(a, (aSum.get(a) ?? 0) + w * (f.away.score! - base + homeAdv / 2 - def.get(h)!));
+      dSum.set(a, (dSum.get(a) ?? 0) + w * (f.home.score! - base - homeAdv / 2 - att.get(h)!));
+      dSum.set(h, (dSum.get(h) ?? 0) + w * (f.away.score! - base + homeAdv / 2 - att.get(a)!));
     }
     for (const id of att.keys()) {
       const g = games.get(id) ?? 0;

@@ -6,6 +6,8 @@ import { localDayKey, shiftDay } from "./format";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type J = any;
 const BASE = "https://site.api.espn.com/apis/site/v2/sports/cricket";
+const DISMISSAL: Record<string, string> = { c: "caught", b: "bowled", lbw: "lbw", ro: "run out", st: "stumped", hw: "hit wicket", "c&b": "caught & bowled", ret: "retired", obs: "obstructing" };
+const SUMMARY_FALLBACK_LEAGUE = "8050"; // Ranji Trophy — a long-lived competition id
 
 async function getJson(url: string, revalidate: number): Promise<J | null> {
   try {
@@ -85,8 +87,10 @@ function toTeam(c: J): MatchTeam {
   const t = c?.team ?? {};
   const scoreStr = typeof c?.score === "string" ? c.score : c?.score?.displayValue ?? "";
   const ls: J[] = Array.isArray(c?.linescores) ? c.linescores : [];
-  const innings: Innings[] = ls.length
-    ? ls.map((l: J, i: number) => {
+  // ESPN lists every innings period for both sides; the side's non-batting periods are 0/0 placeholders.
+  const real = ls.filter((l: J) => l?.isBatting || num(l?.runs) || num(l?.wickets));
+  const innings: Innings[] = real.length
+    ? real.map((l: J, i: number) => {
         const text = l?.displayValue ?? l?.description ?? (l?.runs != null ? `${l.runs}/${l.wickets ?? 10}${l.overs ? ` (${l.overs} ov)` : ""}` : "");
         const p = parseScore(text);
         return {
@@ -223,8 +227,12 @@ const stat = (o: J, ...keys: string[]) => {
 export const ballsOf = (overs: number | null) => (overs == null ? 0 : Math.floor(overs) * 6 + Math.round((overs % 1) * 10));
 
 export async function getMatch(leagueId: string, eventId: string, dayKey?: string): Promise<MatchDetail | null> {
-  const j = await getJson(`${BASE}/${leagueId}/summary?event=${eventId}`, 30);
-  if (!j) return null;
+  // ESPN's summary looks the match up by event id; some competition ids (e.g. Super Smash's
+  // 8654) fail there, while any ordinary one works — so fall back to a known-good id.
+  const ok = (x: J) => x && !x.code && (x.header || x.rosters);
+  let j = await getJson(`${BASE}/${leagueId}/summary?event=${eventId}`, 30);
+  if (!ok(j)) j = await getJson(`${BASE}/${SUMMARY_FALLBACK_LEAGUE}/summary?event=${eventId}`, 30);
+  if (!ok(j)) return null;
 
   // Match header: from the summary if present, otherwise from that day's score panel.
   let match: Match | null = null;
@@ -277,8 +285,14 @@ export async function getMatch(leagueId: string, eventId: string, dayKey?: strin
           const bat = inner.batting ?? (inner.statistics && stat(inner, "ballsFaced") != null ? inner : null);
           const bowl = inner.bowling ?? null;
           const batStats = inner.batting ? { ...inner, ...inner.batting } : inner;
-          if (bat && (stat(batStats, "ballsFaced") != null || stat(batStats, "runs") != null) && !inner.bowling) {
-            const outText = inner.batting?.outDetails?.shortText ?? inner.outDetails?.shortText ?? "";
+          // Newer feeds put batting, bowling and fielding stats together in each innings line;
+          // "batted" / "inningsBowled" say which side of it the player was on.
+          const batted = stat(batStats, "batted");
+          if (bat && batted !== 0 && (stat(batStats, "ballsFaced") != null || stat(batStats, "runs") != null) && !inner.bowling) {
+            const card = String((inner.statistics?.categories ?? []).flatMap((c: J) => c.stats ?? []).find((x: J) => x.name === "dismissalCard")?.displayValue ?? "");
+            const outs = stat(batStats, "outs");
+            const notOuts = stat(batStats, "notouts");
+            const outText = inner.batting?.outDetails?.shortText ?? inner.outDetails?.shortText ?? (outs ? DISMISSAL[card] ?? (card || "out") : "");
             const balls = stat(batStats, "ballsFaced") ?? 0;
             const runs = stat(batStats, "runs") ?? 0;
             lines.push({
@@ -293,12 +307,13 @@ export async function getMatch(leagueId: string, eventId: string, dayKey?: strin
                 sixes: stat(batStats, "sixes") ?? 0,
                 sr: stat(batStats, "strikeRate") ?? (balls ? (100 * runs) / balls : null),
                 out: outText || "not out",
-                notOut: !outText || /not out/i.test(outText),
+                notOut: notOuts != null ? notOuts > 0 : outs != null ? outs === 0 : !outText || /not out/i.test(outText),
                 active: Boolean(inner.active || a.active === "batting"),
               },
             });
           }
-          if (bowl || stat(inner, "conceded") != null) {
+          const bowledHere = stat(inner, "inningsBowled");
+          if (bowl || (stat(inner, "conceded") != null && (bowledHere == null ? true : bowledHere > 0))) {
             const b = { ...inner, ...(bowl ?? {}) };
             const overs = stat(b, "overs") ?? 0;
             const conceded = stat(b, "conceded") ?? 0;
@@ -307,7 +322,7 @@ export async function getMatch(leagueId: string, eventId: string, dayKey?: strin
               period,
               bowl: {
                 id: String(a.id ?? ""),
-                name: a.shortName ?? a.displayName ?? "",
+                name: a.battingName ?? a.shortName ?? a.displayName ?? "",
                 overs,
                 maidens: stat(b, "maidens") ?? 0,
                 runs: conceded,
@@ -543,4 +558,13 @@ export async function getMatchesBetween(startKey: string, endKey: string, keep: 
       if (k >= startKey && k <= endKey && keep(m)) seen.set(m.id, m); // later panels have fresher state
     }
   return [...seen.values()].sort((a, b) => (a.date < b.date ? -1 : 1));
+}
+
+// ---------------------------------------------------------------------------- competition feed
+
+/** All matches of one ESPN cricket competition for a season (e.g. Super Smash = 8654). */
+export async function getCompetitionSeason(leagueId: string, season: number): Promise<Match[]> {
+  const j = await getJson(`${BASE}/${leagueId}/scoreboard?season=${season}`, 300);
+  const lg = j?.leagues?.[0] ?? {};
+  return (j?.events ?? []).map((e: J) => toMatch(e, { id: String(lg.id ?? leagueId), name: String(lg.name ?? "") })).sort((a: Match, b: Match) => (a.date < b.date ? -1 : 1));
 }

@@ -95,7 +95,16 @@ async function buildBook(comp: CompDef, season: number, withFiles: boolean): Pro
   const done = fixtures.filter((f) => f.state === "post");
   const files = withFiles ? (await mapLimit(done, 8, (f) => getMatchFile(comp, f))).filter((m): m is MatchFile => Boolean(m)) : [];
   const { players, teams } = aggregate(files);
-  const ratings = fitRatings(fixtures.filter((f) => !f.final || f.state === "post"));
+  // Early in a season, lean on last season's results (at reduced weight) so two or three
+  // games don't swing everything; the weight fades as this season's games pile up.
+  const teamCount = new Set(fixtures.flatMap((f) => [f.home.id, f.away.id])).size || 1;
+  const gamesEach = (2 * done.length) / teamCount;
+  const prevWeight = Math.max(0, 0.5 * (1 - gamesEach / 8));
+  const prev = prevWeight > 0 ? await getFixtures(comp, season - 1).catch(() => [] as Fixture[]) : [];
+  const ids = new Set(fixtures.flatMap((f) => [f.home.id, f.away.id]));
+  const prevUsable = prev.filter((f) => ids.has(f.home.id) && ids.has(f.away.id));
+  const current = new Set(fixtures.map((f) => f.id));
+  const ratings = fitRatings([...fixtures, ...prevUsable], 4, (f) => (current.has(f.id) ? 1 : prevWeight));
   let ladder = buildLadder(fixtures, comp.points);
   let ladderSource: SeasonBook["ladderSource"] = "computed";
   if (comp.source.kind === "espn") {

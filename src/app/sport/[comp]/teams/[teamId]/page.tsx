@@ -5,7 +5,7 @@ import { FixtureTile } from "@/components/sport/FixtureTile";
 import { TeamMark } from "@/components/sport/TeamMark";
 import { Card, PageTitle, Stat } from "@/components/ui";
 import { fmt } from "@/lib/format";
-import { ordinal, statOf } from "@/sports/comps";
+import { ordinal, perGame, statOf } from "@/sports/comps";
 import { getSeasonBook, requireComp, resolveSeason } from "@/sports/data";
 import { project } from "@/sports/model";
 
@@ -97,14 +97,13 @@ export default async function TeamPage({ params, searchParams }: { params: Promi
             <table className="w-full text-sm">
               <tbody>
                 {comp.teamFeatured
-                  .map((d) => ({ d, k: d.keys.find((k) => ts.totals[k] != null) }))
-                  .filter((x) => x.k)
-                  .slice(0, 14)
-                  .map(({ d, k }) => (
+                  .filter((d) => statOf(ts.totals, d) != null)
+                  .slice(0, 16)
+                  .map((d) => (
                     <tr key={d.label} className="border-b border-ink-850">
                       <td className="py-1 text-ink-300">{d.label}</td>
-                      <td className="num py-1 text-right font-semibold">{fmt(ts.totals[k!] / ts.games, "1")}</td>
-                      <td className="num py-1 text-right text-ink-500">{ts.against[k!] != null ? fmt(ts.against[k!] / ts.games, "1") : "–"}</td>
+                      <td className="num py-1 text-right font-semibold">{fmt(perGame(ts.totals, ts.games, d), "1")}</td>
+                      <td className="num py-1 text-right text-ink-500">{fmt(perGame(ts.against, ts.games, d), "1")}</td>
                     </tr>
                   ))}
               </tbody>
