@@ -2,7 +2,7 @@
 export const site = {
   name: "Courtside",
   tagline: "Live sports stats & betting tools for NZ and Australia",
-  url: (process.env.NEXT_PUBLIC_SITE_URL || "https://courtside.co.nz").replace(/\/$/, ""),
+  url: siteUrl(),
   supportEmail: process.env.SUPPORT_EMAIL || "hello@courtside.co.nz",
   price: { amount: 9.99, cents: 999, currency: "NZD", interval: "month" as const },
   trialDays: Number(process.env.STRIPE_TRIAL_DAYS ?? 0) || 0,
@@ -11,3 +11,15 @@ export const site = {
 };
 
 export const priceLabel = `$${site.price.amount.toFixed(2)} ${site.price.currency}`;
+
+/** Accepts "courtside.co.nz", "https://x.vercel.app/", blanks or junk; always returns a valid origin. */
+function siteUrl(): string {
+  const fallback = "https://courtside.co.nz";
+  const raw = (process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL || "").trim().replace(/^["']|["']$/g, "");
+  if (!raw) return fallback;
+  try {
+    return new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`).origin;
+  } catch {
+    return fallback;
+  }
+}
