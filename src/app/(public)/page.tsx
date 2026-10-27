@@ -17,7 +17,7 @@ export const metadata = {
     title: `${site.name} — live sports stats & betting tools for NZ`,
     description: "Every stat, every sport, one subscription. Automated multi builder, odds checker and live match centres for NZ & Australian sport.",
     url: site.url,
-    images: [{ url: "/images/app-match.png", width: 1280, height: 800, alt: "Courtside match centre" }],
+    images: [{ url: "/images/app-match.png", width: 1280, height: 800, alt: "Quick Read match centre" }],
   },
 };
 
@@ -70,8 +70,8 @@ const FAQ: { q: string; a: string }[] = [
     a: "Everything. You get every sport (NRL, Super Rugby, ANZ Premiership netball, A-League men's and women's, Super Smash, world cricket, NBA and NBL) and every tool: live stats, match centres, projections, the automated multi builder, the longshot finder, the odds and boost checker and the bet slip. There are no tiers and no add-ons.",
   },
   {
-    q: "Is Courtside a betting site?",
-    a: "No. We don't take bets, hold money or work for a bookmaker. Courtside is a stats and analysis service: it helps you research a bet before you place it wherever you normally bet.",
+    q: "Is Quick Read a betting site?",
+    a: "No. We don't take bets, hold money or work for a bookmaker. Quick Read is a stats and analysis service: it helps you research a bet before you place it wherever you normally bet.",
   },
   {
     q: "Can I cancel anytime?",
@@ -95,7 +95,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "Do you guarantee winners?",
-    a: "No one honestly can. Courtside gives you better information. It doesn't remove the risk. You must be 18 or over, and you should only bet what you can afford to lose.",
+    a: "No one honestly can. Quick Read gives you better information. It doesn't remove the risk. You must be 18 or over, and you should only bet what you can afford to lose.",
   },
 ];
 
@@ -156,7 +156,7 @@ export default async function Landing() {
           </div>
           <div className="relative">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/app-match.png" alt="Courtside match centre showing team stats, timeline and player stats" width={1280} height={800} className="w-full rounded-2xl border border-ink-700 shadow-2xl shadow-black/40" />
+            <img src="/images/app-match.png" alt="Quick Read match centre showing team stats, timeline and player stats" width={1280} height={800} className="w-full rounded-2xl border border-ink-700 shadow-2xl shadow-black/40" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/app-multi.png" alt="Automated multi builder and bet slip" width={420} height={640} className="absolute -bottom-8 -left-4 hidden w-40 rounded-xl border border-ink-700 shadow-2xl shadow-black/50 sm:block lg:w-48" />
           </div>
@@ -247,14 +247,14 @@ export default async function Landing() {
           <div>
             <h2 className="display text-3xl font-extrabold sm:text-4xl">Serious value for 33 cents a day</h2>
             <p className="mt-2 text-ink-400">
-              Most overseas betting research tools charge US$20 to US$80 a month, about NZ$35 to $140, and they barely cover the NRL, never mind netball or the Super Smash. Courtside covers the sport
+              Most overseas betting research tools charge US$20 to US$80 a month, about NZ$35 to $140, and they barely cover the NRL, never mind netball or the Super Smash. Quick Read covers the sport
               we actually bet on here, for less than a single $10 multi.
             </p>
             <table className="mt-6 w-full text-sm">
               <thead>
                 <tr className="text-left text-xs text-ink-500">
                   <th className="pb-2 font-medium" />
-                  <th className="pb-2 font-medium">Courtside</th>
+                  <th className="pb-2 font-medium">Quick Read</th>
                   <th className="pb-2 font-medium">Typical overseas tools</th>
                 </tr>
               </thead>
@@ -278,7 +278,7 @@ export default async function Landing() {
             </table>
           </div>
           <div className="card self-start p-7 shadow-2xl shadow-black/30">
-            <div className="display text-sm font-bold text-court">Courtside membership</div>
+            <div className="display text-sm font-bold text-court">Quick Read membership</div>
             <div className="mt-2 flex items-end gap-2">
               <span className="display text-6xl font-extrabold">${site.price.amount.toFixed(2)}</span>
               <span className="pb-2 text-ink-400">NZD / month</span>

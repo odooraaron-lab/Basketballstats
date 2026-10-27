@@ -1,20 +1,20 @@
 // Brand and offer. Change the name/domain here; everything else reads from this file.
 export const site = {
-  name: "Courtside",
+  name: "Quick Read",
   tagline: "Live sports stats & betting tools for NZ and Australia",
   url: siteUrl(),
-  supportEmail: process.env.SUPPORT_EMAIL || "hello@courtside.co.nz",
+  supportEmail: process.env.SUPPORT_EMAIL || "hello@myqr.co.nz",
   price: { amount: 9.99, cents: 999, currency: "NZD", interval: "month" as const },
   trialDays: Number(process.env.STRIPE_TRIAL_DAYS ?? 0) || 0,
   /** Tag on every Stripe object — the Stripe account is shared with other sites. */
-  stripeTag: "courtside",
+  stripeTag: "quickread",
 };
 
 export const priceLabel = `$${site.price.amount.toFixed(2)} ${site.price.currency}`;
 
-/** Accepts "courtside.co.nz", "https://x.vercel.app/", blanks or junk; always returns a valid origin. */
+/** Accepts "myqr.co.nz", "https://x.vercel.app/", blanks or junk; always returns a valid origin. */
 function siteUrl(): string {
-  const fallback = "https://courtside.co.nz";
+  const fallback = "https://www.myqr.co.nz";
   const raw = (process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL || "").trim().replace(/^["']|["']$/g, "");
   if (!raw) return fallback;
   try {

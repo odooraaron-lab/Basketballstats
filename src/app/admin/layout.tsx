@@ -16,7 +16,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <header className="border-b border-ink-800">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3">
           <Link href="/admin" className="display text-xl font-extrabold">
-            <span>Court<span className="text-court">side</span></span> <span className="rounded bg-ink-800 px-1.5 py-0.5 text-xs text-ink-300">ADMIN</span>
+            <span>Quick <span className="text-court">Read</span></span> <span className="rounded bg-ink-800 px-1.5 py-0.5 text-xs text-ink-300">ADMIN</span>
           </Link>
           <AdminTabs />
         </div>

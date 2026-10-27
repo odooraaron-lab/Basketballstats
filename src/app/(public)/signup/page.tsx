@@ -19,7 +19,7 @@ const ERRORS: Record<string, string> = {
 export default async function SignupPage({ searchParams }: { searchParams: Promise<{ error?: string; email?: string; name?: string }> }) {
   const { error, email, name } = await searchParams;
   return (
-    <AuthCard title="Join Courtside" sub={<>Every sport, every stat, every tool — {priceLabel}/month. Cancel anytime.</>}>
+    <AuthCard title="Join Quick Read" sub={<>Every sport, every stat, every tool — {priceLabel}/month. Cancel anytime.</>}>
       {error && <Alert>{ERRORS[error] ?? ERRORS.server}</Alert>}
       <form action="/api/auth/signup" method="post" className="space-y-4">
         <div>

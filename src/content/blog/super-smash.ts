@@ -75,7 +75,7 @@ After that, the plan is for NZ20 to take over as the premier domestic T20 event.
 
 **The 2026–27 Super Smash is worth taking seriously.** It may be the last season in its current form, and players will be auditioning for NZ20 deals. Form this summer is likely to feed straight into who gets picked, and who gets paid, in 2027–28.
 
-## How Courtside will cover it
+## How Quick Read will cover it
 
 The [Super Smash section](/cricket/super-smash) already has the full points table, results, chasing record and season leaders for every recent summer, and the 2026–27 draw is loaded. When NZ20 fixtures are published, they'll get the same treatment: live scorecards, run rates, chase maths, player leaders and the [multi builder](/#features), all in NZ time.
 

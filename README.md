@@ -1,4 +1,4 @@
-# Courtside — live sports stats & betting research (NZ/AU)
+# Quick Read — live sports stats & betting research (NZ/AU)
 
 A Next.js subscription site: a public, SEO-focused landing page and blog, and a members' app (NZ$9.99/month via Stripe) covering the NBA, NBL, NRL, Super Rugby Pacific, A-League Men & Women, ANZ Premiership, world cricket and the Super Smash. Live data comes from ESPN's and Champion Data's JSON feeds; the advanced analytics, projections and multi tools are computed in-app.
 
@@ -70,7 +70,7 @@ Matching between ESPN and NBA.com uses normalised player names + team, and NBA.c
 
 1. In Vercel: **Add New → Project → Import** `odooraaron-lab/Basketballstats`. Framework is detected as Next.js; no build settings needed.
 2. **Database** — create a free Postgres at [neon.tech](https://neon.tech) (or Vercel → Storage → Neon) and copy the connection string. Tables are created automatically on first use (or press *Create tables* in `/admin/setup`).
-3. **Stripe** — Developers → API keys → copy the secret key. Developers → Webhooks → add endpoint `https://<your-domain>/api/stripe/webhook` with events `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`, `invoice.payment_failed`; copy the signing secret. Settings → Billing → Customer portal → enable it. Everything Courtside creates is tagged `site=courtside` in metadata, so it's easy to filter in a shared Stripe account.
+3. **Stripe** — Developers → API keys → copy the secret key. Developers → Webhooks → add endpoint `https://<your-domain>/api/stripe/webhook` with events `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`, `invoice.payment_failed`; copy the signing secret. Settings → Billing → Customer portal → enable it. Everything Quick Read creates is tagged `site=quickread` in metadata, so it's easy to filter in a shared Stripe account.
 4. **Settings → Environment Variables** — add everything in `.env.example`:
    - `APP_USERNAME`, `APP_PASSWORD` — the owner login (admin; works even if the database is down)
    - `AUTH_SECRET` — a long random string (`openssl rand -hex 32`)

@@ -13,7 +13,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
       <header className="border-b border-ink-800">
         <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
           <Link href={viewer.hasAccess ? "/app" : "/"} className="display text-xl font-extrabold">
-            <span>Court<span className="text-court">side</span></span>
+            <span>Quick <span className="text-court">Read</span></span>
           </Link>
           <nav className="flex gap-1">
             <Link href="/account" className="tab">Settings</Link>

@@ -6,8 +6,8 @@ import { site } from "@/site.config";
 export function Logo({ className = "" }: { className?: string }) {
   return (
     <Link href="/" className={`display flex items-center gap-1.5 text-2xl font-extrabold text-ink-100 ${className}`} aria-label={`${site.name} home`}>
-      <span className="grid h-7 w-7 place-items-center rounded-md bg-court text-sm text-ink-950">C</span>
-      <span>Court<span className="text-court">side</span></span>
+      <span className="grid h-7 w-7 place-items-center rounded-md bg-court text-xs font-extrabold text-ink-950">QR</span>
+      <span>Quick <span className="text-court">Read</span></span>
     </Link>
   );
 }
