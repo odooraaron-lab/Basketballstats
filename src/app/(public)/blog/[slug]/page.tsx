@@ -56,7 +56,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       </nav>
       <div className="mt-4 grid gap-10 lg:grid-cols-[1fr_260px]">
         <article>
-          <h1 className="display text-3xl font-extrabold leading-tight sm:text-4xl">{p.title}</h1>
+          <h1 className="display text-2xl font-extrabold leading-tight sm:text-4xl">{p.title}</h1>
           <p className="mt-3 text-lg text-ink-300">{p.description}</p>
           <p className="mt-3 text-sm text-ink-500">
             {fmtDate(p.date, { day: "numeric", month: "long", year: "numeric" })} · {readingMinutes(p)} min read · {site.name} team
