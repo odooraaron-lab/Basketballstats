@@ -55,6 +55,11 @@ const FEATURES: { title: string; body: string; tag: string }[] = [
     body: "Projected scores, winning margin bands, line and total chances, both-teams-to-score and correct scores for football, plus an anytime try or goal scorer chance for every player.",
   },
   {
+    tag: "Ultimate Bet",
+    title: "The Ultimate Bet",
+    body: "One tap scans every game in the next 48 hours across basketball, rugby, football, netball and cricket, then builds three cross-sport multis: a Banker, a Balanced and a Big Price option, each with our chance and fair price for every leg.",
+  },
+  {
     tag: "All Blacks",
     title: "All Blacks test tracker",
     body: "Every All Blacks test across the Nations Championship, Bledisloe Cup, Rugby Championship and tours: results, the record against every nation, try scorers, points and starts, plus our projection and anytime try scorer chances for the next test.",

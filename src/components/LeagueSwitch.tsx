@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SWITCH_COMPS } from "@/sports/comps";
+import { UltimateBetButton } from "./UltimateBet";
 
 export interface LeagueOption {
   id: string;
@@ -106,6 +107,7 @@ export function LeagueSwitch({
           })}
         </div>
         <div className="ml-auto flex shrink-0 items-center gap-1 pl-2 text-xs">
+          {!hidden.includes("ultimate") && <UltimateBetButton />}
           {isAdmin && (
             <Link href="/admin" className={`rounded-md px-2 py-1 ${path.startsWith("/admin") ? "bg-ink-800 text-ink-100" : "text-ink-400 hover:text-ink-100"}`}>
               Admin
