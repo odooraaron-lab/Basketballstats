@@ -11,12 +11,13 @@ export const maxDuration = 60;
 
 const statusTone = (s: string) => (/final|paying|interim/i.test(s) ? "text-ink-500" : /abandon/i.test(s) ? "text-loss line-through" : /closed|live/i.test(s) ? "text-loss" : "text-ink-300");
 
-export default async function RacingHome({ searchParams }: { searchParams: Promise<{ d?: string; c?: string }> }) {
+export default async function RacingHome({ searchParams }: { searchParams: Promise<{ d?: string; c?: string; r?: string }> }) {
   const sp = await searchParams;
   const today = nzToday();
   const day = /^\d{4}-\d{2}-\d{2}$/.test(sp.d ?? "") ? sp.d! : today;
   const cat: Category | "" = sp.c === "T" || sp.c === "H" ? sp.c : "";
-  const meetings = await getMeetings(day, day);
+  const region = sp.r === "AUS" ? "AUS" : "NZ";
+  const meetings = await getMeetings(day, day, { country: region });
   const shown = meetings.filter((m) => !cat || m.category === cat);
   // Keep the form database topped up (yesterday → tomorrow) after the page is sent
   after(() => ingestRecent().catch(() => null));
@@ -28,12 +29,13 @@ export default async function RacingHome({ searchParams }: { searchParams: Promi
     .sort((a, b) => (a.r.start < b.r.start ? -1 : 1))
     .slice(0, 6);
   const days = [-1, 0, 1, 2].map((n) => nzShift(today, n));
-  const href = (d: string, c: string) => `/racing?d=${d}${c ? `&c=${c}` : ""}`;
+  const href = (d: string, c: string, r: string = region) => `/racing?d=${d}${c ? `&c=${c}` : ""}${r === "AUS" ? "&r=AUS" : ""}`;
+  const where = region === "AUS" ? "Australian" : "New Zealand";
 
   return (
     <div className="space-y-6">
       <PageTitle
-        sub={`New Zealand thoroughbred and harness meetings · ${fmtDate(`${day}T00:00:00Z`, { weekday: "long", day: "numeric", month: "long" })} · times in NZ`}
+        sub={`${where} thoroughbred and harness meetings · ${fmtDate(`${day}T00:00:00Z`, { weekday: "long", day: "numeric", month: "long" })} · times in NZ`}
         right={
           <div className="flex flex-wrap gap-1.5">
             {days.map((d) => (
@@ -48,6 +50,12 @@ export default async function RacingHome({ searchParams }: { searchParams: Promi
       </PageTitle>
 
       <div className="flex flex-wrap gap-1.5 text-xs">
+        {([["NZ", "New Zealand"], ["AUS", "Australia"]] as const).map(([r, label]) => (
+          <Link key={r} href={href(day, cat, r)} className={`chip ${region === r ? "!border-court !text-court" : ""}`}>
+            {label}
+          </Link>
+        ))}
+        <span className="mx-1 w-px self-stretch bg-ink-800" />
         {([["", "All"], ["T", "Thoroughbred"], ["H", "Harness"]] as const).map(([c, label]) => (
           <Link key={c} href={href(day, c)} className={`chip ${cat === c ? "!border-court !text-court" : ""}`}>
             {label}
@@ -78,7 +86,7 @@ export default async function RacingHome({ searchParams }: { searchParams: Promi
 
       {!shown.length ? (
         <Empty>
-          {lastFetch.ok || meetings.length ? "No New Zealand meetings listed for this day." : "The racing feed isn't responding right now. Try again in a few minutes."}
+          {lastFetch.ok || meetings.length ? `No ${where} meetings listed for this day.` : "The racing feed isn't responding right now. Try again in a few minutes."}
         </Empty>
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">

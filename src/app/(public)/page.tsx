@@ -12,12 +12,12 @@ export const maxDuration = 60;
 export const metadata = {
   title: { absolute: `Live Sports Stats & Betting Odds Tools NZ | ${site.name}` },
   description:
-    "Live sports stats, detailed stats and betting odds tools for New Zealand & Australia. All Blacks, NRL, Super Rugby, ANZ Premiership, A-League, Super Smash, NBA, NBL, cricket and NZ horse racing — with an automated multi builder and boosted-odds checker. $9.99 NZD/month.",
-  keywords: ["live sports", "betting odds", "live stats", "stat tracker", "detailed stats", "sports betting NZ", "multi builder", "boosted odds", "All Blacks stats", "All Blacks try scorer", "NZ horse racing form", "jockey stats NZ", "trainer strike rate", "NRL stats", "Super Rugby stats", "netball stats", "A-League stats", "NBA player props", "same game multi"],
+    "Live sports stats, betting odds tools and NZ horse racing form for Kiwi punters. All Blacks, NRL, Super Rugby, netball, A-League, Super Smash, cricket, NBA and NBL, plus an automated multi builder, The Ultimate Bet cross-sport multi finder and a free odds calculator. $9.99 NZD/month.",
+  keywords: ["live sports", "betting odds", "live stats", "stat tracker", "detailed stats", "sports betting NZ", "multi builder", "boosted odds", "All Blacks stats", "All Blacks try scorer", "NZ horse racing form", "jockey stats NZ", "trainer strike rate", "NRL stats", "Super Rugby stats", "netball stats", "A-League stats", "NBA player props", "same game multi", "multi tips NZ", "betting odds calculator", "racing form guide NZ", "best betting app NZ", "Melbourne Cup 2026"],
   alternates: { canonical: "/" },
   openGraph: {
     title: `${site.name} — live sports stats & betting tools for NZ`,
-    description: "Every stat, every sport, one subscription. Automated multi builder, odds checker and live match centres for NZ & Australian sport.",
+    description: "Every stat, every sport, one subscription: live match centres, NZ racing form, an automated multi builder and The Ultimate Bet. NZ$9.99/month.",
     url: site.url,
     images: [{ url: "/images/app-match.png", width: 1280, height: 800, alt: "Quick Read match centre" }],
   },
@@ -27,7 +27,7 @@ const FEATURES: { title: string; body: string; tag: string }[] = [
   {
     tag: "Live stats",
     title: "Live scores & a real stat tracker",
-    body: "Every game across eight competitions with live scores, running timelines and box scores that update as they happen. Times are shown in NZ time, so there's no converting from Sydney or US Eastern.",
+    body: "Every game across every competition we cover, with live scores, running timelines and box scores that update as they happen. Times are shown in NZ time, so there's no converting from Sydney or US Eastern.",
   },
   {
     tag: "Detailed stats",
@@ -57,7 +57,7 @@ const FEATURES: { title: string; body: string; tag: string }[] = [
   {
     tag: "Ultimate Bet",
     title: "The Ultimate Bet",
-    body: "One tap scans every game in the next 48 hours across basketball, rugby, football, netball and cricket, then builds three cross-sport multis: a Banker, a Balanced and a Big Price option, each with our chance and fair price for every leg.",
+    body: "One tap scans every game and race in the next 48 hours across basketball, rugby, football, netball, cricket and NZ racing, then builds three cross-sport multis: a Banker, a Balanced and a Big Price option, each with our chance and fair price for every leg.",
   },
   {
     tag: "Racing",
@@ -84,7 +84,7 @@ const FEATURES: { title: string; body: string; tag: string }[] = [
 const FAQ: { q: string; a: string }[] = [
   {
     q: "What do I get for $9.99 a month?",
-    a: "Everything. You get every sport (the All Blacks, NRL, Super Rugby, ANZ Premiership netball, A-League men's and women's, Super Smash, world cricket, NBA, NBL and NZ horse racing) and every tool: live stats, match centres, projections, the automated multi builder, the longshot finder, the odds and boost checker and the bet slip. There are no tiers and no add-ons.",
+    a: "Everything. You get every sport (the All Blacks, NRL, Super Rugby, ANZ Premiership netball, A-League men's and women's, Super Smash, world cricket, NBA, NBL, and NZ and Australian horse racing) and every tool: live stats, match centres, projections, the automated multi builder, The Ultimate Bet, racing form with jockey and trainer stats, the odds and boost checker and the bet slip. There are no tiers and no add-ons.",
   },
   {
     q: "Is Quick Read a betting site?",
@@ -96,7 +96,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "Which sports are covered right now?",
-    a: "Every All Blacks test (Nations Championship, Bledisloe Cup, Rugby Championship and tours), NBA, NBL, NRL, Super Rugby Pacific, the A-League (men's and women's), the ANZ Premiership, Super Smash every international and domestic cricket match, and every NZ thoroughbred and harness meeting. When a competition is between seasons, the app tells you when it's back, and you can still explore the whole last season.",
+    a: "Every All Blacks test (Nations Championship, Bledisloe Cup, Rugby Championship and tours), NBA, NBL, NRL, Super Rugby Pacific, the A-League (men's and women's), the ANZ Premiership, Super Smash, every international and domestic cricket match, and every NZ thoroughbred and harness meeting. When a competition is between seasons, the app tells you when it's back, and you can still explore the whole last season.",
   },
   {
     q: "How are the win chances and fair odds worked out?",
@@ -109,6 +109,22 @@ const FAQ: { q: string; a: string }[] = [
   {
     q: "Is it for New Zealand or Australia?",
     a: "Both, with a Kiwi lean. Times are in NZ time, and the sports are the ones we actually watch here: the All Blacks, the Warriors, the Breakers, Super Rugby, the ANZ Premiership and the Super Smash, plus the NBA.",
+  },
+  {
+    q: "What is The Ultimate Bet?",
+    a: "A one-tap multi finder. It scans every game and race in the next 48 hours, rates each market with our models and builds three multis (Banker, Balanced and Big Price) with one pick per sport, showing our chance and fair price for every leg.",
+  },
+  {
+    q: "Do you cover horse racing?",
+    a: "Yes. Every New Zealand thoroughbred and harness meeting, plus Australian meetings, with race cards, fixed odds and price moves, fair chances, results and dividends. Jockey, driver and trainer strike rates and a tracker for your blackbook are built from every New Zealand result we record.",
+  },
+  {
+    q: "How does Quick Read compare with other betting apps?",
+    a: "Most betting research tools are built for American sports or Australian bookmakers and cost US$20 to US$120 a month. Quick Read covers the sport New Zealanders bet on, including racing, for NZ$9.99. We've written an honest comparison of the main options in our guide to the best betting stats tools for NZ punters.",
+  },
+  {
+    q: "Is anything free?",
+    a: "Yes. Our betting odds calculator (fair odds, bookmaker margin, multi, boost and each-way) and all our betting guides are free, with no sign-up needed.",
   },
   {
     q: "Do you guarantee winners?",
@@ -125,18 +141,20 @@ const STATE_STYLE: Record<SportStatus["state"], { label: string; cls: string }> 
 export default async function Landing() {
   const status = await allSportStatus();
   const on = status.filter((s) => s.state !== "off-season").length;
-  const guides = POSTS.filter((p) => p.featured).slice(0, 3).concat(POSTS.filter((p) => !p.featured)).slice(0, 6);
+  // Newest featured guides first (timely posts like the Melbourne Cup lead), then the rest
+  const guides = [...POSTS.filter((p) => p.featured).sort((a, b) => (a.date < b.date ? 1 : -1)), ...POSTS.filter((p) => !p.featured)].slice(0, 6);
 
   const jsonLd = [
     { "@context": "https://schema.org", "@type": "Organization", name: site.name, url: site.url, email: site.supportEmail, areaServed: ["NZ", "AU"] },
-    { "@context": "https://schema.org", "@type": "WebSite", name: site.name, url: site.url },
+    { "@context": "https://schema.org", "@type": "WebSite", name: site.name, url: site.url, potentialAction: { "@type": "ReadAction", target: `${site.url}/blog` } },
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       name: site.name,
       applicationCategory: "SportsApplication",
       operatingSystem: "Web, iOS, Android",
-      description: "Live sports stats, detailed stats and betting odds tools for NZ and Australian sport.",
+      description: "Live sports stats, detailed stats, NZ horse racing form and betting odds tools for NZ and Australian sport.",
+      featureList: ["Live scores and match centres", "Automated multi builder", "The Ultimate Bet cross-sport multi finder", "Odds and boost checker", "NZ horse racing form, jockey and trainer stats", "All Blacks test tracker", "Player props hit rates", "Bet slip with fair odds"],
       offers: { "@type": "Offer", price: site.price.amount.toFixed(2), priceCurrency: site.price.currency, category: "subscription", url: `${site.url}/signup` },
     },
     { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: FAQ.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) },
@@ -151,6 +169,24 @@ export default async function Landing() {
       points: ["Live scores in NZ time", "Tap any player for their full game log", "Sortable stat tables that work on your phone"],
       img: "/images/app-match.png",
       alt: "Live NRL match centre with team stats and timeline",
+    },
+    {
+      id: "ultimate",
+      tab: "Ultimate Bet",
+      title: "The Ultimate Bet: three cross-sport multis in one tap",
+      body: "Scans every game and race in the next 48 hours, rates each market with our models and builds a Banker, a Balanced and a Big Price multi, one pick per sport.",
+      points: ["Basketball, rugby, football, netball, cricket and racing", "Our chance, fair price and a reason for every leg", "Add a whole option to your slip in one tap"],
+      img: "/images/app-ultimate.png",
+      alt: "The Ultimate Bet popup with three multi options",
+    },
+    {
+      id: "racing",
+      tab: "NZ racing",
+      title: "NZ horse racing form, jockey and trainer stats",
+      body: "Every NZ gallops and harness meeting, plus Australian carnivals. Race cards show barriers, weights, claims, price moves and each runner's fair chance, with jockey and trainer strike rates alongside.",
+      points: ["Jockey, driver & trainer strike rates and level-stakes profit", "Horse profiles by track condition and distance", "A blackbook: track horses, jockeys and trainers"],
+      visual: "racing",
+      alt: "Example race card layout",
     },
     {
       id: "multi",
@@ -212,7 +248,7 @@ export default async function Landing() {
     },
     {
       title: "Every stat, tracked",
-      body: "Results, ladders, player logs and form for ten competitions, kept for past seasons too. Off-season? The whole archive is still there, and each section tells you when it's back.",
+      body: `Results, ladders, player logs and form for ${status.length} competitions, plus every NZ race result we record. Off-season? The whole archive is still there, and each section tells you when it's back.`,
       img: "/images/app-stats.png",
       alt: "Season stats table",
     },
@@ -304,7 +340,9 @@ export default async function Landing() {
       <section id="software" className="scroll-mt-20 border-y border-ink-800 bg-ink-900/60">
         <div className="mx-auto max-w-6xl px-4 py-16">
           <h2 className="display text-3xl font-extrabold sm:text-4xl">Take a look at the software</h2>
-          <p className="mb-8 mt-1 max-w-2xl text-ink-400">Five tools, every sport, one membership.</p>
+          <p className="mb-8 mt-1 max-w-2xl text-ink-400">
+            Every tool, every sport, one membership. <Link href="/features" className="text-court hover:underline">See all features →</Link>
+          </p>
           <Showcase items={SHOWCASE} />
         </div>
       </section>
@@ -329,7 +367,10 @@ export default async function Landing() {
       <section id="calculator" className="scroll-mt-20 border-y border-ink-800 bg-ink-900/60">
         <div className="mx-auto max-w-6xl px-4 py-16">
           <h2 className="display text-3xl font-extrabold sm:text-4xl">Is that price actually worth it?</h2>
-          <p className="mb-8 mt-1 max-w-2xl text-ink-400">Free betting odds calculator. Type the bookie&apos;s odds, a boosted price and the chance you rate it, and see the fair price and expected return.</p>
+          <p className="mb-8 mt-1 max-w-2xl text-ink-400">
+            Free betting odds calculator. Type the bookie&apos;s odds, a boosted price and the chance you rate it, and see the fair price and expected return.{" "}
+            <Link href="/tools/betting-odds-calculator" className="text-court hover:underline">More calculators: margin, multi, each-way →</Link>
+          </p>
           <ValueCalc />
         </div>
       </section>
@@ -400,11 +441,13 @@ export default async function Landing() {
               </thead>
               <tbody className="[&_td]:border-t [&_td]:border-ink-800 [&_td]:py-2">
                 {[
-                  ["Monthly price", `${priceLabel}`, "US$20–80 (≈NZ$35–140)"],
+                  ["Monthly price", `${priceLabel}`, "US$20–120 a month"],
                   ["All Blacks, NRL, Super Rugby, netball, Super Smash", "✓ all included", "Rarely"],
                   ["NBA & NBL", "✓", "NBA only"],
                   ["Automated multi builder", "✓", "Top tiers only"],
                   ["Boosted odds / value checker", "✓", "Top tiers only"],
+                  ["Cross-sport multi finder (The Ultimate Bet)", "✓", "Rarely"],
+                  ["NZ horse racing form, jockey & trainer stats", "✓", "Separate subscription"],
                   ["NZ time zone & NZ teams first", "✓", "✗"],
                   ["Tiers & upsells", "None — one price", "3–4 tiers"],
                 ].map(([k, a, b]) => (
@@ -416,6 +459,9 @@ export default async function Landing() {
                 ))}
               </tbody>
             </table>
+            <Link href="/blog/best-betting-stats-tools-nz-2026" className="mt-3 inline-block text-sm font-semibold text-court hover:text-court-soft">
+              How we compare with Props.Cash, MultiLab, Punters and others →
+            </Link>
           </div>
           <div className="card self-start p-7 shadow-2xl shadow-black/30">
             <div className="display text-sm font-bold text-court">Quick Read membership</div>

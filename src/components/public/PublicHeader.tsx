@@ -17,16 +17,18 @@ export function PublicHeader() {
   const [open, setOpen] = useState(false);
   useEffect(() => setSignedIn(/(?:^|; )cs_in=1/.test(document.cookie)), []);
   const links = [
-    { href: "/#sports", label: "Sports" },
-    { href: "/#features", label: "Features" },
+    { href: "/features", label: "Features" },
+    { href: "/features/nz-horse-racing-form", label: "Racing" },
+    { href: "/features/ultimate-bet", label: "Ultimate Bet" },
+    { href: "/tools/betting-odds-calculator", label: "Odds calculator" },
     { href: "/#pricing", label: "Pricing" },
-    { href: "/blog", label: "Blog" },
+    { href: "/blog", label: "Guides" },
   ];
   return (
     <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3">
         <Logo />
-        <nav className="hidden flex-1 gap-5 text-sm text-ink-300 md:flex" aria-label="Main">
+        <nav className="hidden flex-1 gap-5 whitespace-nowrap text-sm text-ink-300 lg:flex" aria-label="Main">
           {links.map((l) => (
             <Link key={l.href} href={l.href} className="hover:text-ink-100">
               {l.label}
@@ -48,13 +50,13 @@ export function PublicHeader() {
               </Link>
             </>
           )}
-          <button className="rounded-md p-2 text-ink-300 md:hidden" onClick={() => setOpen((o) => !o)} aria-label="Menu" aria-expanded={open}>
+          <button className="rounded-md p-2 text-ink-300 lg:hidden" onClick={() => setOpen((o) => !o)} aria-label="Menu" aria-expanded={open}>
             ☰
           </button>
         </div>
       </div>
       {open && (
-        <nav className="border-t border-ink-800 px-4 py-2 md:hidden" aria-label="Mobile">
+        <nav className="border-t border-ink-800 px-4 py-2 lg:hidden" aria-label="Mobile">
           {[...links, ...(signedIn ? [] : [{ href: "/login", label: "Log in" }])].map((l) => (
             <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="block py-2 text-ink-200">
               {l.label}

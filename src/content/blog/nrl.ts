@@ -325,7 +325,7 @@ The best SGM legs depend on each other. If the Panthers beat the Tigers by 13+, 
 - the total goes over, if the Panthers do most of the scoring
 - the Panthers' goalkicker kicks plenty of goals
 
-Linked legs come in together more often than their individual prices suggest. That's the honest case for an SGM, and it's why the app's multi builder simulates whole games rather than multiplying independent chances.
+Linked legs come in together more often than their individual prices suggest. That's the honest case for an SGM. If your legs aren't linked, a multi across different games is often better value. See [same game multi vs cross-sport multi](/blog/same-game-multi-vs-cross-sport-multi).
 
 ## Rule 2: Avoid the filler legs
 
@@ -337,7 +337,7 @@ Adding "Panthers to win" at $1.08 to a multi feels free. It isn't. Every leg car
 
 ## Rule 4: Know the real chance
 
-Four legs at 50% each come in together **6.25%** of the time if they're independent, which is $16.00 fair odds. If the bookie pays $12, you're giving away a quarter of the value. Linked legs can push the true chance higher. Unrelated legs can't.
+Four legs at 50% each come in together **6.25%** of the time if they're independent, which is $16.00 fair odds. If the bookie pays $12, you're giving away a quarter of the value. Our free [multi calculator](/tools/betting-odds-calculator#multi) does this maths for you. Linked legs can push the true chance higher. Unrelated legs can't.
 
 ## A worked example
 

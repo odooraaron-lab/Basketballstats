@@ -23,9 +23,9 @@ export default async function RacePage({ params }: { params: Promise<{ id: strin
   const final = isFinal(card);
   const [meeting, history, jRates, tRates] = await Promise.all([
     card.meetingId ? getMeeting(card.meetingId).catch(() => null) : null,
-    horseHistory(card.runners.map((r) => keyOf(r.name)), card.start),
-    ratesFor("jockey", [...new Set(card.runners.map((r) => keyOf(r.jockey)).filter(Boolean))], 90),
-    ratesFor("trainer", [...new Set(card.runners.map((r) => keyOf(r.trainer)).filter(Boolean))], 90),
+    horseHistory(card.runners.map((r) => keyOf(r.name)), card.start).catch(() => new Map<string, RunRow[]>()),
+    ratesFor("jockey", [...new Set(card.runners.map((r) => keyOf(r.jockey)).filter(Boolean))], 90).catch(() => new Map<string, Tally>()),
+    ratesFor("trainer", [...new Set(card.runners.map((r) => keyOf(r.trainer)).filter(Boolean))], 90).catch(() => new Map<string, Tally>()),
   ]);
   const chances = marketChances(card.runners);
   const starters = card.runners.filter((r) => !r.scratched);

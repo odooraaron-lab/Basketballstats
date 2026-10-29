@@ -30,9 +30,10 @@ export default async function Tracking({ searchParams }: { searchParams: Promise
   const uid = v?.user?.id ?? 0;
   const list = await follows(uid).catch(() => [] as Follow[]);
   const keys = (k: PersonKind) => list.filter((f) => f.kind === k).map((f) => f.key);
-  const [upH, upJ, upT, found] = await Promise.all([upcomingFor("horse", keys("horse")), upcomingFor("jockey", keys("jockey")), upcomingFor("trainer", keys("trainer")), sp.q ? searchNames(sp.q) : Promise.resolve([])]);
+  const none = () => [] as Awaited<ReturnType<typeof upcomingFor>>;
+  const [upH, upJ, upT, found] = await Promise.all([upcomingFor("horse", keys("horse")).catch(none), upcomingFor("jockey", keys("jockey")).catch(none), upcomingFor("trainer", keys("trainer")).catch(none), sp.q ? searchNames(sp.q).catch(() => []) : Promise.resolve([])]);
   const upcoming = [...upH.map((u) => ({ ...u, kind: "horse" as const })), ...upJ.map((u) => ({ ...u, kind: "jockey" as const })), ...upT.map((u) => ({ ...u, kind: "trainer" as const }))].sort((a, b) => (a.start < b.start ? -1 : 1));
-  const recent = (await Promise.all(list.map(async (f) => (await runsFor(f.kind, f.key, 14)).filter((r) => r.final).map((r) => ({ ...r, f }))))).flat().sort((a, b) => (a.start < b.start ? 1 : -1)).slice(0, 30);
+  const recent = (await Promise.all(list.map(async (f) => (await runsFor(f.kind, f.key, 14).catch(() => [])).filter((r) => r.final).map((r) => ({ ...r, f }))))).flat().sort((a, b) => (a.start < b.start ? 1 : -1)).slice(0, 30);
   const followed = new Set(list.map((f) => `${f.kind}:${f.key}`));
   const back = `/racing/tracking${sp.q ? `?q=${encodeURIComponent(sp.q)}` : ""}`;
 

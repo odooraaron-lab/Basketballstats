@@ -6,6 +6,10 @@ import { ResponsibleGambling } from "@/components/public/PublicFooter";
 import { POSTS, postBySlug, postsInZone, readingMinutes, zoneById } from "@/content/blog";
 import { fmtDate } from "@/lib/format";
 import { priceLabel, site } from "@/site.config";
+import { featureBySlug } from "@/content/features";
+
+// Which feature page each guide zone should point readers to
+const ZONE_FEATURE: Record<string, string> = { racing: "nz-horse-racing-form", "all-blacks": "all-blacks-stats", "betting-tools": "ultimate-bet", nba: "multi-builder", nbl: "multi-builder" };
 
 export const generateStaticParams = () => POSTS.map((p) => ({ slug: p.slug }));
 
@@ -27,6 +31,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const zone = zoneById(p.zone)!;
   const toc = headings(p.body);
   const related = postsInZone(p.zone).filter((x) => x.slug !== p.slug).slice(0, 3);
+  const feature = featureBySlug(ZONE_FEATURE[p.zone] ?? "live-sports-stats");
   const ld = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -65,9 +70,12 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             <Markdown source={p.body} />
           </div>
           <div className="card mt-10 p-6">
-            <div className="display text-2xl font-extrabold">Put this into practice with live {zone.label} stats</div>
-            <p className="mt-1 text-sm text-ink-400">Projections, fair odds, player form and the automated multi builder for every game. {priceLabel}/month, cancel anytime.</p>
-            <Link href="/signup" className="display mt-4 inline-block rounded-xl bg-court px-5 py-3 font-bold text-ink-950 hover:bg-court-soft">Join {site.name}</Link>
+            <div className="display text-2xl font-extrabold">{p.zone === "betting-tools" ? `Put this into practice with ${site.name}` : `Put this into practice with live ${zone.label} stats`}</div>
+            <p className="mt-1 text-sm text-ink-400">Projections, fair odds, player and horse form, the automated multi builder and The Ultimate Bet, for every game and race. {priceLabel}/month, cancel anytime.</p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link href="/signup" className="display inline-block rounded-xl bg-court px-5 py-3 font-bold text-ink-950 hover:bg-court-soft">Join {site.name}</Link>
+              {feature && <Link href={`/features/${feature.slug}`} className="display inline-block rounded-xl border border-ink-700 px-5 py-3 font-bold text-ink-200 hover:border-ink-500">See {feature.nav}</Link>}
+            </div>
           </div>
           <ResponsibleGambling className="mt-6" />
         </article>

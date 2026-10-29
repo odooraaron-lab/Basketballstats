@@ -76,7 +76,7 @@ function Splits({ title, runs, by, min = 1 }: { title: string; runs: RunRow[]; b
 
 export async function Profile({ kind, slug }: { kind: PersonKind; slug: string }) {
   const key = decodeURIComponent(slug).toUpperCase().replace(/[^A-Z0-9]/g, "");
-  const [runs, upcoming, viewer] = await Promise.all([runsFor(kind, key), upcomingFor(kind, [key]), getViewer()]);
+  const [runs, upcoming, viewer] = await Promise.all([runsFor(kind, key).catch(() => []), upcomingFor(kind, [key]).catch(() => []), getViewer()]);
   const name = runs[runs.length - 1]?.[kind] ?? upcoming[0]?.[kind] ?? decodeURIComponent(slug).replace(/-/g, " ");
   const mine = viewer ? await follows(viewer.user?.id ?? 0).catch(() => []) : [];
   const following = mine.some((f) => f.kind === kind && f.key === key);

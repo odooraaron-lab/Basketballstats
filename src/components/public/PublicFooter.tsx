@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { site } from "@/site.config";
 import { ZONES } from "@/content/blog";
+import { FEATURES } from "@/content/features";
 
 export function ResponsibleGambling({ className = "" }: { className?: string }) {
   return (
@@ -29,7 +30,7 @@ export function PublicFooter() {
             {ZONES.map((z) => (
               <li key={z.id}>
                 <Link href={`/blog/sport/${z.id}`} className="hover:text-ink-100">
-                  {z.label} betting stats
+                  {z.id === "betting-tools" ? "Betting tools & maths" : `${z.label} betting stats`}
                 </Link>
               </li>
             ))}
@@ -38,7 +39,10 @@ export function PublicFooter() {
         <div>
           <div className="display mb-2 text-sm font-semibold text-ink-300">{site.name}</div>
           <ul className="space-y-1 text-sm text-ink-400">
-            <li><Link href="/#features" className="hover:text-ink-100">Features</Link></li>
+            {FEATURES.map((f) => (
+              <li key={f.slug}><Link href={`/features/${f.slug}`} className="hover:text-ink-100">{f.nav}</Link></li>
+            ))}
+            <li><Link href="/tools/betting-odds-calculator" className="hover:text-ink-100">Free odds calculator</Link></li>
             <li><Link href="/#pricing" className="hover:text-ink-100">Pricing</Link></li>
             <li><Link href="/blog" className="hover:text-ink-100">Blog</Link></li>
             <li><Link href="/login" className="hover:text-ink-100">Log in</Link></li>

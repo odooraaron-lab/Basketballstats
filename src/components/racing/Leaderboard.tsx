@@ -13,7 +13,7 @@ const PERIODS = [
 export async function Leaderboard({ kind, sp }: { kind: "jockey" | "trainer"; sp: { days?: string; c?: string } }) {
   const days = PERIODS.some(([d]) => d === sp.days) ? Number(sp.days) : 90;
   const cat = sp.c === "T" || sp.c === "H" ? sp.c : "";
-  const [rows, status] = await Promise.all([leaderboard(kind, days, cat, days <= 30 ? 3 : 5), racingDbStatus().catch(() => null)]);
+  const [rows, status] = await Promise.all([leaderboard(kind, days, cat, days <= 30 ? 3 : 5).catch(() => []), racingDbStatus().catch(() => null)]);
   const base = `/racing/${kind === "jockey" ? "jockeys" : "trainers"}`;
   const href = (d: number, c: string) => `${base}?days=${d}${c ? `&c=${c}` : ""}`;
   const columns: Column[] = [

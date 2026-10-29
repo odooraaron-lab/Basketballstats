@@ -7,7 +7,9 @@ A Next.js subscription site: a public, SEO-focused landing page and blog, and a 
 | Route | Who | What |
 |---|---|---|
 | `/` | public | Landing page (live "what's in season" board, features, value comparison, pricing, FAQ, JSON-LD) |
-| `/blog`, `/blog/sport/<zone>`, `/blog/<slug>` | public | 80 guides, 10 per sport zone (`src/content/blog/`) |
+| `/blog`, `/blog/sport/<zone>`, `/blog/<slug>` | public | Betting guides by zone (`src/content/blog/`), each with a generated share image |
+| `/features`, `/features/<slug>` | public | SEO landing pages per product area (`src/content/features.ts`): Ultimate Bet, multi builder, NZ racing form, All Blacks stats, live stats, odds & boost checker |
+| `/tools/betting-odds-calculator` | public | Free calculators: value/boost, odds converter, bookmaker margin, multi, each-way |
 | `/login`, `/signup`, `/forgot`, `/reset`, `/pricing`, `/terms`, `/privacy`, `/responsible-gambling` | public | Auth and legal |
 | `/app` and every sport section | paid members | The stat tracker. Unpaid accounts are sent to `/account/billing` |
 | `/account` | signed in | Theme (dark / light / system), show/hide areas, home area, password, sign out everywhere, delete account |
