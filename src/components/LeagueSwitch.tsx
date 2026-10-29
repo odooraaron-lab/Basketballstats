@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { SWITCH_COMPS } from "@/sports/comps";
 import { UltimateBetButton } from "./UltimateBet";
+import { ALL_SECTION_IDS, LeagueFilter } from "./LeagueFilter";
 
 export interface LeagueOption {
   id: string;
@@ -51,7 +53,10 @@ export function LeagueSwitch({
   isAdmin?: boolean;
 }) {
   const path = usePathname();
-  const shown = (id: string) => !hidden.includes(id) || id === given || (id === "super-smash" && path.startsWith("/cricket/super-smash"));
+  // Local copy so the league filter updates the bar instantly
+  const [hid, setHid] = useState(hidden);
+  useEffect(() => setHid(hidden), [hidden]);
+  const shown = (id: string) => !hid.includes(id) || id === given || (id === "super-smash" && path.startsWith("/cricket/super-smash"));
   const leagues = allLeagues.filter((l) => shown(l.id));
   const others = OTHER.filter((o) => shown(o.id));
   const current = path.startsWith("/cricket/super-smash") ? "super-smash" : given;
@@ -108,6 +113,7 @@ export function LeagueSwitch({
           })}
         </div>
         <div className="ml-auto flex shrink-0 items-center gap-1 pl-2 text-xs">
+          <LeagueFilter hidden={hid} onChange={(sections) => setHid([...hid.filter((h) => !ALL_SECTION_IDS.includes(h)), ...sections])} />
           {!hidden.includes("ultimate") && <UltimateBetButton />}
           {isAdmin && (
             <Link href="/admin" className={`rounded-md px-2 py-1 ${path.startsWith("/admin") ? "bg-ink-800 text-ink-100" : "text-ink-400 hover:text-ink-100"}`}>

@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SESSION_COOKIE, SIGNED_IN_HINT, SESSION_DAYS, createSession, verifySession, type SessionClaims } from "./auth";
 import { dbConfigured } from "./db";
-import { HIDDEN_COOKIE, THEME_COOKIE, type Prefs } from "./areas";
+import { HIDDEN_COOKIE, THEME_COOKIE, parseHidden, type Prefs } from "./areas";
 import { getUser, hasAccess, type User } from "./users";
 
 export interface Viewer {
@@ -19,10 +19,14 @@ export interface Viewer {
 }
 
 export const getViewer = cache(async (): Promise<Viewer | null> => {
-  const claims = await verifySession((await cookies()).get(SESSION_COOKIE)?.value);
+  const jar = await cookies();
+  const claims = await verifySession(jar.get(SESSION_COOKIE)?.value);
   if (!claims) return null;
   if (claims.uid === "owner") {
-    return { claims, user: null, isAdmin: true, hasAccess: true, prefs: {}, email: process.env.APP_USERNAME ?? "owner" };
+    // The owner login has no member row, so its settings live in cookies only
+    const theme = jar.get(THEME_COOKIE)?.value;
+    const prefs: Prefs = { hidden: parseHidden(jar.get(HIDDEN_COOKIE)?.value), ...(theme === "light" || theme === "dark" || theme === "system" ? { theme } : {}) };
+    return { claims, user: null, isAdmin: true, hasAccess: true, prefs, email: process.env.APP_USERNAME ?? "owner" };
   }
   if (!dbConfigured()) return null;
   const user = await getUser(Number(claims.uid)).catch(() => null);

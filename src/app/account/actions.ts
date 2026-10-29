@@ -57,3 +57,15 @@ export async function deleteAccountAction(form: FormData) {
   await endSession();
   redirect("/?deleted=1");
 }
+
+/** Quick show/hide of sport sections from the league bar filter (no redirect). */
+export async function setHiddenSectionsAction(hiddenSections: string[]) {
+  const v = await requireViewer("/app");
+  const sections = new Set(AREAS.filter((a) => a.kind === "section").map((a) => a.id));
+  const want = hiddenSections.filter((id) => sections.has(id));
+  if (want.length >= sections.size) want.pop(); // keep at least one visible
+  const keepFeatures = (v.prefs.hidden ?? []).filter((id) => !sections.has(id));
+  const prefs: Prefs = { ...v.prefs, hidden: [...keepFeatures, ...want] };
+  if (v.user) await savePrefs(v.user.id, prefs);
+  writePrefCookies(await cookies(), prefs);
+}
