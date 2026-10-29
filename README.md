@@ -43,6 +43,18 @@ Access = admin, or a comp date in the future, or a Stripe subscription that is a
 - **Super Smash** uses ESPN competition `8654` ("New Zealand Domestic Twenty20") with `?season=<start year>`; the day-by-day cricket panel only keeps a few months of history.
 - Each competition is defined in `src/sports/comps.ts` (source, ladder points, finals spots, featured stats, margin spread for win chances). Projections come from an attack/defence rating fitted to the season's results with home advantage (`src/sports/model.ts`, unit-tested).
 
+### Horse racing (NZ)
+`/racing`: every New Zealand thoroughbred and harness meeting, from Entain's **Affiliates API** (TAB NZ, `api.tab.co.nz/affiliates/v1`, with the identical Ladbrokes feed as a fallback). Requests identify the site with `From` / `X-Partner` headers, as the feed asks.
+
+- **Meetings** by day (yesterday → +2 days), next-to-go, thoroughbred/harness filter
+- **Race cards**: barrier, weight, jockey/driver (+ apprentice claim), trainer, fixed win/place odds, flucs (firming/drifting), market chance with the margin removed, places paid, form comments, + Win / + Place to the multi slip; results and tote dividends when final
+- **Form database** (`racing_races`, `racing_runs` in Postgres): the feed has no career stats or horse IDs, so every card and result we fetch is saved and horses/jockeys/trainers are keyed by normalised name. Filled by a nightly Vercel Cron (`vercel.json` → `/api/cron/racing`, needs `CRON_SECRET`), by page views (yesterday → tomorrow, at most every 20 minutes), and by **Admin → Setup → Backfill** (walks back day by day).
+- **Profiles** for horses, jockeys/drivers and trainers: starts, wins, places, strike rates, $1 level-stakes profit/ROI at recorded fixed odds, splits by track condition/distance/jockey (horses) and price band/partner/track (people), upcoming runs, every recorded start
+- **Leaderboards** for jockeys/drivers and trainers (30/90/365 days, gallops/harness)
+- **My tracking**: follow horses, jockeys and trainers (`racing_follows`) and see their upcoming runs and latest results
+- Racing favourites (win/place) feed into **The Ultimate Bet**
+- The feed lists placegetters only, so finishes outside the top three/four are recorded as unplaced.
+
 ### League environments
 Each league is an isolated environment (`src/leagues/`) with its own rules (game length, OT, shot clock, foul-out, bonus, clutch window), stat definitions and data provider. All routes are scoped by league (`/nba/...`), so IDs never mix across leagues. Every timing calculation goes through `src/lib/rules.ts`. To add a league, copy `src/leagues/nba.ts` (ESPN season feeds) or `src/leagues/nbl.ts` (season stats built from box scores) and register it in `src/leagues/registry.ts` — it appears in the league switch automatically.
 

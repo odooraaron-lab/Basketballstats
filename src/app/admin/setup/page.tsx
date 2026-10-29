@@ -4,6 +4,9 @@ import { emailConfigured } from "@/lib/email";
 import { stripeConfigured } from "@/lib/stripe";
 import { priceLabel, site } from "@/site.config";
 import { setupDbAction } from "../actions";
+import { Backfill } from "@/components/racing/Backfill";
+import { nzToday, racingDbStatus } from "@/lib/racing/store";
+import { getMeetings, lastFetch } from "@/lib/racing/tab";
 
 export default async function Setup() {
   let dbOk = false;
@@ -28,7 +31,10 @@ export default async function Setup() {
     ["NEXT_PUBLIC_SITE_URL", Boolean(process.env.NEXT_PUBLIC_SITE_URL), `Currently ${site.url} — used for SEO links, Stripe returns and emails.`],
     ["RESEND_API_KEY / EMAIL_FROM", emailConfigured(), "Sends password-reset emails (resend.com). Without it, reset links can't be emailed."],
     ["ANTHROPIC_API_KEY (optional)", Boolean(process.env.ANTHROPIC_API_KEY), "Better screenshot reading in Odds check."],
+    ["CRON_SECRET", Boolean(process.env.CRON_SECRET), "Any long random string. Lets Vercel Cron run the nightly racing results import (/api/cron/racing, 4am NZ)."],
   ];
+  const today = nzToday();
+  const [meetings, racing] = await Promise.all([getMeetings(today, today).catch(() => []), racingDbStatus().catch(() => null)]);
   return (
     <div className="space-y-5">
       <Card title="Configuration">
@@ -52,6 +58,31 @@ export default async function Setup() {
           <p className="mt-2 text-xs text-ink-500">Tables are also created automatically on first use.</p>
         </Card>
       )}
+      <Card title="Horse racing data">
+        <ul className="space-y-1 text-sm">
+          <li>
+            <span className={meetings.length || lastFetch.ok ? "text-win" : "text-loss"}>{meetings.length || lastFetch.ok ? "✓" : "✗"}</span> Racing feed:{" "}
+            {lastFetch.ok ? `${meetings.length} NZ meetings today from ${lastFetch.base}` : `not responding (${lastFetch.error ?? "no reply"}${lastFetch.base ? ` from ${lastFetch.base}` : ""})`}
+          </li>
+          {racing && (
+            <li className="text-ink-300">
+              Form database: {racing.races.toLocaleString()} races ({racing.finals.toLocaleString()} with results), {racing.runs.toLocaleString()} runners
+              {racing.first ? `, ${racing.first} to ${racing.last ?? "today"}` : ""}.
+              {racing.lastIngest && (
+                <span className="block text-xs text-ink-500">
+                  Last import {new Date(racing.lastIngest.at).toLocaleString("en-NZ", { timeZone: "Pacific/Auckland" })}: {racing.lastIngest.from} → {racing.lastIngest.to}, {racing.lastIngest.saved} races saved
+                  {racing.lastIngest.remaining ? `, ${racing.lastIngest.remaining} left for next time` : ""}.
+                </span>
+              )}
+            </li>
+          )}
+        </ul>
+        {dbConfigured() && (
+          <div className="mt-4 border-t border-ink-800 pt-4">
+            <Backfill today={today} />
+          </div>
+        )}
+      </Card>
       <Card title="Shared Stripe account">
         <p className="text-sm text-ink-300">
           Every customer, subscription and checkout is tagged <code>site={site.stripeTag}</code>, so payments for your other sites on the same Stripe account are ignored here. In the Stripe Billing portal settings, allow customers to cancel and update their card.

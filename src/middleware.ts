@@ -10,6 +10,7 @@ const PUBLIC = [
   /^\/(login|signup|forgot|reset|terms|privacy|responsible-gambling|pricing)(\/|$)/,
   /^\/api\/(auth|track)(\/|$)/,
   /^\/api\/stripe\/webhook$/,
+  /^\/api\/cron\//, // Vercel Cron; each route checks CRON_SECRET itself
   /^\/(sitemap\.xml|robots\.txt|manifest\.webmanifest|opengraph-image.*|twitter-image.*)$/,
 ];
 

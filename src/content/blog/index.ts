@@ -8,6 +8,7 @@ import { aLeague } from "./a-league";
 import { netball } from "./netball";
 import { cricket } from "./cricket";
 import { superSmash } from "./super-smash";
+import { racing } from "./racing";
 
 export type { Post, ZoneId };
 
@@ -19,10 +20,11 @@ export const ZONES: { id: ZoneId; label: string; blurb: string; appHref: string 
   { id: "super-smash", label: "Super Smash", blurb: "NZ domestic T20: chasing, powerplays, top batters — and the coming NZ20.", appHref: "/cricket/super-smash" },
   { id: "cricket", label: "Cricket", blurb: "Tests, ODIs and T20s worldwide: run rates, chase maths and player form.", appHref: "/cricket" },
   { id: "nba", label: "NBA", blurb: "Player props, pace, usage and same-game multis for the NBA.", appHref: "/nba" },
+  { id: "racing", label: "Horse racing", blurb: "NZ gallops and harness: form guides, track ratings, jockey and trainer strike rates.", appHref: "/racing" },
   { id: "nbl", label: "NBL", blurb: "The Breakers, imports and FIBA rules: betting the Australian NBL with stats.", appHref: "/nbl" },
 ];
 
-export const POSTS: Post[] = [...nrl, ...superRugby, ...netball, ...aLeague, ...superSmash, ...cricket, ...nba, ...nbl].sort((a, b) =>
+export const POSTS: Post[] = [...nrl, ...superRugby, ...netball, ...aLeague, ...superSmash, ...cricket, ...nba, ...nbl, ...racing].sort((a, b) =>
   a.date < b.date ? 1 : a.date > b.date ? -1 : 0,
 );
 

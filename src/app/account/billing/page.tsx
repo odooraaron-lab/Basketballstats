@@ -9,7 +9,7 @@ import { priceLabel, site } from "@/site.config";
 export const dynamic = "force-dynamic";
 
 const INCLUDED = [
-  "Live scores & detailed stats for NBA, NBL, NRL, Super Rugby, All Blacks tests, A-League (men & women), ANZ Premiership, Super Smash and world cricket",
+  "Live scores & detailed stats for NBA, NBL, NRL, Super Rugby, All Blacks tests, A-League (men & women), ANZ Premiership, Super Smash, world cricket and NZ horse racing",
   "Match centres: player stats, team stats, timelines, shot charts and lineups",
   "Projections & win chances for every upcoming game, with fair odds",
   "Automated multi builder: most-likely combinations and longshot “massive multi” finder",

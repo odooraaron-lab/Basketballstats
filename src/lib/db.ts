@@ -84,6 +84,61 @@ const SCHEMA = [
      expires_at TIMESTAMPTZ NOT NULL,
      used_at    TIMESTAMPTZ
    )`,
+  // Horse racing history: every race card and result we've seen, for horse/jockey/trainer stats
+  `CREATE TABLE IF NOT EXISTS racing_races (
+     id              TEXT PRIMARY KEY,
+     meeting_id      TEXT NOT NULL DEFAULT '',
+     meeting         TEXT NOT NULL DEFAULT '',
+     date            DATE NOT NULL,
+     start_at        TIMESTAMPTZ,
+     race_no         INTEGER NOT NULL DEFAULT 0,
+     race_name       TEXT NOT NULL DEFAULT '',
+     category        TEXT NOT NULL DEFAULT 'T',
+     country         TEXT NOT NULL DEFAULT '',
+     distance        INTEGER,
+     track_condition TEXT NOT NULL DEFAULT '',
+     status          TEXT NOT NULL DEFAULT '',
+     field_size      INTEGER NOT NULL DEFAULT 0,
+     final           BOOLEAN NOT NULL DEFAULT FALSE,
+     updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
+  `CREATE INDEX IF NOT EXISTS racing_races_date_idx ON racing_races (date DESC)`,
+  `CREATE TABLE IF NOT EXISTS racing_runs (
+     race_id     TEXT NOT NULL REFERENCES racing_races(id) ON DELETE CASCADE,
+     number      INTEGER NOT NULL,
+     horse       TEXT NOT NULL,
+     horse_key   TEXT NOT NULL,
+     jockey      TEXT NOT NULL DEFAULT '',
+     jockey_key  TEXT NOT NULL DEFAULT '',
+     trainer     TEXT NOT NULL DEFAULT '',
+     trainer_key TEXT NOT NULL DEFAULT '',
+     barrier     INTEGER,
+     weight      REAL,
+     win_odds    REAL,
+     place_odds  REAL,
+     scratched   BOOLEAN NOT NULL DEFAULT FALSE,
+     position    INTEGER,
+     margin      REAL,
+     age         INTEGER,
+     sex         TEXT NOT NULL DEFAULT '',
+     PRIMARY KEY (race_id, number)
+   )`,
+  `CREATE INDEX IF NOT EXISTS racing_runs_horse_idx ON racing_runs (horse_key)`,
+  `CREATE INDEX IF NOT EXISTS racing_runs_jockey_idx ON racing_runs (jockey_key)`,
+  `CREATE INDEX IF NOT EXISTS racing_runs_trainer_idx ON racing_runs (trainer_key)`,
+  `CREATE TABLE IF NOT EXISTS racing_follows (
+     user_id    INTEGER NOT NULL,
+     kind       TEXT NOT NULL,
+     key        TEXT NOT NULL,
+     name       TEXT NOT NULL,
+     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+     PRIMARY KEY (user_id, kind, key)
+   )`,
+  `CREATE TABLE IF NOT EXISTS app_state (
+     key        TEXT PRIMARY KEY,
+     value      JSONB NOT NULL DEFAULT '{}'::jsonb,
+     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
 ];
 
 let ready: Promise<void> | null = null;

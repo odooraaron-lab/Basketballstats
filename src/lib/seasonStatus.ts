@@ -3,11 +3,12 @@
 import "server-only";
 import { getUpcoming } from "./espn";
 import { getCompetitionSeason, getDayMatches } from "./cricket";
-import { fmtDate, todayKey } from "./format";
+import { fmtDate, shiftDay, todayKey } from "./format";
 import { getLeague } from "@/leagues/registry";
 import { COMPS, getComp } from "@/sports/comps";
 import { defaultSeason, getFixtures } from "@/sports/data";
 import type { Fixture } from "@/sports/model";
+import { getMeetings } from "./racing/tab";
 
 export type SeasonState = "live" | "in-season" | "off-season";
 
@@ -138,6 +139,22 @@ async function worldCricket(): Promise<SportStatus> {
   };
 }
 
+async function racing(): Promise<SportStatus> {
+  const key = todayKey();
+  const iso = (k: string) => `${k.slice(0, 4)}-${k.slice(4, 6)}-${k.slice(6, 8)}`;
+  const [today, tomorrow] = await Promise.all([getMeetings(iso(key), iso(key)), getMeetings(iso(shiftDay(key, 1)), iso(shiftDay(key, 1)))]);
+  const base = { id: "racing", name: "Horse racing", short: "Racing", href: "/racing", sport: "Racing", region: "NZ gallops & harness", accent: "#c8a24a" };
+  const now = Date.now();
+  const live = today.some((m) => m.races.some((r) => Math.abs(Date.parse(r.start) - now) < 20 * 60_000));
+  const n = today.length || tomorrow.length;
+  return {
+    ...base,
+    state: live ? "live" : "in-season",
+    headline: today.length ? `${today.length} NZ meeting${today.length > 1 ? "s" : ""} today` : n ? `${tomorrow.length} NZ meeting${tomorrow.length > 1 ? "s" : ""} tomorrow` : "Racing year-round",
+    detail: "",
+  };
+}
+
 const safe = async (f: () => Promise<SportStatus>, fallback: SportStatus) => {
   try {
     return await f();
@@ -157,6 +174,7 @@ export async function allSportStatus(): Promise<SportStatus[]> {
     ...comps.map((id) => safe(() => comp(id), fallback(id, getComp(id).short, `/sport/${id}`))),
     safe(superSmash, fallback("super-smash", "Super Smash", "/cricket/super-smash")),
     safe(worldCricket, fallback("cricket", "Cricket", "/cricket")),
+    safe(racing, { ...fallback("racing", "Horse racing", "/racing"), short: "Racing", sport: "Racing", region: "NZ gallops & harness", accent: "#c8a24a", headline: "Racing year-round" }),
   ]);
 }
 

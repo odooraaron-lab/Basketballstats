@@ -6,8 +6,8 @@ import { slip, useSlip } from "@/lib/betslip";
 import type { UltimateOption, UltimateResult } from "@/lib/ultimate";
 
 const pct = (p: number) => `${(p * 100).toFixed(p < 0.1 ? 1 : 0)}%`;
-const CODE_LABEL: Record<string, string> = { basketball: "Basketball", "rugby-league": "Rugby league", rugby: "Rugby union", soccer: "Football", netball: "Netball", cricket: "Cricket" };
-const CODE_COLOR: Record<string, string> = { basketball: "#f26b1d", "rugby-league": "#3b82f6", rugby: "#e8e8e8", soccer: "#22c55e", netball: "#d6336c", cricket: "#2fb36d" };
+const CODE_LABEL: Record<string, string> = { basketball: "Basketball", "rugby-league": "Rugby league", rugby: "Rugby union", soccer: "Football", netball: "Netball", cricket: "Cricket", racing: "Racing" };
+const CODE_COLOR: Record<string, string> = { basketball: "#f26b1d", "rugby-league": "#3b82f6", rugby: "#e8e8e8", soccer: "#22c55e", netball: "#d6336c", cricket: "#2fb36d", racing: "#c8a24a" };
 const when = (iso: string) =>
   new Intl.DateTimeFormat("en-NZ", { timeZone: "Pacific/Auckland", weekday: "short", hour: "numeric", minute: "2-digit" }).format(new Date(iso));
 
@@ -77,7 +77,7 @@ function UltimateModal({ onClose }: { onClose: () => void }) {
           ) : !data ? (
             <div className="py-12 text-center">
               <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-ink-700 border-t-court" />
-              <p className="mt-3 text-sm text-ink-400">Scanning NBA, NBL, rugby, football, netball and cricket…</p>
+              <p className="mt-3 text-sm text-ink-400">Scanning NBA, NBL, rugby, football, netball, cricket and NZ racing…</p>
               <p className="text-xs text-ink-500">First scan of the hour takes up to 30 seconds.</p>
             </div>
           ) : !data.options.length ? (

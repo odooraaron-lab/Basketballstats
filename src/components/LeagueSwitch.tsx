@@ -35,6 +35,7 @@ const OTHER: { id: string; href: string; label: string; region: string; accent: 
   ...SWITCH_COMPS.map((c) => ({ id: c.id, href: `/sport/${c.id}`, label: c.short, region: c.region, accent: c.accent, title: c.name })),
   { id: "cricket", href: "/cricket", label: "Cricket", region: "World", accent: "#2fb36d", title: "Cricket — every match in the world" },
   { id: "super-smash", href: "/cricket/super-smash", label: "Super Smash", region: "NZ T20", accent: "#f2c400", title: "Super Smash — NZ men's T20" },
+  { id: "racing", href: "/racing", label: "Racing", region: "NZ", accent: "#c8a24a", title: "Horse racing — NZ thoroughbred & harness" },
 ];
 
 export function LeagueSwitch({

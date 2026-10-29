@@ -12,8 +12,8 @@ export const maxDuration = 60;
 export const metadata = {
   title: { absolute: `Live Sports Stats & Betting Odds Tools NZ | ${site.name}` },
   description:
-    "Live sports stats, detailed stats and betting odds tools for New Zealand & Australia. All Blacks, NRL, Super Rugby, ANZ Premiership, A-League, Super Smash, NBA, NBL and cricket — with an automated multi builder and boosted-odds checker. $9.99 NZD/month.",
-  keywords: ["live sports", "betting odds", "live stats", "stat tracker", "detailed stats", "sports betting NZ", "multi builder", "boosted odds", "All Blacks stats", "All Blacks try scorer", "NRL stats", "Super Rugby stats", "netball stats", "A-League stats", "NBA player props", "same game multi"],
+    "Live sports stats, detailed stats and betting odds tools for New Zealand & Australia. All Blacks, NRL, Super Rugby, ANZ Premiership, A-League, Super Smash, NBA, NBL, cricket and NZ horse racing — with an automated multi builder and boosted-odds checker. $9.99 NZD/month.",
+  keywords: ["live sports", "betting odds", "live stats", "stat tracker", "detailed stats", "sports betting NZ", "multi builder", "boosted odds", "All Blacks stats", "All Blacks try scorer", "NZ horse racing form", "jockey stats NZ", "trainer strike rate", "NRL stats", "Super Rugby stats", "netball stats", "A-League stats", "NBA player props", "same game multi"],
   alternates: { canonical: "/" },
   openGraph: {
     title: `${site.name} — live sports stats & betting tools for NZ`,
@@ -60,6 +60,11 @@ const FEATURES: { title: string; body: string; tag: string }[] = [
     body: "One tap scans every game in the next 48 hours across basketball, rugby, football, netball and cricket, then builds three cross-sport multis: a Banker, a Balanced and a Big Price option, each with our chance and fair price for every leg.",
   },
   {
+    tag: "Racing",
+    title: "NZ horse racing form",
+    body: "Every New Zealand thoroughbred and harness meeting: fields, fixed odds and market moves, results and dividends. Track horses, jockeys, drivers and trainers, with strike rates, level-stakes profit and form by track, distance and going.",
+  },
+  {
     tag: "All Blacks",
     title: "All Blacks test tracker",
     body: "Every All Blacks test across the Nations Championship, Bledisloe Cup, Rugby Championship and tours: results, the record against every nation, try scorers, points and starts, plus our projection and anytime try scorer chances for the next test.",
@@ -79,7 +84,7 @@ const FEATURES: { title: string; body: string; tag: string }[] = [
 const FAQ: { q: string; a: string }[] = [
   {
     q: "What do I get for $9.99 a month?",
-    a: "Everything. You get every sport (the All Blacks, NRL, Super Rugby, ANZ Premiership netball, A-League men's and women's, Super Smash, world cricket, NBA and NBL) and every tool: live stats, match centres, projections, the automated multi builder, the longshot finder, the odds and boost checker and the bet slip. There are no tiers and no add-ons.",
+    a: "Everything. You get every sport (the All Blacks, NRL, Super Rugby, ANZ Premiership netball, A-League men's and women's, Super Smash, world cricket, NBA, NBL and NZ horse racing) and every tool: live stats, match centres, projections, the automated multi builder, the longshot finder, the odds and boost checker and the bet slip. There are no tiers and no add-ons.",
   },
   {
     q: "Is Quick Read a betting site?",
@@ -91,7 +96,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "Which sports are covered right now?",
-    a: "Every All Blacks test (Nations Championship, Bledisloe Cup, Rugby Championship and tours), NBA, NBL, NRL, Super Rugby Pacific, the A-League (men's and women's), the ANZ Premiership, Super Smash and every international and domestic cricket match. When a competition is between seasons, the app tells you when it's back, and you can still explore the whole last season.",
+    a: "Every All Blacks test (Nations Championship, Bledisloe Cup, Rugby Championship and tours), NBA, NBL, NRL, Super Rugby Pacific, the A-League (men's and women's), the ANZ Premiership, Super Smash every international and domestic cricket match, and every NZ thoroughbred and harness meeting. When a competition is between seasons, the app tells you when it's back, and you can still explore the whole last season.",
   },
   {
     q: "How are the win chances and fair odds worked out?",
@@ -229,7 +234,7 @@ export default async function Landing() {
               Sports stats &amp; betting odds software <span className="text-court">for Kiwi punters</span>
             </h1>
             <p className="mt-5 max-w-xl text-lg text-ink-300">
-              Find value, build smarter multis and check every boost before the odds move. Live stats and detailed stats for the All Blacks, NRL, Super Rugby, netball, A-League, Super Smash, NBA, NBL and world cricket, all in NZ time.
+              Find value, build smarter multis and check every boost before the odds move. Live stats and detailed stats for the All Blacks, NRL, Super Rugby, netball, A-League, Super Smash, NBA, NBL, world cricket and NZ horse racing, all in NZ time.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link href="/signup" className="display rounded-xl bg-court px-6 py-3.5 text-lg font-bold text-ink-950 shadow-lg shadow-court/20 hover:bg-court-soft">

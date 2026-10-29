@@ -1,4 +1,4 @@
-export type ZoneId = "nba" | "nbl" | "nrl" | "super-rugby" | "a-league" | "netball" | "cricket" | "super-smash";
+export type ZoneId = "nba" | "nbl" | "nrl" | "super-rugby" | "a-league" | "netball" | "cricket" | "super-smash" | "racing";
 
 export interface Post {
   slug: string;

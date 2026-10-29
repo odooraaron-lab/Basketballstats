@@ -17,6 +17,7 @@ export const AREAS: Area[] = [
   { id: "anz-premiership", label: "ANZ Premiership", href: "/sport/anz-premiership", kind: "section" },
   { id: "cricket", label: "Cricket (world)", href: "/cricket", kind: "section" },
   { id: "super-smash", label: "Super Smash", href: "/cricket/super-smash", kind: "section" },
+  { id: "racing", label: "Horse racing (NZ)", href: "/racing", kind: "section" },
   { id: "ultimate", label: "The Ultimate Bet button", href: "", kind: "feature" },
   { id: "odds", label: "Odds check (basketball)", href: "", kind: "feature" },
   { id: "tracking", label: "NBA.com tracking", href: "", kind: "feature" },

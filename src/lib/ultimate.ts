@@ -9,9 +9,12 @@ import { getLeague } from "@/leagues/registry";
 import { COMPS, type CompDef } from "@/sports/comps";
 import { defaultSeason, getSeasonBook } from "@/sports/data";
 import { pMarginAtLeast, project, pTotalOver, soccerMarkets } from "@/sports/model";
+import { keyOf, marketChances, type RaceCard } from "./racing/core";
+import { nzShift, nzToday, ratesFor } from "./racing/store";
+import { getMeetings, getRace } from "./racing/tab";
 
-export type Code = "basketball" | "rugby-league" | "rugby" | "soccer" | "netball" | "cricket";
-export const CODE_LABEL: Record<Code, string> = { basketball: "Basketball", "rugby-league": "Rugby league", rugby: "Rugby union", soccer: "Football", netball: "Netball", cricket: "Cricket" };
+export type Code = "basketball" | "rugby-league" | "rugby" | "soccer" | "netball" | "cricket" | "racing";
+export const CODE_LABEL: Record<Code, string> = { basketball: "Basketball", "rugby-league": "Rugby league", rugby: "Rugby union", soccer: "Football", netball: "Netball", cricket: "Cricket", racing: "Racing" };
 
 export interface Leg {
   id: string; // unique per game + market
@@ -203,6 +206,48 @@ async function cricket(until: number): Promise<{ legs: Leg[]; games: number }> {
   return { legs, games: games.length };
 }
 
+// ------------------------------------------------------------------ horse racing
+
+/**
+ * NZ races in the window: the favourite to win and to place, with the chance implied by the
+ * fixed-odds market once the bookmaker's margin is removed, nudged by the jockey's and
+ * trainer's recent strike rates from our results database.
+ */
+async function racing(until: number): Promise<{ legs: Leg[]; games: number }> {
+  const today = nzToday();
+  const meetings = await getMeetings(today, nzShift(today, 1));
+  const soon = meetings
+    .flatMap((m) => m.races.map((r) => ({ m, r })))
+    .filter(({ r }) => Date.parse(r.start) > Date.now() + 5 * 60_000 && Date.parse(r.start) < until && !/abandon|final/i.test(r.status))
+    .sort((a, b) => (a.r.start < b.r.start ? -1 : 1))
+    .slice(0, 36);
+  const cards = (await Promise.all(soon.map(({ r }) => getRace(r.id).catch(() => null)))).filter((c): c is RaceCard => Boolean(c));
+  const jockeys = await ratesFor("jockey", [...new Set(cards.flatMap((c) => c.runners.map((r) => keyOf(r.jockey))))], 90).catch(() => new Map());
+  const trainers = await ratesFor("trainer", [...new Set(cards.flatMap((c) => c.runners.map((r) => keyOf(r.trainer))))], 90).catch(() => new Map());
+  const legs: Leg[] = [];
+  for (const c of cards) {
+    const starters = c.runners.filter((r) => !r.scratched && r.winOdds);
+    if (starters.length < 5) continue;
+    const ch = marketChances(c.runners);
+    const fav = [...starters].sort((a, b) => (a.winOdds ?? 99) - (b.winOdds ?? 99))[0];
+    const m = ch.get(fav.number);
+    if (!fav || !m?.win) continue;
+    const j = jockeys.get(keyOf(fav.jockey));
+    const t = trainers.get(keyOf(fav.trainer));
+    // Small nudge (max ±10% relative) when the jockey/trainer is running well above or below 15%
+    const form = [j, t].filter((x) => x && x.starts >= 15).map((x) => Math.max(-0.1, Math.min(0.1, (x!.winPct - 0.15) * 0.5)));
+    const nudge = 1 + form.reduce((a, b) => a + b, 0) / Math.max(1, form.length);
+    const game = `${c.meetingName} R${c.number}`;
+    const comp = `${c.category === "H" ? "Harness" : "Thoroughbred"} · ${c.meetingName}`;
+    const people = [j && j.starts >= 10 ? `${fav.jockey} ${Math.round(j.winPct * 100)}% (90d)` : fav.jockey, t && t.starts >= 10 ? `${fav.trainer} ${Math.round(t.winPct * 100)}%` : fav.trainer].filter(Boolean).join(" / ");
+    const why = `Favourite at $${fav.winOdds?.toFixed(2)}${fav.placeOdds ? ` / $${fav.placeOdds.toFixed(2)} place` : ""}; ${people}`;
+    const base = { code: "racing" as Code, comp, slipLeague: "racing", gameId: c.id, game, date: c.start, href: `/racing/race/${c.id}`, confidence: "medium" as const };
+    legs.push({ ...base, id: `${c.id}:win:${fav.number}`, market: "Result", pick: `${fav.number}. ${fav.name} to win`, p: Math.min(0.9, m.win * nudge), why });
+    if (m.place) legs.push({ ...base, id: `${c.id}:place:${fav.number}`, market: "Result", pick: `${fav.number}. ${fav.name} to place`, p: Math.min(0.95, m.place * nudge), why });
+  }
+  return { legs, games: cards.length };
+}
+
 // ------------------------------------------------------------------ building the three options
 
 const confW = { high: 1, medium: 0.97, low: 0.9 } as const;
@@ -266,12 +311,13 @@ async function build(): Promise<UltimateResult> {
     safe(basketball("nbl", until), empty),
     ...COMPS.map((c) => safe(fieldComp(c, until), empty)),
     safe(cricket(until), empty),
+    safe(racing(until), empty),
   ]);
   const all = parts.flatMap((x) => x.legs).filter((l) => Number.isFinite(l.p) && l.p > 0 && l.p < 1);
   const byCode = new Map<Code, Leg[]>();
   for (const l of all) byCode.set(l.code, [...(byCode.get(l.code) ?? []), l]);
   const scanned = new Map<Code, number>();
-  const codesOf: Code[] = ["basketball", "basketball", ...COMPS.map((c) => c.sport as Code), "cricket"];
+  const codesOf: Code[] = ["basketball", "basketball", ...COMPS.map((c) => c.sport as Code), "cricket", "racing"];
   parts.forEach((x, i) => scanned.set(codesOf[i], (scanned.get(codesOf[i]) ?? 0) + x.games));
 
   const options: UltimateOption[] = [];
