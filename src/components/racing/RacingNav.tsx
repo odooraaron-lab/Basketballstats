@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 
 const ITEMS = [
   { href: "/racing", label: "Meetings", exact: true },
+  { href: "/racing/multi", label: "Multi builder" },
   { href: "/racing/jockeys", label: "Jockeys & drivers" },
   { href: "/racing/trainers", label: "Trainers" },
   { href: "/racing/tracking", label: "My tracking" },
