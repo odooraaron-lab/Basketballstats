@@ -291,18 +291,18 @@ function buildOption(n: 1 | 2 | 3, byCode: Map<Code, Leg[]>, avoid: Set<string>)
   return { n, name: spec.name, blurb: spec.blurb, legs, p, fair: 1 / p };
 }
 
-const cache = new Map<string, { at: number; v: Promise<UltimateResult> }>();
+// The 48-hour pool of rated legs is cached; each request picks from its own time window.
+let pool: { at: number; v: Promise<Leg[]> } | null = null;
 
-export function getUltimate(): Promise<UltimateResult> {
-  const hit = cache.get("u");
-  if (hit && Date.now() - hit.at < 10 * 60_000) return hit.v;
-  const v = build();
-  cache.set("u", { at: Date.now(), v });
-  v.catch(() => cache.delete("u"));
+function getPool(): Promise<Leg[]> {
+  if (pool && Date.now() - pool.at < 10 * 60_000) return pool.v;
+  const v = buildPool();
+  pool = { at: Date.now(), v };
+  v.catch(() => (pool = null));
   return v;
 }
 
-async function build(): Promise<UltimateResult> {
+async function buildPool(): Promise<Leg[]> {
   const until = Date.now() + HOURS * 3600_000;
   const safe = <T,>(p: Promise<T>, fb: T) => p.catch(() => fb);
   const empty = { legs: [] as Leg[], games: 0 };
@@ -313,13 +313,21 @@ async function build(): Promise<UltimateResult> {
     safe(cricket(until), empty),
     safe(racing(until), empty),
   ]);
-  const all = parts.flatMap((x) => x.legs).filter((l) => Number.isFinite(l.p) && l.p > 0 && l.p < 1);
+  return parts.flatMap((x) => x.legs).filter((l) => Number.isFinite(l.p) && l.p > 0 && l.p < 1);
+}
+
+/** Three options from games starting within the next `hours` (0.25–48). */
+export async function getUltimate(hours = HOURS): Promise<UltimateResult> {
+  const h = Math.min(HOURS, Math.max(0.25, hours || HOURS));
+  const now = Date.now();
+  const until = now + h * 3600_000;
+  const all = (await getPool()).filter((l) => {
+    const t = Date.parse(l.date);
+    return t > now + 60_000 && t <= until;
+  });
   const byCode = new Map<Code, Leg[]>();
   for (const l of all) byCode.set(l.code, [...(byCode.get(l.code) ?? []), l]);
-  const scanned = new Map<Code, number>();
-  const codesOf: Code[] = ["basketball", "basketball", ...COMPS.map((c) => c.sport as Code), "cricket", "racing"];
-  parts.forEach((x, i) => scanned.set(codesOf[i], (scanned.get(codesOf[i]) ?? 0) + x.games));
-
+  const scanned = [...byCode.entries()].map(([code, legs]) => ({ code, games: new Set(legs.map((l) => l.gameId)).size }));
   const options: UltimateOption[] = [];
   const avoid = new Set<string>();
   for (const n of [1, 2, 3] as const) {
@@ -329,10 +337,5 @@ async function build(): Promise<UltimateResult> {
       o.legs.forEach((l) => avoid.add(l.gameId));
     }
   }
-  return {
-    generatedAt: new Date().toISOString(),
-    windowEnd: new Date(until).toISOString(),
-    scanned: [...scanned.entries()].filter(([, g]) => g > 0).map(([code, games]) => ({ code, games })),
-    options,
-  };
+  return { generatedAt: new Date().toISOString(), windowEnd: new Date(until).toISOString(), scanned, options };
 }

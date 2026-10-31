@@ -5,6 +5,16 @@ import { useEffect, useState } from "react";
 import { slip, useSlip } from "@/lib/betslip";
 import type { UltimateOption, UltimateResult } from "@/lib/ultimate";
 
+const WINDOWS = [
+  { h: 0.5, label: "30 minutes", short: "30m" },
+  { h: 1, label: "1 hour", short: "1h" },
+  { h: 2, label: "2 hours", short: "2h" },
+  { h: 4, label: "4 hours", short: "4h" },
+  { h: 8, label: "8 hours", short: "8h" },
+  { h: 12, label: "12 hours", short: "12h" },
+  { h: 24, label: "24 hours", short: "24h" },
+  { h: 48, label: "48 hours", short: "48h" },
+];
 const pct = (p: number) => `${(p * 100).toFixed(p < 0.1 ? 1 : 0)}%`;
 const CODE_LABEL: Record<string, string> = { basketball: "Basketball", "rugby-league": "Rugby league", rugby: "Rugby union", soccer: "Football", netball: "Netball", cricket: "Cricket", racing: "Racing" };
 const CODE_COLOR: Record<string, string> = { basketball: "#f26b1d", "rugby-league": "#3b82f6", rugby: "#e8e8e8", soccer: "#22c55e", netball: "#d6336c", cricket: "#2fb36d", racing: "#c8a24a" };
@@ -33,25 +43,50 @@ function UltimateModal({ onClose }: { onClose: () => void }) {
   const [data, setData] = useState<UltimateResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState(0);
+  const [step, setStep] = useState(() => {
+    try {
+      const v = Number(localStorage.getItem("ultimate.window"));
+      return v >= 0 && v < WINDOWS.length ? v : WINDOWS.length - 1;
+    } catch {
+      return WINDOWS.length - 1;
+    }
+  });
+  const [hours, setHours] = useState(WINDOWS[step].h);
+  // Debounce the slider so dragging doesn't fire a request per notch
+  useEffect(() => {
+    const t = setTimeout(() => setHours(WINDOWS[step].h), 350);
+    try {
+      localStorage.setItem("ultimate.window", String(step));
+    } catch {}
+    return () => clearTimeout(t);
+  }, [step]);
+
+  useEffect(() => {
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", esc);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", esc);
+      document.body.style.overflow = "";
+    };
+  }, [onClose]);
 
   useEffect(() => {
     let alive = true;
-    fetch("/api/ultimate")
+    setData(null);
+    setError(null);
+    setTab(0);
+    fetch(`/api/ultimate?hours=${hours}`)
       .then(async (r) => {
         if (!r.ok) throw new Error(r.status === 402 ? "The Ultimate Bet is for members." : "Couldn't scan the games just now. Try again in a minute.");
         return r.json();
       })
       .then((d) => alive && setData(d))
       .catch((e) => alive && setError(e.message));
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", esc);
-    document.body.style.overflow = "hidden";
     return () => {
       alive = false;
-      window.removeEventListener("keydown", esc);
-      document.body.style.overflow = "";
     };
-  }, [onClose]);
+  }, [hours]);
 
   const opt = data?.options[tab];
   return (
@@ -63,12 +98,36 @@ function UltimateModal({ onClose }: { onClose: () => void }) {
               <span className="text-court">★</span> The Ultimate Bet
             </h2>
             <p className="text-xs text-ink-400">
-              Every game in the next 48 hours, across every sport, rated by our models. One pick per sport code.
+              Every game starting in the next {WINDOWS[step].label}, across every sport, rated by our models. One pick per sport code.
             </p>
           </div>
           <button onClick={onClose} className="rounded-md px-2 py-1 text-xl leading-none text-ink-400 hover:bg-ink-800 hover:text-ink-100" aria-label="Close">
             ×
           </button>
+        </div>
+
+        <div className="border-b border-ink-800 px-5 py-3">
+          <div className="flex items-center justify-between text-xs">
+            <span className="display font-semibold text-ink-400">Starting within</span>
+            <span className="display text-sm font-extrabold text-court">{WINDOWS[step].label}</span>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={WINDOWS.length - 1}
+            step={1}
+            value={step}
+            onChange={(e) => setStep(Number(e.target.value))}
+            className="mt-2 w-full accent-[#f26b1d]"
+            aria-label="Time window"
+          />
+          <div className="mt-0.5 flex justify-between text-[10px] text-ink-500">
+            {WINDOWS.map((w, i) => (
+              <button key={w.label} type="button" onClick={() => setStep(i)} className={i === step ? "text-court" : "hover:text-ink-200"}>
+                {w.short}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
@@ -81,7 +140,7 @@ function UltimateModal({ onClose }: { onClose: () => void }) {
               <p className="text-xs text-ink-500">First scan of the hour takes up to 30 seconds.</p>
             </div>
           ) : !data.options.length ? (
-            <p className="py-10 text-center text-sm text-ink-400">No games we can rate in the next 48 hours. Check back closer to the weekend.</p>
+            <p className="py-10 text-center text-sm text-ink-400">Nothing we can rate starts in the next {WINDOWS[step].label}. Slide the window out to see more games.</p>
           ) : (
             <>
               <div className="mb-3 flex flex-wrap gap-1.5 text-[11px] text-ink-500">
