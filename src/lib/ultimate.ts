@@ -35,7 +35,7 @@ export interface Leg {
 }
 
 export interface UltimateOption {
-  n: 1 | 2 | 3;
+  n: number; // 1–3 = the options, 0 = the Grim Reaper
   name: string;
   blurb: string;
   legs: Leg[];
@@ -48,6 +48,8 @@ export interface UltimateResult {
   windowEnd: string;
   scanned: { code: Code; games: number }[];
   options: UltimateOption[];
+  /** "Flipper": a second calculation that ignores every game used in the three options. */
+  reaper: UltimateOption | null;
 }
 
 const HOURS = 48;
@@ -291,6 +293,36 @@ function buildOption(n: 1 | 2 | 3, byCode: Map<Code, Leg[]>, avoid: Set<string>)
   return { n, name: spec.name, blurb: spec.blurb, legs, p, fair: 1 / p };
 }
 
+/**
+ * The Grim Reaper: throw away every game the three options used, then rebuild one multi from
+ * what's left — the best remaining pick in each sport (still 50%+ by our numbers).
+ */
+function buildReaper(byCode: Map<Code, Leg[]>, used: Set<string>): UltimateOption | null {
+  const score = (l: Leg) => l.p * confW[l.confidence] + (l.edge ?? 0) * 0.3;
+  const left = new Map<Code, Leg[]>();
+  for (const [code, cands] of byCode) {
+    const rest = cands.filter((l) => !used.has(l.gameId) && l.p >= 0.5);
+    if (rest.length) left.set(code, rest);
+  }
+  const legs: Leg[] = [];
+  for (const [, cands] of left) {
+    const best = [...cands].sort((a, b) => score(b) - score(a))[0];
+    if (best) legs.push(best);
+  }
+  if (legs.length === 1) {
+    const only = [...left.values()][0];
+    const taken = new Set([legs[0].gameId]);
+    for (const l of [...only].sort((a, b) => score(b) - score(a))) {
+      if (legs.length >= 3) break;
+      if (!taken.has(l.gameId)) (legs.push(l), taken.add(l.gameId));
+    }
+  }
+  if (!legs.length) return null;
+  legs.sort((a, b) => (a.date < b.date ? -1 : 1));
+  const p = legs.reduce((x, l) => x * l.p, 1);
+  return { n: 0, name: "The Grim Reaper", blurb: "The Flipper threw out every game used in Options 1–3 and recalculated from what was left: the best remaining pick in each sport.", legs, p, fair: 1 / p };
+}
+
 // The 48-hour pool of rated legs is cached; each request picks from its own time window.
 let pool: { at: number; v: Promise<Leg[]> } | null = null;
 
@@ -337,5 +369,5 @@ export async function getUltimate(hours = HOURS): Promise<UltimateResult> {
       o.legs.forEach((l) => avoid.add(l.gameId));
     }
   }
-  return { generatedAt: new Date().toISOString(), windowEnd: new Date(until).toISOString(), scanned, options };
+  return { generatedAt: new Date().toISOString(), windowEnd: new Date(until).toISOString(), scanned, options, reaper: buildReaper(byCode, avoid) };
 }

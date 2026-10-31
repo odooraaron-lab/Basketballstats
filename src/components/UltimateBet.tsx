@@ -43,6 +43,7 @@ function UltimateModal({ onClose }: { onClose: () => void }) {
   const [data, setData] = useState<UltimateResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState(0);
+  const [flipped, setFlipped] = useState(false);
   const [step, setStep] = useState(() => {
     try {
       const v = Number(localStorage.getItem("ultimate.window"));
@@ -76,6 +77,7 @@ function UltimateModal({ onClose }: { onClose: () => void }) {
     setData(null);
     setError(null);
     setTab(0);
+    setFlipped(false);
     fetch(`/api/ultimate?hours=${hours}`)
       .then(async (r) => {
         if (!r.ok) throw new Error(r.status === 402 ? "The Ultimate Bet is for members." : "Couldn't scan the games just now. Try again in a minute.");
@@ -151,22 +153,52 @@ function UltimateModal({ onClose }: { onClose: () => void }) {
                   </span>
                 ))}
               </div>
-              <div role="tablist" className="grid grid-cols-3 gap-1.5">
-                {data.options.map((o, i) => (
+              {!flipped ? (
+                <>
+                  <div role="tablist" className="grid grid-cols-3 gap-1.5">
+                    {data.options.map((o, i) => (
+                      <button
+                        key={o.n}
+                        role="tab"
+                        aria-selected={i === tab}
+                        onClick={() => setTab(i)}
+                        className={`rounded-xl border px-2 py-2 text-left transition ${i === tab ? "border-court bg-court/10" : "border-ink-700 hover:border-ink-500"}`}
+                      >
+                        <div className="display text-[11px] font-bold text-ink-400">Option {o.n}</div>
+                        <div className="display truncate text-sm font-extrabold text-ink-100 sm:text-base">{o.name}</div>
+                        <div className="num text-xs text-court">${o.fair.toFixed(2)}</div>
+                      </button>
+                    ))}
+                  </div>
                   <button
-                    key={o.n}
-                    role="tab"
-                    aria-selected={i === tab}
-                    onClick={() => setTab(i)}
-                    className={`rounded-xl border px-2 py-2 text-left transition ${i === tab ? "border-court bg-court/10" : "border-ink-700 hover:border-ink-500"}`}
+                    type="button"
+                    onClick={() => setFlipped(true)}
+                    className="display mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-ink-600 py-2 text-sm font-bold text-ink-200 hover:border-loss hover:text-loss"
+                    title="Ignore every game in Options 1–3 and build a second multi from what's left"
                   >
-                    <div className="display text-[11px] font-bold text-ink-400">Option {o.n}</div>
-                    <div className="display truncate text-sm font-extrabold text-ink-100 sm:text-base">{o.name}</div>
-                    <div className="num text-xs text-court">${o.fair.toFixed(2)}</div>
+                    <span aria-hidden>⟲</span> Flipper → The Grim Reaper
                   </button>
-                ))}
-              </div>
-              {opt && <OptionView o={opt} />}
+                  {opt && <OptionView o={opt} />}
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3 rounded-xl border border-loss/40 bg-gradient-to-r from-loss/20 to-transparent px-3 py-2.5">
+                    <span className="text-2xl" aria-hidden>☠</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="display text-lg font-extrabold leading-tight">The Grim Reaper</div>
+                      <div className="text-[11px] text-ink-400">Second calculation · none of the games from Options 1–3</div>
+                    </div>
+                    <button type="button" onClick={() => setFlipped(false)} className="shrink-0 rounded-md border border-ink-700 px-2 py-1 text-xs text-ink-300 hover:text-ink-100">
+                      ← Options
+                    </button>
+                  </div>
+                  {data.reaper ? (
+                    <OptionView o={data.reaper} />
+                  ) : (
+                    <p className="py-8 text-center text-sm text-ink-400">Every rateable game in this window is already in Options 1–3. Slide the window out to give the Grim Reaper more to work with.</p>
+                  )}
+                </>
+              )}
             </>
           )}
         </div>
@@ -237,7 +269,7 @@ function OptionView({ o }: { o: UltimateOption }) {
         onClick={() => (inAll ? legs.forEach((l) => slip.remove(l.id)) : slip.add(legs))}
         className={`display mt-3 w-full rounded-xl py-3 text-lg font-bold transition ${inAll ? "border border-court text-court" : "bg-court text-ink-950 hover:bg-court-soft"}`}
       >
-        {inAll ? "✓ In your multi — tap to remove" : `Add Option ${o.n} to my multi`}
+        {inAll ? "✓ In your multi — tap to remove" : o.n ? `Add Option ${o.n} to my multi` : "Add the Grim Reaper to my multi"}
       </button>
     </div>
   );
