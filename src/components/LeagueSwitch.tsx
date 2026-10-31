@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SWITCH_COMPS } from "@/sports/comps";
 import { UltimateBetButton } from "./UltimateBet";
 import { ALL_SECTION_IDS, LeagueFilter } from "./LeagueFilter";
@@ -56,6 +56,12 @@ export function LeagueSwitch({
   // Local copy so the league filter updates the bar instantly
   const [hid, setHid] = useState(hidden);
   useEffect(() => setHid(hidden), [hidden]);
+  // On phones the bar scrolls: bring the current league into view
+  const bar = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = bar.current?.querySelector<HTMLElement>('[aria-selected="true"]');
+    if (el && bar.current) bar.current.scrollLeft = el.offsetLeft - bar.current.clientWidth / 2 + el.clientWidth / 2;
+  }, [path]);
   const shown = (id: string) => !hid.includes(id) || id === given || (id === "super-smash" && path.startsWith("/cricket/super-smash"));
   const leagues = allLeagues.filter((l) => shown(l.id));
   const others = OTHER.filter((o) => shown(o.id));
@@ -71,7 +77,7 @@ export function LeagueSwitch({
     <div className="border-b border-ink-800 bg-ink-900">
       <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-1.5">
         <span className="display hidden text-[11px] font-semibold text-ink-500 sm:inline">League</span>
-        <div className="flex min-w-0 gap-1 overflow-x-auto rounded-lg bg-ink-950 p-0.5" role="tablist" aria-label="Choose league">
+        <div ref={bar} className="relative flex min-w-0 gap-1 overflow-x-auto rounded-lg bg-ink-950 p-0.5" role="tablist" aria-label="Choose league">
           {leagues.map((l) => {
             const active = l.id === current;
             return (
@@ -112,11 +118,11 @@ export function LeagueSwitch({
             );
           })}
         </div>
-        <div className="ml-auto flex shrink-0 items-center gap-1 pl-2 text-xs">
+        <div className="ml-auto flex shrink-0 items-center gap-1 pl-1 text-xs sm:pl-2">
           <LeagueFilter hidden={hid} onChange={(sections) => setHid([...hid.filter((h) => !ALL_SECTION_IDS.includes(h)), ...sections])} />
           {!hidden.includes("ultimate") && <UltimateBetButton />}
           {isAdmin && (
-            <Link href="/admin" className={`rounded-md px-2 py-1 ${path.startsWith("/admin") ? "bg-ink-800 text-ink-100" : "text-ink-400 hover:text-ink-100"}`}>
+            <Link href="/admin" className={`hidden rounded-md px-2 py-1 sm:inline ${path.startsWith("/admin") ? "bg-ink-800 text-ink-100" : "text-ink-400 hover:text-ink-100"}`}>
               Admin
             </Link>
           )}

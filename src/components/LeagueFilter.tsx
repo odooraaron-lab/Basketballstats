@@ -53,13 +53,18 @@ export function LeagueFilter({ hidden, onChange }: { hidden: string[]; onChange?
       >
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden><path d="M3 5h18l-7 8v6l-4 2v-8z" /></svg>
         <span className="hidden sm:inline">Leagues</span>
-        <span className="num text-[10px] text-ink-500">{shown}/{ALL.length}</span>
+        <span className="num hidden text-[10px] text-ink-500 sm:inline">{shown}/{ALL.length}</span>
       </button>
+      {open && <div className="fixed inset-0 z-[69] bg-black/60 sm:hidden" onClick={() => setOpen(false)} aria-hidden />}
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-1 w-64 rounded-xl border border-ink-700 bg-ink-900 p-3 shadow-2xl shadow-black/50">
+        <div className="fixed inset-x-0 bottom-0 z-[70] max-h-[80vh] overflow-y-auto rounded-t-2xl border border-ink-700 bg-ink-900 p-4 pb-6 shadow-2xl shadow-black/50 sm:absolute sm:inset-x-auto sm:bottom-auto sm:right-0 sm:top-full sm:z-50 sm:mt-1 sm:w-64 sm:rounded-xl sm:p-3">
+          <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-ink-700 sm:hidden" />
           <div className="mb-2 flex items-center justify-between">
             <span className="display text-xs font-bold text-ink-300">Show in top bar</span>
-            {pending && <span className="text-[10px] text-ink-500">Saving…</span>}
+            <span className="flex items-center gap-2">
+              {pending && <span className="text-[10px] text-ink-500">Saving…</span>}
+              <button type="button" onClick={() => setOpen(false)} className="rounded-md px-2 text-lg leading-none text-ink-400 sm:hidden" aria-label="Close">×</button>
+            </span>
           </div>
           {GROUPS.map((g) => (
             <div key={g.label} className="mb-2">
@@ -79,8 +84,8 @@ export function LeagueFilter({ hidden, onChange }: { hidden: string[]; onChange?
                 </button>
               </div>
               {g.ids.map(([id, label]) => (
-                <label key={id} className="flex cursor-pointer items-center gap-2 py-0.5 text-sm text-ink-200">
-                  <input type="checkbox" checked={!off.has(id)} onChange={() => toggle(id)} className="accent-[#f26b1d]" />
+                <label key={id} className="flex cursor-pointer items-center gap-2 py-1.5 text-base text-ink-200 sm:py-0.5 sm:text-sm">
+                  <input type="checkbox" checked={!off.has(id)} onChange={() => toggle(id)} className="h-5 w-5 accent-[#f26b1d] sm:h-4 sm:w-4" />
                   {label}
                 </label>
               ))}

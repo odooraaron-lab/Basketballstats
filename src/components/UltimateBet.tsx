@@ -32,7 +32,7 @@ export function UltimateBetButton() {
         title="The Ultimate Bet: the best cross-sport multi for the next 48 hours"
       >
         <span aria-hidden>★</span> <span className="hidden sm:inline">Ultimate Bet</span>
-        <span className="sm:hidden">Ultimate</span>
+        
       </button>
       {open && <UltimateModal onClose={() => setOpen(false)} />}
     </>
