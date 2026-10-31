@@ -222,7 +222,7 @@ export function MassiveMulti({
   const topLegs = [...legs].sort((a, b) => legScore(b) - legScore(a)).slice(0, 40);
 
   return (
-    <div className="rounded-xl border border-court/40 bg-gradient-to-b from-court/10 to-transparent p-3 sm:p-4">
+    <div className="min-w-0 max-w-full overflow-hidden rounded-xl border border-court/40 bg-gradient-to-b from-court/10 to-transparent p-3 sm:p-4">
       <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center">
         <div className="min-w-0 sm:flex-1">
           <h3 className="display text-lg font-extrabold">
@@ -276,13 +276,13 @@ export function MassiveMulti({
             {variants.map((v) => {
               const p = jointP(v.legs);
               return (
-                <div key={v.name} className="flex flex-col rounded-lg border border-ink-800 bg-ink-950/60 p-3">
+                <div key={v.name} className="flex min-w-0 flex-col overflow-hidden rounded-lg border border-ink-800 bg-ink-950/60 p-3">
                   <div className="mb-2 flex items-start justify-between gap-2">
-                    <div>
+                    <div className="min-w-0">
                       <div className="display font-bold">{v.name}</div>
                       <div className="text-[11px] text-ink-500">{v.note}</div>
                     </div>
-                    <div className="text-right">
+                    <div className="shrink-0 text-right">
                       <div className="num text-xl font-extrabold text-court">{odds(p)}</div>
                       <div className="num text-[10px] text-ink-500">{pct(p)} · {v.legs.length} legs</div>
                     </div>
@@ -293,7 +293,7 @@ export function MassiveMulti({
                     ))}
                   </ul>
                   {1 / p < target && <p className="mt-1 text-[10px] text-ink-500">Ran out of realistic legs before ${target}.</p>}
-                  <div className="mt-2 flex items-center justify-between gap-2">
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
                     <button onClick={() => setCustom(v.legs.map((l) => l.id))} className="chip text-[11px] hover:text-ink-100">
                       Edit this multi
                     </button>
@@ -304,8 +304,8 @@ export function MassiveMulti({
             })}
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
-            <div>
+          <div className="grid min-w-0 gap-4 xl:grid-cols-[1.4fr_1fr]">
+            <div className="min-w-0">
               <h4 className="display mb-1.5 text-sm font-bold text-ink-300">Longshot board · tap to add</h4>
               <div className="max-h-[420px] overflow-auto rounded-lg border border-ink-800">
                 <table className="stat-table compact">
@@ -342,7 +342,7 @@ export function MassiveMulti({
                 </table>
               </div>
             </div>
-            <div>
+            <div className="min-w-0">
               <h4 className="display mb-1.5 text-sm font-bold text-ink-300">Your massive multi</h4>
               <div className="rounded-lg border border-ink-800 p-3">
                 {customLegs.length ? (
@@ -393,16 +393,16 @@ const toSlip = (legs: LongLeg[]): NewLeg[] =>
 
 function LegRow({ l, color, onRemove }: { l: LongLeg; color: string; onRemove?: () => void }) {
   return (
-    <li className="flex items-center gap-2 rounded-md bg-ink-900 px-2 py-1 text-[12px]">
+    <li className="flex min-w-0 items-center gap-2 rounded-md bg-ink-900 px-2 py-1 text-[12px]">
       <span className="h-5 w-1 shrink-0 rounded" style={{ background: color }} />
       <Headshot src={l.player.headshot} name={l.player.name} size={22} />
       <span className="min-w-0 flex-1 truncate">
         {l.player.name} <span className="font-semibold text-ink-100">{l.line}+ {LABEL[l.stat]}</span>
-        <span className="block text-[10px] text-ink-500">
+        <span className="block truncate text-[10px] text-ink-500">
           {l.player.gameLabel} · usually {l.avg.toFixed(1)} · hit {l.hits}/{l.n} last 10
         </span>
       </span>
-      <span className="num text-[11px] text-court-soft">{odds(l.p)}</span>
+      <span className="num shrink-0 text-[11px] text-court-soft">{odds(l.p)}</span>
       <AddToSlip legs={toSlip([l])} label="+" />
       {onRemove && (
         <button onClick={onRemove} className="text-ink-500 hover:text-loss" aria-label="Remove">
