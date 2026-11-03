@@ -142,7 +142,7 @@ export default async function RacingMulti({ searchParams }: { searchParams: Prom
                 <span className="display grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink-800 text-sm font-bold">{i + 1}</span>
                 <div className="min-w-0 flex-1">
                   <Link href={`/racing/race/${l.race.id}`} className="block truncate text-xs text-ink-400 hover:text-court">
-                    {fmtTime(l.race.start)} · {l.race.meetingName} R{l.race.number} · {l.race.distance ? `${l.race.distance}m` : ""} →
+                    {fmtTime(l.race.start)} · {l.race.meetingName} R{l.race.number} · {l.race.distance ? `${l.race.distance}m` : ""}
                   </Link>
                   <div className="truncate font-semibold">
                     {l.r.number}. {l.r.name} <span className="text-xs font-normal text-ink-500">({l.r.barrier ?? "–"}) · {bet}</span>

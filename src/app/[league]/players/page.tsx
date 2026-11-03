@@ -135,7 +135,7 @@ export default async function PlayersPage({
             <Empty>
               No player stats for {sel.label} yet.{" "}
               <Link className="text-court" href={href({ season: sel.current - 1, page: 1 })}>
-                See last season →
+                See last season
               </Link>
             </Empty>
           </div>

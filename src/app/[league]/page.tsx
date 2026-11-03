@@ -115,7 +115,7 @@ export default async function Dashboard({ params }: { params: Promise<{ league: 
         <div className="mb-3 flex items-end justify-between">
           <h2 className="display text-xl font-bold">League leaders</h2>
           <Link href={`/${league.id}/players?season=${leaderYear}`} className="text-xs text-court hover:underline">
-            Full leaderboard · {seasonLabel(leaderYear)} →
+            Full leaderboard · {seasonLabel(leaderYear)}
           </Link>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

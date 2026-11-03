@@ -2,6 +2,7 @@ import Link from "next/link";
 import { site } from "@/site.config";
 import { ZONES } from "@/content/blog";
 import { FEATURES } from "@/content/features";
+import { Wordmark } from "@/components/Wordmark";
 
 export function ResponsibleGambling({ className = "" }: { className?: string }) {
   return (
@@ -20,7 +21,7 @@ export function PublicFooter() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <div className="display text-xl font-extrabold">
-            <span>Quick <span className="text-court">Read</span></span>
+            <Wordmark />
           </div>
           <p className="mt-2 text-sm text-ink-400">{site.tagline}. Made in Aotearoa.</p>
         </div>

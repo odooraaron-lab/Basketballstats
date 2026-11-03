@@ -218,8 +218,8 @@ function InningsBlock({ inn }: { inn: InningsCard }) {
                 <th>M</th>
                 <th>R</th>
                 <th>W</th>
-                <th>ECON</th>
-                <th>DOTS</th>
+                <th>Econ</th>
+                <th>Dots</th>
                 <th>WD</th>
                 <th>NB</th>
               </tr>

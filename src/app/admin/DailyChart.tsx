@@ -20,7 +20,7 @@ export function DailyChart({ data }: { data: { d: string; visitors: number; sign
           <rect x={pad.l + i * bw + 1} y={y(x.visitors, maxV)} width={Math.max(1, bw - 2)} height={H - pad.b - y(x.visitors, maxV)} fill="rgb(var(--ink-700))" rx="1.5">
             <title>{`${x.d}: ${x.visitors} visitors, ${x.signups} signups, ${x.subs} new members`}</title>
           </rect>
-          {x.signups > 0 && <circle cx={pad.l + i * bw + bw / 2} cy={y(x.signups, maxS)} r="3.5" fill="#f26b1d" />}
+          {x.signups > 0 && <circle cx={pad.l + i * bw + bw / 2} cy={y(x.signups, maxS)} r="3.5" fill="rgb(var(--court))" />}
           {x.subs > 0 && <circle cx={pad.l + i * bw + bw / 2} cy={y(x.subs, maxS)} r="3.5" fill="#3fb57a" />}
           {(i % 7 === 0 || i === data.length - 1) && (
             <text x={pad.l + i * bw + bw / 2} y={H - 6} fontSize="9" textAnchor="middle" fill="rgb(var(--ink-500))">{x.d.slice(8)}/{x.d.slice(5, 7)}</text>

@@ -216,7 +216,7 @@ export function ComboBuilder({ report, autoMulti = false }: { report: ScanReport
               ))}
               <span className="mx-1 h-4 w-px bg-ink-700" />
               <span className="display text-ink-500">Each leg at least</span>
-              <input type="range" min={0.5} max={0.9} step={0.05} value={minLeg} onChange={(e) => setMinLeg(Number(e.target.value))} className="w-32 accent-[#f26b1d]" />
+              <input type="range" min={0.5} max={0.9} step={0.05} value={minLeg} onChange={(e) => setMinLeg(Number(e.target.value))} className="w-32 accent-court" />
               <span className="num text-court">{pct(minLeg)}</span>
               <span className="text-ink-500">· uses the highest line each player clears that often · skips near-certain legs (over {pct(MAX_LEG)})</span>
             </div>
@@ -520,7 +520,7 @@ function ComboRow({
           const p = l.playerId ? players.get(l.playerId) : null;
           return (
             <span key={l.id} className="inline-flex items-center gap-1.5 rounded-md border border-ink-700 bg-ink-950/60 py-0.5 pl-0.5 pr-2 text-[12px]">
-              {p ? <Headshot src={p.headshot} name={p.name} size={20} /> : <span className="display px-1 text-[10px] text-court">GAME</span>}
+              {p ? <Headshot src={p.headshot} name={p.name} size={20} /> : <span className="display px-1 text-[10px] text-court">Game</span>}
               <span>
                 {p ? `${p.name.split(" ").slice(-1)[0]} ${l.line}+ ${STAT_LABEL[l.stat!]}` : l.label}
               </span>

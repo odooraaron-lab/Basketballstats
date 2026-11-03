@@ -88,7 +88,7 @@ export default async function SuperSmash({ searchParams }: { searchParams: Promi
           <span>
             <b className="text-court">{label(next)} draw is out</b> — starts {fmtDay(nextFirst.date)} with {nextFirst.teams.map((t) => t.name).join(" v ")}
           </span>
-          <span className="text-ink-400">See fixtures →</span>
+          <span className="text-ink-400">See fixtures</span>
         </Link>
       )}
       {!matches.length ? (
@@ -186,7 +186,7 @@ function Tile({ m }: { m: Match }) {
   return (
     <Link href={`/cricket/match/${m.leagueId}/${m.id}?d=${localDayKey(m.date)}`} className="card block p-3 hover:border-ink-600">
       <div className="mb-2 flex items-center gap-2 text-[11px]">
-        {m.state === "in" ? <span className="font-semibold text-loss">LIVE</span> : <span className="text-ink-400">{fmtDay(m.date)} · {fmtTime(m.date)}</span>}
+        {m.state === "in" ? <span className="font-semibold text-loss">Live</span> : <span className="text-ink-400">{fmtDay(m.date)} · {fmtTime(m.date)}</span>}
         <span className="ml-auto truncate text-ink-600">{m.description.split(",")[0]}</span>
       </div>
       {m.teams.map((t) => (

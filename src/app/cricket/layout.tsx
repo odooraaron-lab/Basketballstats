@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LeagueSwitch } from "@/components/LeagueSwitch";
 import { memberShell } from "@/lib/appShell";
+import { Wordmark } from "@/components/Wordmark";
 
 export const metadata = { title: "Cricket", robots: { index: false, follow: false } };
 
@@ -9,11 +10,11 @@ export default async function CricketLayout({ children }: { children: React.Reac
   return (
     <div style={{ ["--accent" as string]: "#2fb36d" }}>
       <LeagueSwitch current="cricket" {...switchProps} />
-      <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950/90 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-2.5">
           <Link href="/cricket" className="display flex items-center gap-2 text-xl font-extrabold">
-            <span>Quick <span className="text-court">Read</span></span>
-            <span className="rounded bg-[#2fb36d] px-1.5 py-0.5 text-xs font-bold text-ink-950">CRICKET</span>
+            <Wordmark />
+            <span className="rounded bg-[#2fb36d] px-1.5 py-0.5 text-xs font-bold text-ink-950">Cricket</span>
           </Link>
           <nav className="flex flex-1 gap-1 overflow-x-auto">
             <Link href="/cricket" className="tab">Matches</Link>

@@ -211,7 +211,7 @@ export default async function TrackingPage({ params, searchParams }: { params: P
     const short = ["V.TIGHT", "TIGHT", "OPEN", "W.OPEN"];
     const specs: ColSpec[] = [
       { key: "TOTAL_FGA", label: "FGA/G", group: true },
-      { key: "CONTESTED_PCT", label: "TIGHT SHARE", heat: true },
+      { key: "CONTESTED_PCT", label: "Tight share", heat: true },
       ...ranges.flatMap((_r, i) => [
         { key: `R${i}_FREQ_PCT`, label: `${short[i]} FREQ`, group: true },
         { key: `R${i}_FG_PCT`, label: `${short[i]} FG%` },
@@ -383,7 +383,7 @@ export default async function TrackingPage({ params, searchParams }: { params: P
             columns={[
               { key: "def", label: "DEFENDER", fmt: "text" },
               { key: "GP", label: "GP", fmt: "int" },
-              { key: "poss", label: "POSS", fmt: "1", group: true },
+              { key: "poss", label: "Poss", fmt: "1", group: true },
               { key: "min", label: "MIN", fmt: "1" },
               { key: "pts", label: "PTS", fmt: "int", group: true },
               { key: "fg", label: "FG", fmt: "text" },

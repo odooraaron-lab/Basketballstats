@@ -359,7 +359,7 @@ export default async function TeamPage({
           )}
 
           <div className="grid gap-5 lg:grid-cols-2">
-            <Card title="Recent results" right={<Link href={`${base}?tab=schedule`} className="hover:text-court">All →</Link>}>
+            <Card title="Recent results" right={<Link href={`${base}?tab=schedule`} className="hover:text-court">All</Link>}>
               {results.length ? (
                 <ul className="space-y-1.5 text-sm">
                   {results.slice(-6).reverse().map((r) => (

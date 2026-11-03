@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Tracker } from "@/components/Tracker";
 import { site } from "@/site.config";
+import "@fontsource-variable/archivo/standard.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-export const viewport: Viewport = { themeColor: "#0b0d10", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#0a1711", width: "device-width", initialScale: 1 };
 
 // Sets the saved theme before first paint (no flash). The cookie is written from Settings.
 const themeScript = `try{var m=document.cookie.match(/(?:^|; )cs_theme=(dark|light|system)/);document.documentElement.dataset.theme=m?m[1]:"dark"}catch(e){}`;

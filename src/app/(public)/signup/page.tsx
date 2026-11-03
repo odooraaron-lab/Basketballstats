@@ -36,10 +36,10 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
           <p className="mt-1 text-[11px] text-ink-500">At least 8 characters.</p>
         </div>
         <label className="flex items-start gap-2 text-xs text-ink-300">
-          <input type="checkbox" name="adult" required className="mt-0.5 accent-[#f26b1d]" /> I&apos;m 18 or older.
+          <input type="checkbox" name="adult" required className="mt-0.5 accent-court" /> I&apos;m 18 or older.
         </label>
         <label className="flex items-start gap-2 text-xs text-ink-300">
-          <input type="checkbox" name="terms" required className="mt-0.5 accent-[#f26b1d]" />
+          <input type="checkbox" name="terms" required className="mt-0.5 accent-court" />
           <span>
             I accept the <Link href="/terms" className="underline">terms</Link> and <Link href="/privacy" className="underline">privacy policy</Link>.
           </span>

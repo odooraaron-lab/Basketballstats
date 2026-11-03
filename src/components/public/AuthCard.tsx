@@ -5,7 +5,7 @@ export const btnCls = "display w-full rounded-lg bg-court py-2.5 text-base font-
 export function AuthCard({ title, sub, children }: { title: string; sub?: React.ReactNode; children: React.ReactNode }) {
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-6xl items-center justify-center px-4 py-12">
-      <div className="card w-full max-w-sm p-7 shadow-2xl shadow-black/30">
+      <div className="card w-full max-w-sm p-7">
         <h1 className="display text-3xl font-extrabold">{title}</h1>
         {sub && <p className="mt-1 text-sm text-ink-400">{sub}</p>}
         <div className="mt-6">{children}</div>

@@ -1,56 +1,64 @@
-@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Night turf: the default. Greens from a floodlit field, floodlight yellow as the one highlight. */
 :root {
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --font-display: "Barlow Condensed", "Inter", sans-serif;
+  --font-sans: "Archivo Variable", "Archivo", system-ui, sans-serif;
+  --font-mono: "Archivo Variable", "Archivo", system-ui, sans-serif;
+  --font-display: "Archivo Variable", "Archivo", system-ui, sans-serif;
   color-scheme: dark;
-  --ink-950: 11 13 16;
-  --ink-900: 17 20 25;
-  --ink-850: 22 26 32;
-  --ink-800: 28 33 41;
-  --ink-700: 40 48 57;
-  --ink-600: 58 67 80;
-  --ink-500: 91 101 115;
-  --ink-400: 135 146 162;
-  --ink-300: 179 188 200;
-  --ink-200: 214 220 228;
-  --ink-100: 238 241 245;
+  --ink-950: 10 23 17;
+  --ink-900: 16 34 25;
+  --ink-850: 20 41 30;
+  --ink-800: 28 52 40;
+  --ink-700: 41 70 55;
+  --ink-600: 62 95 78;
+  --ink-500: 102 133 116;
+  --ink-400: 146 170 156;
+  --ink-300: 187 205 194;
+  --ink-200: 219 230 223;
+  --ink-100: 244 248 244;
+  --court: 244 196 48;
+  --court-soft: 255 216 102;
+  --court-dim: 112 90 22;
 }
 
-/* Light theme: chosen in account settings, or "system" when the device prefers light */
+/* Chalk: light theme, chosen in account settings, or "system" when the device prefers light */
 :root[data-theme="light"] {
   color-scheme: light;
-  --ink-950: 255 255 255;
-  --ink-900: 247 248 250;
-  --ink-850: 240 242 245;
-  --ink-800: 228 232 237;
-  --ink-700: 208 214 222;
-  --ink-600: 170 179 191;
-  --ink-500: 110 119 133;
-  --ink-400: 82 92 107;
-  --ink-300: 55 63 76;
-  --ink-200: 36 42 51;
-  --ink-100: 14 17 22;
+  --ink-950: 238 241 235;
+  --ink-900: 252 253 251;
+  --ink-850: 243 246 241;
+  --ink-800: 222 228 219;
+  --ink-700: 199 208 195;
+  --ink-600: 155 166 152;
+  --ink-500: 98 111 96;
+  --ink-400: 71 83 70;
+  --ink-300: 45 55 45;
+  --ink-200: 25 32 25;
+  --ink-100: 0 0 0;
+  --court: 140 100 0;
+  --court-soft: 112 80 0;
+  --court-dim: 226 205 150;
 }
 @media (prefers-color-scheme: light) {
   :root[data-theme="system"] {
     color-scheme: light;
-    --ink-950: 255 255 255;
-    --ink-900: 247 248 250;
-    --ink-850: 240 242 245;
-    --ink-800: 228 232 237;
-    --ink-700: 208 214 222;
-    --ink-600: 170 179 191;
-    --ink-500: 110 119 133;
-    --ink-400: 82 92 107;
-    --ink-300: 55 63 76;
-    --ink-200: 36 42 51;
-    --ink-100: 14 17 22;
+    --ink-950: 238 241 235;
+    --ink-900: 252 253 251;
+    --ink-850: 243 246 241;
+    --ink-800: 222 228 219;
+    --ink-700: 199 208 195;
+    --ink-600: 155 166 152;
+    --ink-500: 98 111 96;
+    --ink-400: 71 83 70;
+    --ink-300: 45 55 45;
+    --ink-200: 25 32 25;
+    --ink-100: 0 0 0;
+    --court: 140 100 0;
+    --court-soft: 112 80 0;
+    --court-dim: 226 205 150;
   }
 }
 
@@ -62,18 +70,20 @@ body {
 
 body {
   font-family: var(--font-sans);
+  font-variant-numeric: lining-nums;
   -webkit-font-smoothing: antialiased;
 }
 
 @layer utilities {
   .num {
-    font-family: var(--font-mono);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
   }
+  /* Archivo's wide cut: headings, tabs and buttons. Sentence case, never shouted. */
   .display {
     font-family: var(--font-display);
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
+    font-stretch: 118%;
+    letter-spacing: -0.01em;
   }
 }
 
@@ -82,7 +92,7 @@ body {
     @apply min-w-0 rounded-xl border border-ink-800 bg-ink-900;
   }
   .card-h {
-    @apply display flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 border-b border-ink-800 px-4 py-2.5 text-sm font-semibold text-ink-300;
+    @apply flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 border-b border-ink-800 px-4 py-2.5 text-sm font-semibold text-ink-200;
   }
   .chip {
     @apply inline-flex items-center rounded-md border border-ink-700 px-2 py-0.5 text-xs text-ink-300;
@@ -100,7 +110,7 @@ body {
   @apply w-full border-collapse text-sm;
 }
 .stat-table th {
-  @apply display sticky top-0 z-10 whitespace-nowrap bg-ink-900 px-2 py-2 text-right text-xs font-semibold text-ink-400;
+  @apply sticky top-0 z-10 whitespace-nowrap bg-ink-900 px-2 py-2 text-right text-xs font-semibold text-ink-400;
 }
 .stat-table th:first-child,
 .stat-table td:first-child {

@@ -65,11 +65,11 @@ export function PlayTypeTable({ rows, side, ranked }: { rows: (PlayTypeRow & { r
       <thead>
         <tr>
           <th>Play type</th>
-          <th>POSS</th>
-          <th>FREQ</th>
+          <th>Poss</th>
+          <th>Freq</th>
           <th>PPP</th>
-          <th className="!text-left">PERCENTILE</th>
-          {ranked && <th>RANK</th>}
+          <th className="!text-left">Percentile</th>
+          {ranked && <th>Rank</th>}
           <th>FG%</th>
           <th>eFG%</th>
           <th>TOV%</th>
@@ -126,7 +126,7 @@ export function ContestBars({ rows }: { rows: ContestRow[] }) {
         <thead>
           <tr>
             <th>Closest defender</th>
-            <th>FREQ</th>
+            <th>Freq</th>
             <th>FGA</th>
             <th>FG%</th>
             <th>eFG%</th>
@@ -256,8 +256,8 @@ export function PlayerTrackingPanel({ t, league, season }: { t: PlayerTracking; 
                   <th>Shots</th>
                   <th>D FGA</th>
                   <th>D FG%</th>
-                  <th>NORMAL</th>
-                  <th>DIFF</th>
+                  <th>Normal</th>
+                  <th>Diff</th>
                 </tr>
               </thead>
               <tbody>

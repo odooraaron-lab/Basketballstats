@@ -50,15 +50,13 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
   return (
     <main>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
-      <section className="relative overflow-hidden border-b border-ink-800">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(242,107,29,0.18),transparent_60%)]" aria-hidden />
-        <div className={`relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 lg:py-16 ${f.img ? "lg:grid-cols-[1fr_1.1fr]" : ""}`}>
+      <section className="border-b border-ink-800">
+        <div className={`mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 lg:py-16 ${f.img ? "lg:grid-cols-[1fr_1.1fr]" : ""}`}>
           <div className="min-w-0">
             <nav className="mb-3 text-sm text-ink-500" aria-label="Breadcrumb">
               <Link href="/features" className="hover:text-court">Features</Link> / <span className="text-ink-400">{f.nav}</span>
             </nav>
-            <span className="display text-sm font-bold text-court">{f.kicker}</span>
-            <h1 className="display mt-1 text-3xl font-extrabold leading-tight sm:text-5xl">{f.h1}</h1>
+            <h1 className="display text-3xl font-extrabold leading-tight sm:text-5xl">{f.h1}</h1>
             <p className="mt-4 max-w-2xl text-lg text-ink-300">{f.intro}</p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href="/signup" className="display rounded-xl bg-court px-6 py-3 text-lg font-bold text-ink-950 hover:bg-court-soft">
@@ -68,23 +66,23 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
                 See everything included
               </Link>
             </div>
-            <p className="mt-3 text-sm text-ink-500">Every sport and every tool for {priceLabel}/month · cancel anytime · 18+</p>
+            <p className="mt-3 text-sm text-ink-500">Every sport and every tool for {priceLabel} a month. Cancel anytime. 18+ only.</p>
           </div>
           {f.img && (
             <div className={`min-w-0 ${f.img.portrait ? "flex justify-center" : ""}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={f.img.src} alt={f.img.alt} className={`rounded-2xl border border-ink-700 shadow-2xl shadow-black/40 ${f.img.portrait ? "max-h-[480px] w-auto" : "w-full"}`} />
+              <img src={f.img.src} alt={f.img.alt} className={`rounded-lg border border-ink-700 ${f.img.portrait ? "max-h-[480px] w-auto" : "w-full"}`} />
             </div>
           )}
         </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-12">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
           {f.points.map((p) => (
-            <div key={p.title} className="card p-5">
+            <div key={p.title} className="border-t-2 border-court pt-3">
               <h2 className="display text-xl font-bold">{p.title}</h2>
-              <p className="mt-2 text-sm text-ink-400">{p.body}</p>
+              <p className="mt-2 text-sm leading-relaxed text-ink-300">{p.body}</p>
             </div>
           ))}
         </div>

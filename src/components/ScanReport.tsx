@@ -238,9 +238,9 @@ export function ScanReportView({
                     <thead>
                       <tr>
                         <th className="!text-left">Player</th>
-                        <th>AVG</th>
+                        <th>Avg</th>
                         <th>L5</th>
-                        <th>LINE</th>
+                        <th>Line</th>
                         <th title="League rank among rotation players">LG</th>
                         <th title="Opponent rank in allowing this stat (1 = allows most)">OPP</th>
                       </tr>

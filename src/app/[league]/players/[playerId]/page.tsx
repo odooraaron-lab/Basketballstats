@@ -146,7 +146,7 @@ export default async function PlayerPage({
   }));
 
   const careerCols: Column[] = [
-    { key: "team", label: "TEAM", fmt: "text" },
+    { key: "team", label: "Team", fmt: "text" },
     { key: "gp", label: "GP", fmt: "int" },
     { key: "gs", label: "GS", fmt: "int" },
     { key: "min", label: "MIN" },
@@ -198,7 +198,7 @@ export default async function PlayerPage({
         },
       }));
 
-  // Points trend (oldest → newest)
+  // Points trend (oldest to newest)
   const trend = games.slice(0, 20).reverse();
   const tMax = Math.max(10, ...trend.map((g) => g.box.pts));
 
@@ -348,7 +348,7 @@ export default async function PlayerPage({
 
           {shots.length > 0 && (
             <div className="grid gap-5 lg:grid-cols-2">
-              <Card title="Shot chart — last 5 games" right={<Link href={`${base}?tab=shots&season=${sel.year}`} className="hover:text-court">Last 10 →</Link>}>
+              <Card title="Shot chart — last 5 games" right={<Link href={`${base}?tab=shots&season=${sel.year}`} className="hover:text-court">Last 10</Link>}>
                 <ShotChart three={{ arc: league.rules.threePointFt, corner: league.rules.cornerThreeFt }} shots={shots} teams={[{ id: shots[0].teamId ?? "", abbr: "", color: teamColor }]} players={[]} compact />
               </Card>
               <ZonesCard zones={zones} sq={sq} />

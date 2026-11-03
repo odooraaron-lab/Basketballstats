@@ -61,11 +61,11 @@ const C = {
   h_defl: { key: "h_defl", label: "DEFL" },
   h_chg: { key: "h_chg", label: "CHARGES" },
   h_scr: { key: "h_scr", label: "SCR AST" },
-  h_lb: { key: "h_lb", label: "LOOSE BALLS" },
+  h_lb: { key: "h_lb", label: "Loose balls" },
   h_bo: { key: "h_bo", label: "BOX OUTS" },
   o_ortg: { key: "o_ortg", label: "ORtg" },
   o_drtg: { key: "o_drtg", label: "DRtg", invert: true },
-  o_net: { key: "o_net", label: "NET", fmt: "signed1" },
+  o_net: { key: "o_net", label: "Net", fmt: "signed1" },
   o_pie: { key: "o_pie", label: "PIE", fmt: "pct" },
   o_usg: { key: "o_usg", label: "USG%", fmt: "pct" },
   o_ts: { key: "o_ts", label: "TS%", fmt: "pct" },
@@ -180,7 +180,7 @@ export function PlayerCompare({ data, league }: { data: CompareData; league: str
           Hide injured
         </button>
         <span className="ml-auto text-ink-500">
-          Sorted by <span className="text-court">{sortCol?.label ?? sort.key}</span> {sort.dir === "desc" ? "high → low" : "low → high"} · click any column
+          Sorted by <span className="text-court">{sortCol?.label ?? sort.key}</span> {sort.dir === "desc" ? "high to low" : "low to high"} · click any column
         </span>
       </div>
 

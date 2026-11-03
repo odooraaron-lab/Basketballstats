@@ -56,7 +56,7 @@ export default async function SportHome({ params, searchParams }: { params: Prom
             <div className="mb-2 flex items-baseline justify-between">
               <h2 className="display text-lg font-bold text-ink-200">{roundFx[0]?.roundLabel || "Matches"}</h2>
               <Link href={`/sport/${comp.id}/fixtures?season=${season}`} className="text-xs text-ink-400 hover:text-court">
-                Full draw →
+                Full draw
               </Link>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -70,7 +70,7 @@ export default async function SportHome({ params, searchParams }: { params: Prom
           </section>
 
           <div className="grid gap-5 lg:grid-cols-5">
-            <Card className="lg:col-span-3" pad={false} title="Ladder" right={<Link href={`/sport/${comp.id}/ladder?season=${season}`} className="hover:text-court">Full ladder →</Link>}>
+            <Card className="lg:col-span-3" pad={false} title="Ladder" right={<Link href={`/sport/${comp.id}/ladder?season=${season}`} className="hover:text-court">Full ladder</Link>}>
               <LadderTable comp={comp} rows={book.ladder} compact />
             </Card>
             <div className="lg:col-span-2">
@@ -92,7 +92,7 @@ async function Leaders({ compId, season }: { compId: string; season: number }) {
   const defs = comp.featured.filter((d) => !d.lowerBetter).slice(0, 6);
   const side = (id: string) => book.teamSides.get(id);
   return (
-    <Card title="Season leaders" right={<Link href={`/sport/${comp.id}/stats?season=${season}`} className="hover:text-court">All stats →</Link>}>
+    <Card title="Season leaders" right={<Link href={`/sport/${comp.id}/stats?season=${season}`} className="hover:text-court">All stats</Link>}>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
         {defs.map((d) => {
           const top = book.players

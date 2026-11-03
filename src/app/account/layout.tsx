@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LeagueSwitch } from "@/components/LeagueSwitch";
 import { viewerShell } from "@/lib/appShell";
+import { Wordmark } from "@/components/Wordmark";
 
 export const metadata = { title: "Account", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -13,7 +14,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
       <header className="border-b border-ink-800">
         <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
           <Link href={viewer.hasAccess ? "/app" : "/"} className="display text-xl font-extrabold">
-            <span>Quick <span className="text-court">Read</span></span>
+            <Wordmark />
           </Link>
           <nav className="flex gap-1">
             <Link href="/account" className="tab">Settings</Link>

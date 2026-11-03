@@ -46,14 +46,14 @@ export default async function StandingsPage({
                       <th>L</th>
                       <th>PCT</th>
                       <th>GB</th>
-                      <th>HOME</th>
-                      <th>AWAY</th>
-                      {c && <th>CONF</th>}
+                      <th>Home</th>
+                      <th>Away</th>
+                      {c && <th>Conf</th>}
                       <th>L10</th>
-                      <th>STRK</th>
+                      <th>Strk</th>
                       <th>PPG</th>
                       <th>OPP</th>
-                      <th>DIFF</th>
+                      <th>Diff</th>
                     </tr>
                   </thead>
                   <tbody>

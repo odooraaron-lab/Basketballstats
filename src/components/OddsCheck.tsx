@@ -134,9 +134,9 @@ export function OddsCheck({ league }: { league: string }) {
               <thead>
                 <tr>
                   <th className="!text-left">Player</th>
-                  <th>LINE</th>
-                  <th>OVER</th>
-                  <th>UNDER</th>
+                  <th>Line</th>
+                  <th>Over</th>
+                  <th>Under</th>
                   <th className="!text-left">RECENT (screen)</th>
                   <th />
                 </tr>
@@ -268,7 +268,7 @@ function ResultCard({ r, league }: { r: SlipResult; league: string }) {
               </div>
             ))}
           </div>
-          <div className="mt-0.5 text-[10px] text-ink-500">Last {r.history.length} games, oldest → newest · dashed line = {r.row.line}</div>
+          <div className="mt-0.5 text-[10px] text-ink-500">Last {r.history.length} games, oldest to newest · dashed line = {r.row.line}</div>
         </div>
       )}
 

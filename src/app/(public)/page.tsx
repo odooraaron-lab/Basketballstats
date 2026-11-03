@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { ResponsibleGambling } from "@/components/public/PublicFooter";
 import { POSTS, readingMinutes, zoneById } from "@/content/blog";
-import { allSportStatus, type SportStatus } from "@/lib/seasonStatus";
+import { allSportStatus } from "@/lib/seasonStatus";
 import { listPosts } from "@/lib/news/store";
 import { NewsImg } from "@/components/public/NewsImg";
 import { SPORT_LABEL, type SportTag } from "@/lib/news/core";
 import { Showcase, type ShowcaseItem } from "@/components/public/Showcase";
 import { ValueCalc } from "@/components/public/ValueCalc";
 import { priceLabel, site } from "@/site.config";
+import { FixtureBoard } from "@/components/public/FixtureBoard";
 
 export const revalidate = 1800;
 export const maxDuration = 60;
@@ -135,12 +136,6 @@ const FAQ: { q: string; a: string }[] = [
   },
 ];
 
-const STATE_STYLE: Record<SportStatus["state"], { label: string; cls: string }> = {
-  live: { label: "LIVE", cls: "bg-loss/15 text-loss" },
-  "in-season": { label: "In season", cls: "bg-win/15 text-win" },
-  "off-season": { label: "Off-season", cls: "bg-ink-800 text-ink-400" },
-};
-
 export default async function Landing() {
   const [status, news] = await Promise.all([allSportStatus(), listPosts({ limit: 6, maxAgeDays: 4 }).catch(() => [])]);
   const on = status.filter((s) => s.state !== "off-season").length;
@@ -261,79 +256,37 @@ export default async function Landing() {
     <main>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden border-b border-ink-800">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(242,107,29,0.2),transparent_60%)]" aria-hidden />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-14 lg:grid-cols-[1fr_1.1fr] lg:py-20">
-          <div className="min-w-0">
-            <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-ink-700 px-3 py-1 text-xs text-ink-300">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-loss" /> {on} of {status.length} competitions in season right now
+      {/* Hero: the headline, and the fixture board built from live season data */}
+      <section className="border-b border-ink-800">
+        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 lg:grid-cols-[1.12fr_1fr] lg:gap-12 lg:py-16">
+          <div className="min-w-0 lg:pt-4">
+            <h1 className="display text-[2.6rem] font-extrabold leading-[1.02] text-ink-100 sm:text-6xl">Sports stats and betting tools for Kiwi punters</h1>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-300">
+              Find value, build smarter multis and check every boost before the odds move. Stats for the All Blacks, NRL, Super Rugby, netball, A-League, Super Smash, NBA, NBL, world cricket and NZ horse racing, all in NZ time.
             </p>
-            <h1 className="display text-4xl font-extrabold leading-[1.05] text-ink-100 sm:text-6xl">
-              Sports stats &amp; betting odds software <span className="text-court">for Kiwi punters</span>
-            </h1>
-            <p className="mt-5 max-w-xl text-lg text-ink-300">
-              Find value, build smarter multis and check every boost before the odds move. Live stats and detailed stats for the All Blacks, NRL, Super Rugby, netball, A-League, Super Smash, NBA, NBL, world cricket and NZ horse racing, all in NZ time.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link href="/signup" className="display rounded-xl bg-court px-6 py-3.5 text-lg font-bold text-ink-950 shadow-lg shadow-court/20 hover:bg-court-soft">
-                {site.trialDays ? `Start ${site.trialDays}-day free trial` : `Join for ${priceLabel}/month`}
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/signup" className="display rounded-md bg-court px-5 py-3 text-base font-bold text-ink-950 hover:bg-court-soft sm:text-lg">
+                {site.trialDays ? `Start ${site.trialDays}-day free trial` : `Join for ${priceLabel} a month`}
               </Link>
-              <Link href="#software" className="display rounded-xl border border-ink-700 px-6 py-3.5 text-lg font-bold text-ink-200 hover:border-ink-500">
+              <Link href="#software" className="display rounded-md border border-ink-600 px-5 py-3 text-base font-bold text-ink-100 hover:border-ink-400 sm:text-lg">
                 See the software
               </Link>
             </div>
-            <p className="mt-4 text-sm text-ink-500">{priceLabel}/month · Cancel anytime · Secure Stripe checkout · 18+</p>
+            <p className="mt-4 text-sm text-ink-500">One price, cancel anytime. Paid securely through Stripe. 18+ only.</p>
           </div>
-          <div className="relative min-w-0 pb-8 lg:pb-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/app-match.png" alt="Quick Read live match centre on desktop" width={1280} height={800} className="w-full rounded-2xl border border-ink-700 shadow-2xl shadow-black/40" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/app-phone.png" alt="Quick Read on a phone" width={390} height={780} className="absolute -bottom-2 right-2 w-[28%] rounded-[1.4rem] border-4 border-ink-800 shadow-2xl shadow-black/60 sm:-right-4 lg:-bottom-10" />
-          </div>
-        </div>
-      </section>
-
-      {/* Numbers + coverage */}
-      <section className="border-b border-ink-800 bg-ink-900/60">
-        <div className="mx-auto max-w-6xl px-4 py-10">
-          <div className="grid grid-cols-2 gap-6 text-center md:grid-cols-4">
-            {[
-              [String(status.length), "competitions covered"],
-              ["10,000", "simulations per game for multis"],
-              ["50+", "stats per player"],
-              [String(POSTS.length), "free betting guides"],
-            ].map(([v, l]) => (
-              <div key={l}>
-                <div className="display text-4xl font-extrabold text-court sm:text-5xl">{v}</div>
-                <div className="mt-1 text-sm text-ink-400">{l}</div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-8 flex flex-wrap justify-center gap-2">
-            {status.map((s) => (
-              <span key={s.id} className="inline-flex items-center gap-1.5 rounded-full border border-ink-700 px-3 py-1 text-xs font-semibold text-ink-300">
-                <span className="h-2 w-2 rounded-full" style={{ background: s.accent }} />
-                {s.short}
-              </span>
-            ))}
-          </div>
+          <FixtureBoard status={status} on={on} />
         </div>
       </section>
 
       {/* Audience */}
       <section className="mx-auto max-w-6xl px-4 py-16">
         <h2 className="display max-w-3xl text-3xl font-extrabold sm:text-4xl">Built for how you actually bet</h2>
-        <p className="mt-1 max-w-2xl text-ink-400">The research you&apos;d spend an hour pulling from five websites, ready on your phone before the teams run out.</p>
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {AUDIENCE.map((a, i) => (
-            <div key={a.title} className="card flex flex-col p-6">
-              <span className="display grid h-10 w-10 place-items-center rounded-full bg-court text-lg font-extrabold text-ink-950">{i + 1}</span>
-              <h3 className="display mt-4 text-2xl font-bold">{a.title}</h3>
-              <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-400">{a.body}</p>
-              <Link href="/signup" className="display mt-5 text-sm font-bold text-court hover:text-court-soft">
-                Get started →
-              </Link>
+        <p className="mt-2 max-w-2xl text-ink-400">The research you&apos;d spend an hour pulling from five websites, ready on your phone before the teams run out.</p>
+        <div className="mt-10 grid gap-x-10 gap-y-8 md:grid-cols-3">
+          {AUDIENCE.map((a) => (
+            <div key={a.title} className="border-t-2 border-court pt-4">
+              <h3 className="display text-2xl font-bold">{a.title}</h3>
+              <p className="mt-2 text-[15px] leading-relaxed text-ink-300">{a.body}</p>
             </div>
           ))}
         </div>
@@ -344,7 +297,7 @@ export default async function Landing() {
         <div className="mx-auto max-w-6xl px-4 py-16">
           <h2 className="display text-3xl font-extrabold sm:text-4xl">Take a look at the software</h2>
           <p className="mb-8 mt-1 max-w-2xl text-ink-400">
-            Every tool, every sport, one membership. <Link href="/features" className="text-court hover:underline">See all features →</Link>
+            Every tool, every sport, one membership. <Link href="/features" className="text-court hover:underline">See all features</Link>
           </p>
           <Showcase items={SHOWCASE} />
         </div>
@@ -360,7 +313,7 @@ export default async function Landing() {
             </div>
             <div className="min-w-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={b.img} alt={b.alt} loading="lazy" className="w-full rounded-xl border border-ink-700 shadow-2xl shadow-black/30" />
+              <img src={b.img} alt={b.alt} loading="lazy" className="w-full rounded-lg border border-ink-700" />
             </div>
           </div>
         ))}
@@ -372,53 +325,22 @@ export default async function Landing() {
           <h2 className="display text-3xl font-extrabold sm:text-4xl">Is that price actually worth it?</h2>
           <p className="mb-8 mt-1 max-w-2xl text-ink-400">
             Free betting odds calculator. Type the bookie&apos;s odds, a boosted price and the chance you rate it, and see the fair price and expected return.{" "}
-            <Link href="/tools/betting-odds-calculator" className="text-court hover:underline">More calculators: margin, multi, each-way →</Link>
+            <Link href="/tools/betting-odds-calculator" className="text-court hover:underline">More calculators: margin, multi, each-way</Link>
           </p>
           <ValueCalc />
         </div>
       </section>
 
-      {/* Live sports board */}
-      <section id="sports" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="display text-3xl font-extrabold sm:text-4xl">Every sport you bet on, one membership</h2>
-            <p className="mt-1 text-ink-400">Live status from our feeds, updated through the day.</p>
-          </div>
-          <Link href="/signup" className="text-sm font-semibold text-court hover:text-court-soft">
-            Get access to all {status.length} →
-          </Link>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {status.map((s) => (
-            <div key={s.id} className="card flex min-w-0 items-start gap-3 p-4">
-              <span className="mt-1 h-3 w-3 shrink-0 rounded-full" style={{ background: s.accent }} />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="display truncate text-lg font-bold" title={s.name}>{s.short}</h3>
-                  <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold ${STATE_STYLE[s.state].cls}`}>{STATE_STYLE[s.state].label}</span>
-                </div>
-                <p className="text-xs text-ink-500">
-                  {s.name} · {s.region}
-                </p>
-                <p className="mt-1.5 text-sm text-ink-300">{s.headline}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <p className="mt-3 text-xs text-ink-500">Off-season? You still get the full archive: every result, ladder, player stat and game log from the season just finished.</p>
-      </section>
-
       {/* Everything included */}
-      <section id="features" className="scroll-mt-20 border-y border-ink-800 bg-ink-900/60">
+      <section id="features" className="scroll-mt-20">
         <div className="mx-auto max-w-6xl px-4 py-16">
           <h2 className="display text-3xl font-extrabold sm:text-4xl">Everything included</h2>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <p className="mt-2 max-w-2xl text-ink-400">One membership, no tiers. This is the whole list.</p>
+          <div className="mt-8 grid gap-x-12 md:grid-cols-2">
             {FEATURES.map((f) => (
-              <article key={f.title} className="card p-5">
-                <span className="display text-xs font-bold text-court">{f.tag}</span>
-                <h3 className="display mt-1 text-xl font-bold leading-tight">{f.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink-400">{f.body}</p>
+              <article key={f.title} className="border-t border-ink-700 py-5">
+                <h3 className="display text-xl font-bold leading-tight">{f.title}</h3>
+                <p className="mt-2 max-w-prose text-[15px] leading-relaxed text-ink-300">{f.body}</p>
               </article>
             ))}
           </div>
@@ -452,7 +374,7 @@ export default async function Landing() {
                   ["Cross-sport multi finder (The Ultimate Bet)", "✓", "Rarely"],
                   ["NZ horse racing form, jockey & trainer stats", "✓", "Separate subscription"],
                   ["NZ time zone & NZ teams first", "✓", "✗"],
-                  ["Tiers & upsells", "None — one price", "3–4 tiers"],
+                  ["Tiers & upsells", "None, one price", "3–4 tiers"],
                 ].map(([k, a, b]) => (
                   <tr key={k}>
                     <td className="pr-2 text-ink-300">{k}</td>
@@ -463,13 +385,13 @@ export default async function Landing() {
               </tbody>
             </table>
             <Link href="/blog/best-betting-stats-tools-nz-2026" className="mt-3 inline-block text-sm font-semibold text-court hover:text-court-soft">
-              How we compare with Props.Cash, MultiLab, Punters and others →
+              How we compare with Props.Cash, MultiLab, Punters and others
             </Link>
           </div>
-          <div className="card self-start p-7 shadow-2xl shadow-black/30">
-            <div className="display text-sm font-bold text-court">Quick Read membership</div>
+          <div className="card self-start border-ink-600 p-7">
+            <div className="display text-base font-bold text-ink-100">Quick Read membership</div>
             <div className="mt-2 flex items-end gap-2">
-              <span className="display text-6xl font-extrabold">${site.price.amount.toFixed(2)}</span>
+              <span className="display num text-6xl font-extrabold">${site.price.amount.toFixed(2)}</span>
               <span className="pb-2 text-ink-400">NZD / month</span>
             </div>
             <p className="text-sm text-ink-500">GST included where applicable. Cancel anytime.</p>
@@ -489,10 +411,10 @@ export default async function Landing() {
                 </li>
               ))}
             </ul>
-            <Link href="/signup" className="display mt-6 block rounded-xl bg-court py-3.5 text-center text-lg font-bold text-ink-950 hover:bg-court-soft">
+            <Link href="/signup" className="display mt-6 block rounded-md bg-court py-3.5 text-center text-lg font-bold text-ink-950 hover:bg-court-soft">
               {site.trialDays ? `Start ${site.trialDays}-day free trial` : "Join now"}
             </Link>
-            <p className="mt-2 text-center text-xs text-ink-500">Apple Pay · Google Pay · Visa · Mastercard — via Stripe</p>
+            <p className="mt-2 text-center text-xs text-ink-500">Pay with Apple Pay, Google Pay, Visa or Mastercard through Stripe.</p>
           </div>
         </div>
       </section>
@@ -502,7 +424,7 @@ export default async function Landing() {
         <section className="mx-auto max-w-6xl px-4 pt-16">
           <div className="mb-6 flex items-end justify-between">
             <h2 className="display text-3xl font-extrabold sm:text-4xl">Latest sports news</h2>
-            <Link href="/news" className="text-sm font-semibold text-court">All news →</Link>
+            <Link href="/news" className="text-sm font-semibold text-court">All news</Link>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {news.map((p) => (
@@ -510,7 +432,7 @@ export default async function Landing() {
                 {p.image && <NewsImg src={p.image} className="h-16 w-20 shrink-0 rounded-md object-cover" />}
                 <div className="min-w-0">
                   <div className="text-[11px] text-ink-500">
-                    <span className="font-semibold text-ink-300">{p.source}</span> · {p.sports.slice(0, 2).map((x) => SPORT_LABEL[x as SportTag] ?? x).join(", ")}
+                    <span className="font-semibold text-ink-300">{p.source}</span>, {p.sports.slice(0, 2).map((x) => SPORT_LABEL[x as SportTag] ?? x).join(" and ")}
                   </div>
                   <div className="line-clamp-2 text-sm font-semibold leading-snug">{p.title}</div>
                 </div>
@@ -525,15 +447,16 @@ export default async function Landing() {
         <section className="mx-auto max-w-6xl px-4 py-16">
           <div className="mb-6 flex items-end justify-between">
             <h2 className="display text-3xl font-extrabold sm:text-4xl">Betting stats guides</h2>
-            <Link href="/blog" className="text-sm font-semibold text-court">All guides →</Link>
+            <Link href="/blog" className="text-sm font-semibold text-court">All guides</Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {guides.map((p) => (
               <Link key={p.slug} href={`/blog/${p.slug}`} className="card block p-5 hover:border-ink-600">
-                <span className="display text-xs font-bold text-court">{zoneById(p.zone)?.label}</span>
-                <h3 className="display mt-1 text-xl font-bold leading-tight">{p.title}</h3>
+                <h3 className="display text-xl font-bold leading-tight">{p.title}</h3>
                 <p className="mt-2 line-clamp-3 text-sm text-ink-400">{p.description}</p>
-                <p className="mt-3 text-xs text-ink-500">{readingMinutes(p)} min read</p>
+                <p className="mt-3 text-xs text-ink-500">
+                  {zoneById(p.zone)?.label}, {readingMinutes(p)} min read
+                </p>
               </Link>
             ))}
           </div>
@@ -543,9 +466,9 @@ export default async function Landing() {
       {/* FAQ */}
       <section className="mx-auto max-w-3xl px-4 pb-8 pt-4">
         <h2 className="display text-3xl font-extrabold sm:text-4xl">Questions</h2>
-        <div className="mt-6 divide-y divide-ink-800 rounded-xl border border-ink-800">
+        <div className="mt-6 divide-y divide-ink-800 border-y border-ink-800">
           {FAQ.map((f) => (
-            <details key={f.q} className="group px-5 py-4">
+            <details key={f.q} className="group py-4">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
                 {f.q}
                 <span className="text-court transition group-open:rotate-45">+</span>
@@ -558,10 +481,12 @@ export default async function Landing() {
 
       {/* Closing CTA */}
       <section className="mx-auto max-w-6xl px-4 py-16">
-        <div className="relative overflow-hidden rounded-3xl border border-court/30 bg-gradient-to-br from-court/20 via-ink-900 to-ink-900 px-6 py-12 text-center sm:px-12">
-          <h2 className="display text-3xl font-extrabold sm:text-5xl">Stop betting on gut feel.</h2>
-          <p className="mx-auto mt-3 max-w-xl text-lg text-ink-300">Every stat, every sport and every tool for {priceLabel} a month. Instant access, cancel anytime.</p>
-          <Link href="/signup" className="display mt-7 inline-block rounded-xl bg-court px-8 py-4 text-lg font-bold text-ink-950 shadow-lg shadow-court/30 hover:bg-court-soft">
+        <div className="flex flex-col gap-6 border-t-2 border-court pt-8 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2 className="display text-3xl font-extrabold sm:text-5xl">Stop betting on gut feel.</h2>
+            <p className="mt-3 max-w-xl text-lg text-ink-300">Every stat, every sport and every tool for {priceLabel} a month. Instant access, cancel anytime.</p>
+          </div>
+          <Link href="/signup" className="display shrink-0 self-start rounded-md bg-court px-8 py-4 text-lg font-bold text-ink-950 hover:bg-court-soft md:self-auto">
             {site.trialDays ? `Start ${site.trialDays}-day free trial` : "Join Quick Read"}
           </Link>
         </div>

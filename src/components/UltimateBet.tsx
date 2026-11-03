@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { slip, useSlip } from "@/lib/betslip";
 import type { UltimateOption, UltimateResult } from "@/lib/ultimate";
+import { inkOn } from "@/lib/format";
 
 const WINDOWS = [
   { h: 0.5, label: "30 minutes", short: "30m" },
@@ -46,8 +47,10 @@ function UltimateModal({ onClose }: { onClose: () => void }) {
   const [flipped, setFlipped] = useState(false);
   const [step, setStep] = useState(() => {
     try {
-      const v = Number(localStorage.getItem("ultimate.window"));
-      return v >= 0 && v < WINDOWS.length ? v : WINDOWS.length - 1;
+      // Nothing saved yet means the full window (Number(null) would be 0, the 30-minute setting)
+      const raw = localStorage.getItem("ultimate.window");
+      const v = raw === null || raw === "" ? NaN : Number(raw);
+      return Number.isInteger(v) && v >= 0 && v < WINDOWS.length ? v : WINDOWS.length - 1;
     } catch {
       return WINDOWS.length - 1;
     }
@@ -94,7 +97,7 @@ function UltimateModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/70 p-0 backdrop-blur-sm sm:items-center sm:p-4" onClick={onClose} role="dialog" aria-modal="true" aria-label="The Ultimate Bet">
       <div className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-2xl border border-ink-700 bg-ink-900 shadow-2xl sm:rounded-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-start gap-3 border-b border-ink-800 bg-gradient-to-r from-court/25 to-transparent px-5 py-4">
+        <div className="flex items-start gap-3 border-b border-ink-800 px-5 py-4">
           <div className="min-w-0 flex-1">
             <h2 className="display text-2xl font-extrabold">
               <span className="text-court">★</span> The Ultimate Bet
@@ -120,7 +123,7 @@ function UltimateModal({ onClose }: { onClose: () => void }) {
             step={1}
             value={step}
             onChange={(e) => setStep(Number(e.target.value))}
-            className="mt-2 w-full accent-[#f26b1d]"
+            className="mt-2 w-full accent-court"
             aria-label="Time window"
           />
           <div className="mt-0.5 flex justify-between text-[10px] text-ink-500">
@@ -176,13 +179,13 @@ function UltimateModal({ onClose }: { onClose: () => void }) {
                     className="display mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-ink-600 py-2 text-sm font-bold text-ink-200 hover:border-loss hover:text-loss"
                     title="Ignore every game in Options 1–3 and build a second multi from what's left"
                   >
-                    <span aria-hidden>⟲</span> Flipper → The Grim Reaper
+                    <span aria-hidden>⟲</span> Flipper: The Grim Reaper
                   </button>
                   {opt && <OptionView o={opt} />}
                 </>
               ) : (
                 <>
-                  <div className="flex items-center gap-3 rounded-xl border border-loss/40 bg-gradient-to-r from-loss/20 to-transparent px-3 py-2.5">
+                  <div className="flex items-center gap-3 rounded-xl border border-loss/40 bg-loss/10 px-3 py-2.5">
                     <span className="text-2xl" aria-hidden>☠</span>
                     <div className="min-w-0 flex-1">
                       <div className="display text-lg font-extrabold leading-tight">The Grim Reaper</div>
@@ -223,7 +226,7 @@ function OptionView({ o }: { o: UltimateOption }) {
           <li key={l.id} className="rounded-xl border border-ink-800 bg-ink-950/60 p-3">
             <div className="flex items-center gap-2 text-[11px]">
               <span className="display grid h-5 w-5 place-items-center rounded-full bg-ink-800 font-bold text-ink-200">{i + 1}</span>
-              <span className="rounded px-1.5 py-0.5 font-bold text-ink-950" style={{ background: CODE_COLOR[l.code] }}>
+              <span className="rounded px-1.5 py-0.5 font-bold" style={{ background: CODE_COLOR[l.code], color: inkOn(CODE_COLOR[l.code]) }}>
                 {CODE_LABEL[l.code]}
               </span>
               <span className="truncate text-ink-400">{l.comp}</span>
@@ -232,7 +235,7 @@ function OptionView({ o }: { o: UltimateOption }) {
             <div className="mt-1.5 flex items-start gap-3">
               <div className="min-w-0 flex-1">
                 <Link href={l.href} className="block truncate text-xs text-ink-400 hover:text-court">
-                  {l.game} →
+                  {l.game}
                 </Link>
                 <div className="font-semibold text-ink-100">
                   {l.pick} <span className="text-xs font-normal text-ink-500">· {l.market}</span>

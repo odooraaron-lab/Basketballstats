@@ -381,7 +381,7 @@ export default async function GamePage({
                 <th>FT/FGA</th>
                 <th>ORtg</th>
                 <th>DRtg</th>
-                <th>NET</th>
+                <th>Net</th>
               </tr>
             </thead>
             <tbody>
@@ -677,10 +677,10 @@ export default async function GamePage({
                     { key: "pf", label: "PTS F", fmt: "int", group: true },
                     { key: "pa", label: "PTS A", fmt: "int" },
                     { key: "pm", label: "+/-", fmt: "signed", signed: true },
-                    { key: "poss", label: "POSS", fmt: "int", group: true },
+                    { key: "poss", label: "Poss", fmt: "int", group: true },
                     { key: "ortg", label: "ORtg", fmt: "1", heat: true },
                     { key: "drtg", label: "DRtg", fmt: "1", heat: true, invert: true },
-                    { key: "net", label: "NET", fmt: "signed1", signed: true },
+                    { key: "net", label: "Net", fmt: "signed1", signed: true },
                   ]}
                   rows={rs.map((r) => ({
                     key: r.ids.join("|"),
@@ -867,7 +867,7 @@ export default async function GamePage({
           <p className="rounded-md border border-ink-700 bg-ink-900 px-3 py-2 text-xs text-ink-400">
             It&apos;s early in the season, so many players have only a game or two.{" "}
             <Link href={`${base}?tab=players&split=prev`} className="text-court hover:underline">
-              Compare last season instead →
+              Compare last season instead
             </Link>
           </p>
         )}

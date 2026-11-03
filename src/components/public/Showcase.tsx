@@ -21,14 +21,14 @@ export function Showcase({ items }: { items: ShowcaseItem[] }) {
   if (!cur) return null;
   return (
     <div>
-      <div role="tablist" className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+      <div role="tablist" className="-mx-4 flex gap-1 overflow-x-auto border-b border-ink-700 px-4 sm:mx-0 sm:px-0">
         {items.map((i) => (
           <button
             key={i.id}
             role="tab"
             aria-selected={i.id === cur.id}
             onClick={() => setActive(i.id)}
-            className={`display shrink-0 rounded-full border px-4 py-2 text-sm font-bold transition ${i.id === cur.id ? "border-court bg-court text-ink-950" : "border-ink-700 text-ink-300 hover:border-ink-500 hover:text-ink-100"}`}
+            className={`display -mb-px shrink-0 border-b-[3px] px-3 py-2.5 text-[15px] font-bold ${i.id === cur.id ? "border-court text-ink-100" : "border-transparent text-ink-400 hover:text-ink-100"}`}
           >
             {i.tab}
           </button>
@@ -41,12 +41,12 @@ export function Showcase({ items }: { items: ShowcaseItem[] }) {
           <ul className="mt-5 space-y-2.5">
             {cur.points.map((p) => (
               <li key={p} className="flex gap-3 text-sm text-ink-200">
-                <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-court/15 text-[11px] font-bold text-court">✓</span>
+                <span className="mt-2 h-1.5 w-3 shrink-0 bg-court" aria-hidden />
                 {p}
               </li>
             ))}
           </ul>
-          <a href="/signup" className="display mt-6 inline-block rounded-xl bg-court px-5 py-3 font-bold text-ink-950 hover:bg-court-soft">
+          <a href="/signup" className="display mt-6 inline-block rounded-md bg-court px-5 py-3 font-bold text-ink-950 hover:bg-court-soft">
             Get access
           </a>
         </div>
@@ -60,7 +60,7 @@ export function Showcase({ items }: { items: ShowcaseItem[] }) {
             src={cur.img}
             alt={cur.alt}
             loading="lazy"
-            className={`rounded-xl border border-ink-700 shadow-2xl shadow-black/40 ${cur.portrait ? "max-h-[520px] w-auto" : "w-full"}`}
+            className={`rounded-lg border border-ink-700 ${cur.portrait ? "max-h-[520px] w-auto" : "w-full"}`}
           />
           )}
         </div>
@@ -78,14 +78,14 @@ function RaceCardIllustration() {
     { n: 4, b: 9, name: "Runner Four", j: "Jockey D", jr: "17%", t: "Trainer X", tr: "18%", win: "9.00", pl: "3.00", ch: "10%", flag: "Jockey 17% wins", tone: "text-court" },
   ];
   return (
-    <div className="overflow-hidden rounded-xl border border-ink-700 bg-ink-900 shadow-2xl shadow-black/40">
+    <div className="overflow-hidden rounded-lg border border-ink-700 bg-ink-900">
       <div className="flex items-center gap-3 border-b border-ink-800 px-4 py-3">
         <span className="display grid h-10 w-10 place-items-center rounded-lg bg-court text-lg font-extrabold text-ink-950">R5</span>
         <div className="min-w-0 flex-1">
-          <div className="display truncate text-lg font-extrabold">Rating 75 · 1400m</div>
-          <div className="text-xs text-ink-500">Good4 · Fine · 3 places paid</div>
+          <div className="display truncate text-lg font-extrabold">Rating 75, 1400m</div>
+          <div className="text-xs text-ink-500">Good 4, fine, 3 places paid</div>
         </div>
-        <span className="rounded bg-ink-800 px-2 py-0.5 text-[10px] font-bold text-ink-400">EXAMPLE</span>
+        <span className="rounded bg-ink-800 px-2 py-0.5 text-[10px] font-bold text-ink-400">Example</span>
       </div>
       <ul className="divide-y divide-ink-800">
         {rows.map((r) => (
@@ -96,7 +96,7 @@ function RaceCardIllustration() {
                 {r.name} <span className="text-xs font-normal text-ink-500">({r.b})</span>
               </div>
               <div className="truncate text-[11px] text-ink-400">
-                J: {r.j} · {r.jr} &nbsp; T: {r.t} · {r.tr}
+                J: {r.j} ({r.jr}) &nbsp; T: {r.t} ({r.tr})
               </div>
               <span className={`mt-0.5 inline-block rounded bg-ink-800 px-1.5 py-0.5 text-[10px] font-semibold ${r.tone}`}>{r.flag}</span>
             </div>

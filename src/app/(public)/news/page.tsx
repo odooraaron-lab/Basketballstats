@@ -70,20 +70,20 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
       </nav>
 
       {!lead ? (
-        <p className="mt-10 rounded-xl border border-dashed border-ink-700 px-4 py-10 text-center text-ink-500">No stories yet{sport ? ` for ${SPORT_LABEL[sport]}` : ""}. The news finder checks every 30 minutes — come back shortly.</p>
+        <p className="mt-10 rounded-xl border border-dashed border-ink-700 px-4 py-10 text-center text-ink-500">No stories yet{sport ? ` for ${SPORT_LABEL[sport]}` : ""}. The news finder checks every 30 minutes, so check back shortly.</p>
       ) : (
         <>
           <a href={lead.url} target="_blank" rel="noopener nofollow" className="card mt-6 grid overflow-hidden hover:border-ink-600 md:grid-cols-[1.2fr_1fr]">
             {lead.image ? (
               <NewsImg src={lead.image} className="h-56 w-full object-cover md:h-full" eager />
             ) : (
-              <div className="hidden bg-gradient-to-br from-court/25 to-ink-900 md:block" />
+              <div className="hidden bg-ink-850 md:block" />
             )}
             <div className="min-w-0 p-5 sm:p-7">
               <Meta p={lead} />
               <h2 className="display mt-2 text-2xl font-extrabold leading-tight sm:text-3xl">{lead.title}</h2>
               {lead.summary && <p className="mt-3 text-ink-300">{lead.summary}</p>}
-              <span className="mt-4 inline-block text-sm font-semibold text-court">Read on {lead.source} →</span>
+              <span className="mt-4 inline-block text-sm font-semibold text-court">Read on {lead.source}</span>
             </div>
           </a>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -105,7 +105,7 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
         <h2 className="display text-2xl font-extrabold">From the news to the numbers</h2>
         <p className="mt-1 text-ink-400">
           {site.name} turns the latest team news into stats: projections, fair odds, player form, NZ racing form and The Ultimate Bet.{" "}
-          <Link href="/features" className="text-court hover:underline">See what&apos;s inside →</Link>
+          <Link href="/features" className="text-court hover:underline">See what&apos;s inside</Link>
         </p>
       </section>
       <p className="mt-6 text-xs text-ink-500">Headlines link to the original publishers. {site.name} isn&apos;t responsible for external content.</p>

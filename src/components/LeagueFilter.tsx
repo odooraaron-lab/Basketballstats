@@ -57,7 +57,7 @@ export function LeagueFilter({ hidden, onChange }: { hidden: string[]; onChange?
       </button>
       {open && <div className="fixed inset-0 z-[69] bg-black/60 sm:hidden" onClick={() => setOpen(false)} aria-hidden />}
       {open && (
-        <div className="fixed inset-x-0 bottom-0 z-[70] max-h-[80vh] overflow-y-auto rounded-t-2xl border border-ink-700 bg-ink-900 p-4 pb-6 shadow-2xl shadow-black/50 sm:absolute sm:inset-x-auto sm:bottom-auto sm:right-0 sm:top-full sm:z-50 sm:mt-1 sm:w-64 sm:rounded-xl sm:p-3">
+        <div className="fixed inset-x-0 bottom-0 z-[70] max-h-[80vh] overflow-y-auto rounded-t-2xl border border-ink-700 bg-ink-900 p-4 pb-6 sm:absolute sm:inset-x-auto sm:bottom-auto sm:right-0 sm:top-full sm:z-50 sm:mt-1 sm:w-64 sm:rounded-xl sm:p-3">
           <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-ink-700 sm:hidden" />
           <div className="mb-2 flex items-center justify-between">
             <span className="display text-xs font-bold text-ink-300">Show in top bar</span>
@@ -85,7 +85,7 @@ export function LeagueFilter({ hidden, onChange }: { hidden: string[]; onChange?
               </div>
               {g.ids.map(([id, label]) => (
                 <label key={id} className="flex cursor-pointer items-center gap-2 py-1.5 text-base text-ink-200 sm:py-0.5 sm:text-sm">
-                  <input type="checkbox" checked={!off.has(id)} onChange={() => toggle(id)} className="h-5 w-5 accent-[#f26b1d] sm:h-4 sm:w-4" />
+                  <input type="checkbox" checked={!off.has(id)} onChange={() => toggle(id)} className="h-5 w-5 accent-court sm:h-4 sm:w-4" />
                   {label}
                 </label>
               ))}

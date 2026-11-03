@@ -46,7 +46,7 @@ async function basketball(id: "nba" | "nbl"): Promise<SportStatus> {
   return {
     ...base,
     state: "off-season",
-    headline: `Off-season — back in ${when}`,
+    headline: `Off-season until ${when}`,
     detail: `The ${l.shortName} is between seasons, so there are no games in the next two weeks. Every stat, player page and game log from last season is still here, and the new season usually tips off in ${when}.`,
   };
 }
@@ -61,7 +61,7 @@ function fieldStatus(compId: string, fx: Fixture[], nextSeason: Fixture[]): Spor
   const upcoming = [...fx, ...nextSeason].filter((f) => f.state === "pre").sort((a, b) => (a.date < b.date ? -1 : 1));
   if (live || soon.length || (recent.length && upcoming.length)) {
     const round = (soon[0] ?? upcoming[0])?.roundLabel;
-    return { ...base, state: live ? "live" : "in-season", headline: live ? "Games live now" : soon.length ? `${round || "Next round"} — ${soon.length} game${soon.length > 1 ? "s" : ""} in the next 10 days` : "In season", detail: "", next: upcoming[0]?.date };
+    return { ...base, state: live ? "live" : "in-season", headline: live ? "Games live now" : soon.length ? `${round || "Next round"}: ${soon.length} game${soon.length > 1 ? "s" : ""} in the next 10 days` : "In season", detail: "", next: upcoming[0]?.date };
   }
   if (c.team) {
     const last = [...fx].reverse().find((f) => f.state === "post");
@@ -74,7 +74,7 @@ function fieldStatus(compId: string, fx: Fixture[], nextSeason: Fixture[]): Spor
     return {
       ...base,
       state: "off-season",
-      headline: nxt ? `Between tests — next ${day(nxt.date)}` : "Off-season — tests resume in July",
+      headline: nxt ? `Between tests, next ${day(nxt.date)}` : "Off-season, tests resume in July",
       detail: `The ${c.team.nickname} play tests in the July and November windows plus the Rugby Championship / Bledisloe in between; the rest of the year the players are with their Super Rugby clubs. ${res} ${nxt ? `The next test is ${longDay(nxt.date)} against ${nxt.home.id === c.team.id ? nxt.away.name : nxt.home.name}.` : "Next year's test schedule appears here as soon as it's published."} Every result, player stat and try scorer from the year is still here.`.replace(/\s+/g, " ").trim(),
       next: nxt?.date,
     };
@@ -88,7 +88,7 @@ function fieldStatus(compId: string, fx: Fixture[], nextSeason: Fixture[]): Spor
   return {
     ...base,
     state: "off-season",
-    headline: next ? `Off-season — back ${day(next.date)}` : "Off-season",
+    headline: next ? `Off-season until ${day(next.date)}` : "Off-season",
     detail: `${base.short} is between seasons. ${finished} ${next ? `The next season starts ${longDay(next.date)}, and the draw is already in the Fixtures tab.` : "The next season's draw hasn't been published yet."} Every stat from the season just finished is still here to explore.`.replace(/\s+/g, " ").trim(),
     next: next?.date,
   };
@@ -116,7 +116,7 @@ async function superSmash(): Promise<SportStatus> {
   return {
     ...base,
     state: "off-season",
-    headline: next ? `Off-season — back ${day(next.date)}` : "Off-season",
+    headline: next ? `Off-season until ${day(next.date)}` : "Off-season",
     detail: `The Super Smash runs over the New Zealand summer. ${winner ? `${winner.name} won the last final.` : ""} ${next ? `The next season starts ${longDay(next.date)} — the full draw is already loaded.` : ""} Last season's points table, results and leaders are all still here.`.replace(/\s+/g, " ").trim(),
     next: next?.date,
   };

@@ -42,7 +42,7 @@ export default async function Billing({ searchParams }: { searchParams: Promise<
       <h1 className="display text-3xl font-extrabold">Membership</h1>
       {sp.welcome && <p className="rounded-md border border-court-dim bg-court/10 px-3 py-2 text-sm text-court-soft">Account created — one last step: start your membership below.</p>}
       {sp.need && !active && <p className="rounded-md border border-court-dim bg-court/10 px-3 py-2 text-sm text-court-soft">The stats and tools are for members. Start your membership to get in.</p>}
-      {sp.success && active && <p className="rounded-md border border-win/40 bg-win/10 px-3 py-2 text-sm text-win">You&apos;re in! Welcome to {site.name}. <Link href="/app" className="underline">Open the app →</Link></p>}
+      {sp.success && active && <p className="rounded-md border border-win/40 bg-win/10 px-3 py-2 text-sm text-win">You&apos;re in! Welcome to {site.name}. <Link href="/app" className="underline">Open the app</Link></p>}
       {sp.success && !active && <p className="rounded-md border border-court-dim bg-court/10 px-3 py-2 text-sm text-court-soft">Payment received — activating your membership. Refresh in a few seconds.</p>}
       {sp.canceled && <p className="rounded-md border border-ink-700 px-3 py-2 text-sm text-ink-300">Checkout cancelled — nothing was charged.</p>}
       {sp.error === "checkout" && <p className="rounded-md border border-loss/40 bg-loss/10 px-3 py-2 text-sm text-loss">Checkout couldn&apos;t start: {sp.msg || "unknown Stripe error"}. Check the Stripe keys / STRIPE_PRICE_ID in Vercel.</p>}

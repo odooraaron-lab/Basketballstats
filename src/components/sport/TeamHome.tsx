@@ -132,7 +132,7 @@ export function TeamHome({ comp, book, season, seasons }: { comp: CompDef; book:
                 </Suspense>
               )}
             </div>
-            <Card className="lg:col-span-3" pad={false} title={`${season} tests`} right={<Link href={`/sport/${comp.id}/ladder?season=${season}`} className="hover:text-court">Record v every nation →</Link>}>
+            <Card className="lg:col-span-3" pad={false} title={`${season} tests`} right={<Link href={`/sport/${comp.id}/ladder?season=${season}`} className="hover:text-court">Record v every nation</Link>}>
               <TestList comp={comp} fx={fx} />
             </Card>
           </div>
@@ -155,7 +155,7 @@ async function TryScorers({ compId, season, fixtureId }: { compId: string; seaso
   const ours = pv.scorers.filter((s) => s.teamId === comp.team!.id).slice(0, 6);
   if (!ours.length) return null;
   return (
-    <Card title="Anytime try scorer" right={<Link href={`/sport/${comp.id}/match/${f.id}?season=${season}`} className="hover:text-court">All markets →</Link>}>
+    <Card title="Anytime try scorer" right={<Link href={`/sport/${comp.id}/match/${f.id}?season=${season}`} className="hover:text-court">All markets</Link>}>
       <ul className="space-y-1.5 text-sm">
         {ours.map((s) => (
           <li key={s.id} className="flex items-center gap-2">
@@ -182,7 +182,7 @@ async function TeamLeaders({ compId, season }: { compId: string; season: number 
   if (!ours.length) return <Card title="Leaders"><p className="text-sm text-ink-500">Player stats appear once a test has been played.</p></Card>;
   const defs = comp.featured.filter((d) => !d.lowerBetter && ours.some((p) => (statOf(p.totals, d) ?? 0) > 0)).slice(0, 8);
   return (
-    <Card title={`${comp.team!.nickname} leaders · ${season}`} right={<Link href={`/sport/${comp.id}/stats?season=${season}`} className="hover:text-court">Every player →</Link>}>
+    <Card title={`${comp.team!.nickname} leaders · ${season}`} right={<Link href={`/sport/${comp.id}/stats?season=${season}`} className="hover:text-court">Every player</Link>}>
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {defs.map((d) => {
           const top = ours

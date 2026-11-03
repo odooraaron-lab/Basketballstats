@@ -35,7 +35,7 @@ export default async function Settings({ searchParams }: { searchParams: Promise
                   {a.label}
                   {a.kind === "feature" && <span className="ml-1 text-[11px] text-ink-500">tool</span>}
                 </span>
-                <input type="checkbox" name="show" value={a.id} defaultChecked={!hidden.includes(a.id)} className="h-4 w-4 accent-[#f26b1d]" />
+                <input type="checkbox" name="show" value={a.id} defaultChecked={!hidden.includes(a.id)} className="h-4 w-4 accent-court" />
               </label>
             ))}
           </div>

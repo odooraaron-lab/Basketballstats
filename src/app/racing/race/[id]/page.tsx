@@ -140,7 +140,7 @@ function RunnerRow({ r, card, hist, j, t, ch, res }: { r: Runner; card: RaceCard
             {r.name}
           </Link>
           {res && <span className="text-xs font-bold text-court">{ord(res)}</span>}
-          {r.scratched && <span className="text-[11px] font-bold text-loss">SCRATCHED</span>}
+          {r.scratched && <span className="text-[11px] font-bold text-loss">Scratched</span>}
           <span className="num text-xs text-ink-500">{form ? form.slice(-8) : ""}</span>
         </div>
         <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-ink-400">

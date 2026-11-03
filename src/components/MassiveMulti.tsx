@@ -222,7 +222,7 @@ export function MassiveMulti({
   const topLegs = [...legs].sort((a, b) => legScore(b) - legScore(a)).slice(0, 40);
 
   return (
-    <div className="min-w-0 max-w-full overflow-hidden rounded-xl border border-court/40 bg-gradient-to-b from-court/10 to-transparent p-3 sm:p-4">
+    <div className="min-w-0 max-w-full overflow-hidden rounded-xl border border-court/40 bg-ink-900 p-3 sm:p-4">
       <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center">
         <div className="min-w-0 sm:flex-1">
           <h3 className="display text-lg font-extrabold">
@@ -246,7 +246,7 @@ export function MassiveMulti({
           <>
             <span className="mx-1 h-4 w-px bg-ink-700" />
             <a href="#" onClick={(e) => { e.preventDefault(); window.location.href = multiGameHref(); }} className="chip !border-court/60 !text-court hover:!bg-court/10">
-              Multi-game: build across every game this day →
+              Multi-game: build across every game this day
             </a>
           </>
         )}
@@ -312,11 +312,11 @@ export function MassiveMulti({
                   <thead>
                     <tr>
                       <th className="!text-left">Player</th>
-                      <th>LEG</th>
-                      <th title="What he normally does">USUAL</th>
+                      <th>Leg</th>
+                      <th title="What he normally does">Usual</th>
                       <th title="Times reached in last 10">LAST 10</th>
-                      <th>CHANCE</th>
-                      <th>ODDS</th>
+                      <th>Chance</th>
+                      <th>Odds</th>
                     </tr>
                   </thead>
                   <tbody>

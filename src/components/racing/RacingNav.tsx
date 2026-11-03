@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Wordmark } from "@/components/Wordmark";
 
 const ITEMS = [
   { href: "/racing", label: "Meetings", exact: true },
@@ -13,13 +14,11 @@ const ITEMS = [
 export function RacingNav() {
   const path = usePathname();
   return (
-    <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2.5">
         <Link href="/racing" className="display flex items-center gap-2 text-xl font-extrabold">
-          <span>
-            Quick <span className="text-court">Read</span>
-          </span>
-          <span className="rounded bg-[#c8a24a] px-1.5 py-0.5 text-xs font-bold text-ink-950">RACING</span>
+          <Wordmark />
+          <span className="rounded bg-[#c8a24a] px-1.5 py-0.5 text-xs font-bold text-ink-950">Racing</span>
         </Link>
         <nav className="order-3 -mx-1 flex w-full gap-1 overflow-x-auto md:order-none md:w-auto md:flex-1">
           {ITEMS.map((i) => {

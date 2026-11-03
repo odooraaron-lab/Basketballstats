@@ -69,7 +69,7 @@ export default async function AdminNews({ searchParams }: { searchParams: Promis
           <div className="flex flex-wrap gap-3 text-xs text-ink-300">
             {SPORT_ORDER.map((s) => (
               <label key={s} className="flex items-center gap-1.5">
-                <input type="checkbox" name="sport" value={s} className="accent-[#f26b1d]" /> {SPORT_LABEL[s]}
+                <input type="checkbox" name="sport" value={s} className="accent-court" /> {SPORT_LABEL[s]}
               </label>
             ))}
             <span className="text-ink-500">(leave blank to tag automatically)</span>

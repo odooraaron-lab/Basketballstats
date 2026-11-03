@@ -2,12 +2,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { site } from "@/site.config";
+import { Wordmark } from "@/components/Wordmark";
 
 export function Logo({ className = "" }: { className?: string }) {
   return (
-    <Link href="/" className={`display flex items-center gap-1.5 text-2xl font-extrabold text-ink-100 ${className}`} aria-label={`${site.name} home`}>
-      <span className="grid h-7 w-7 place-items-center rounded-md bg-court text-xs font-extrabold text-ink-950">QR</span>
-      <span>Quick <span className="text-court">Read</span></span>
+    <Link href="/" className={`display flex items-center text-xl font-extrabold text-ink-100 ${className}`} aria-label={`${site.name} home`}>
+      <Wordmark />
     </Link>
   );
 }
@@ -26,7 +26,7 @@ export function PublicHeader() {
     { href: "/blog", label: "Guides" },
   ];
   return (
-    <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950/85 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950">
       <div className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3">
         <Logo />
         <nav className="hidden flex-1 gap-5 whitespace-nowrap text-sm text-ink-300 lg:flex" aria-label="Main">
@@ -38,7 +38,7 @@ export function PublicHeader() {
         </nav>
         <div className="ml-auto flex items-center gap-2">
           {signedIn ? (
-            <Link href="/app" className="rounded-lg bg-court px-4 py-2 text-sm font-bold text-ink-950 hover:bg-court-soft">
+            <Link href="/app" className="rounded-md bg-court px-4 py-2 text-sm font-bold text-ink-950 hover:bg-court-soft">
               Open app
             </Link>
           ) : (
@@ -46,7 +46,7 @@ export function PublicHeader() {
               <Link href="/login" className="hidden px-3 py-2 text-sm text-ink-300 hover:text-ink-100 sm:block">
                 Log in
               </Link>
-              <Link href="/signup" className="rounded-lg bg-court px-4 py-2 text-sm font-bold text-ink-950 hover:bg-court-soft">
+              <Link href="/signup" className="rounded-md bg-court px-4 py-2 text-sm font-bold text-ink-950 hover:bg-court-soft">
                 Join now
               </Link>
             </>

@@ -168,7 +168,7 @@ export function GameTile({ g, league, projection }: { g: GameCard; league: strin
               (<span className="num text-court-soft">{fmt(projection.away + projection.home, "int")}</span>)
             </span>
           )}
-          {g.state === "pre" && <span className="ml-auto text-court group-hover:underline">Compare players →</span>}
+          {g.state === "pre" && <span className="ml-auto text-court group-hover:underline">Compare players</span>}
         </div>
       )}
     </Link>
@@ -212,7 +212,7 @@ export function CompareBar({
   );
 }
 
-export function Bars({ items, max, fmtKind = "1", color = "#f26b1d" }: { items: { label: string; value: number; sub?: string }[]; max?: number; fmtKind?: Parameters<typeof fmt>[1]; color?: string }) {
+export function Bars({ items, max, fmtKind = "1", color = "rgb(var(--court))" }: { items: { label: string; value: number; sub?: string }[]; max?: number; fmtKind?: Parameters<typeof fmt>[1]; color?: string }) {
   const m = max ?? Math.max(1, ...items.map((i) => i.value));
   return (
     <div className="space-y-1.5">
