@@ -7,7 +7,7 @@ import { SESSION_COOKIE, verifySession } from "@/lib/auth";
 const PUBLIC = [
   /^\/$/,
   /^\/blog(\/|$)/,
-  /^\/(features|tools)(\/|$)/,
+  /^\/(features|tools|news)(\/|$)/,
   /^\/(login|signup|forgot|reset|terms|privacy|responsible-gambling|pricing)(\/|$)/,
   /^\/api\/(auth|track)(\/|$)/,
   /^\/api\/stripe\/webhook$/,

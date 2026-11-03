@@ -43,6 +43,7 @@ export function PublicFooter() {
               <li key={f.slug}><Link href={`/features/${f.slug}`} className="hover:text-ink-100">{f.nav}</Link></li>
             ))}
             <li><Link href="/tools/betting-odds-calculator" className="hover:text-ink-100">Free odds calculator</Link></li>
+            <li><Link href="/news" className="hover:text-ink-100">Sports news</Link></li>
             <li><Link href="/#pricing" className="hover:text-ink-100">Pricing</Link></li>
             <li><Link href="/blog" className="hover:text-ink-100">Blog</Link></li>
             <li><Link href="/login" className="hover:text-ink-100">Log in</Link></li>

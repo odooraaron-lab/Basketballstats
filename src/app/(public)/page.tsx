@@ -2,6 +2,9 @@ import Link from "next/link";
 import { ResponsibleGambling } from "@/components/public/PublicFooter";
 import { POSTS, readingMinutes, zoneById } from "@/content/blog";
 import { allSportStatus, type SportStatus } from "@/lib/seasonStatus";
+import { listPosts } from "@/lib/news/store";
+import { NewsImg } from "@/components/public/NewsImg";
+import { SPORT_LABEL, type SportTag } from "@/lib/news/core";
 import { Showcase, type ShowcaseItem } from "@/components/public/Showcase";
 import { ValueCalc } from "@/components/public/ValueCalc";
 import { priceLabel, site } from "@/site.config";
@@ -139,7 +142,7 @@ const STATE_STYLE: Record<SportStatus["state"], { label: string; cls: string }> 
 };
 
 export default async function Landing() {
-  const status = await allSportStatus();
+  const [status, news] = await Promise.all([allSportStatus(), listPosts({ limit: 6, maxAgeDays: 4 }).catch(() => [])]);
   const on = status.filter((s) => s.state !== "off-season").length;
   // Newest featured guides first (timely posts like the Melbourne Cup lead), then the rest
   const guides = [...POSTS.filter((p) => p.featured).sort((a, b) => (a.date < b.date ? 1 : -1)), ...POSTS.filter((p) => !p.featured)].slice(0, 6);
@@ -493,6 +496,29 @@ export default async function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Latest news */}
+      {news.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 pt-16">
+          <div className="mb-6 flex items-end justify-between">
+            <h2 className="display text-3xl font-extrabold sm:text-4xl">Latest sports news</h2>
+            <Link href="/news" className="text-sm font-semibold text-court">All news →</Link>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {news.map((p) => (
+              <a key={String(p.id)} href={p.url} target="_blank" rel="noopener nofollow" className="card flex min-w-0 gap-3 p-3 hover:border-ink-600">
+                {p.image && <NewsImg src={p.image} className="h-16 w-20 shrink-0 rounded-md object-cover" />}
+                <div className="min-w-0">
+                  <div className="text-[11px] text-ink-500">
+                    <span className="font-semibold text-ink-300">{p.source}</span> · {p.sports.slice(0, 2).map((x) => SPORT_LABEL[x as SportTag] ?? x).join(", ")}
+                  </div>
+                  <div className="line-clamp-2 text-sm font-semibold leading-snug">{p.title}</div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Guides */}
       {guides.length > 0 && (

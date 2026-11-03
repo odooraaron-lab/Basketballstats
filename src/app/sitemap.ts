@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { POSTS, ZONES } from "@/content/blog";
 import { FEATURES } from "@/content/features";
+import { SPORT_ORDER } from "@/lib/news/core";
 import { site } from "@/site.config";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -11,6 +12,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${site.url}/signup`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${site.url}/tools/betting-odds-calculator`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${site.url}/features`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${site.url}/news`, lastModified: now, changeFrequency: "hourly", priority: 0.9 },
+    ...SPORT_ORDER.map((sp) => ({ url: `${site.url}/news?s=${sp}`, lastModified: now, changeFrequency: "hourly" as const, priority: 0.6 })),
     ...FEATURES.map((f) => ({ url: `${site.url}/features/${f.slug}`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.85 })),
     ...ZONES.map((z) => ({ url: `${site.url}/blog/sport/${z.id}`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.7 })),
     ...POSTS.map((p) => ({ url: `${site.url}/blog/${p.slug}`, lastModified: new Date(p.date), changeFrequency: "monthly" as const, priority: 0.6 })),

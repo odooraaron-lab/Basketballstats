@@ -139,6 +139,26 @@ const SCHEMA = [
      value      JSONB NOT NULL DEFAULT '{}'::jsonb,
      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
    )`,
+  // Sports news finder (src/lib/news): stories found on newsroom feeds and news search
+  `CREATE TABLE IF NOT EXISTS news_posts (
+     id           SERIAL PRIMARY KEY,
+     url          TEXT NOT NULL,
+     url_key      TEXT NOT NULL UNIQUE,
+     title        TEXT NOT NULL,
+     title_key    TEXT NOT NULL DEFAULT '',
+     summary      TEXT,
+     image        TEXT,
+     source       TEXT,
+     kind         TEXT NOT NULL DEFAULT 'article',
+     sports       TEXT[] NOT NULL DEFAULT '{}',
+     status       TEXT NOT NULL DEFAULT 'live',
+     pinned       BOOLEAN NOT NULL DEFAULT FALSE,
+     origin       TEXT NOT NULL DEFAULT 'auto',
+     published_at TIMESTAMPTZ,
+     added_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+   )`,
+  `CREATE INDEX IF NOT EXISTS news_posts_added_idx ON news_posts (added_at DESC)`,
+  `CREATE INDEX IF NOT EXISTS news_posts_title_idx ON news_posts (title_key)`,
 ];
 
 let ready: Promise<void> | null = null;

@@ -119,6 +119,10 @@ export function LeagueSwitch({
           })}
         </div>
         <div className="ml-auto flex shrink-0 items-center gap-1 pl-1 text-xs sm:pl-2">
+          <Link href="/news" className="rounded-md px-1.5 py-1 text-ink-400 hover:text-ink-100" title="Sports news">
+            <span className="hidden sm:inline">News</span>
+            <svg className="sm:hidden" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden><path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2M8 9h5M8 13h5" /></svg>
+          </Link>
           <LeagueFilter hidden={hid} onChange={(sections) => setHid([...hid.filter((h) => !ALL_SECTION_IDS.includes(h)), ...sections])} />
           {!hidden.includes("ultimate") && <UltimateBetButton />}
           {isAdmin && (

@@ -17,6 +17,7 @@ export function PublicHeader() {
   const [open, setOpen] = useState(false);
   useEffect(() => setSignedIn(/(?:^|; )cs_in=1/.test(document.cookie)), []);
   const links = [
+    { href: "/news", label: "News" },
     { href: "/features", label: "Features" },
     { href: "/features/nz-horse-racing-form", label: "Racing" },
     { href: "/features/ultimate-bet", label: "Ultimate Bet" },

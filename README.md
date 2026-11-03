@@ -9,6 +9,7 @@ A Next.js subscription site: a public, SEO-focused landing page and blog, and a 
 | `/` | public | Landing page (live "what's in season" board, features, value comparison, pricing, FAQ, JSON-LD) |
 | `/blog`, `/blog/sport/<zone>`, `/blog/<slug>` | public | Betting guides by zone (`src/content/blog/`), each with a generated share image |
 | `/features`, `/features/<slug>` | public | SEO landing pages per product area (`src/content/features.ts`): Ultimate Bet, multi builder, NZ racing form, All Blacks stats, live stats, odds & boost checker |
+| `/news` (`?s=<sport>`) | public | Sports news finder (`src/lib/news/`, ported from nzelection): newsroom RSS feeds + Google News search, tagged by sport, de-duplicated, saved to `news_posts`; runs every 30 min on page traffic plus a daily cron (`/api/cron/news`); admin controls at `/admin/news` |
 | `/tools/betting-odds-calculator` | public | Free calculators: value/boost, odds converter, bookmaker margin, multi, each-way |
 | `/login`, `/signup`, `/forgot`, `/reset`, `/pricing`, `/terms`, `/privacy`, `/responsible-gambling` | public | Auth and legal |
 | `/app` and every sport section | paid members | The stat tracker. Unpaid accounts are sent to `/account/billing` |
