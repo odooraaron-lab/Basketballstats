@@ -4,114 +4,114 @@
    "datasets": {
     "player_base": {
      "rows": 448,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "player_advanced": {
      "rows": 448,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "player_misc": {
      "rows": 448,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "player_scoring": {
      "rows": 448,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "player_usage": {
      "rows": 448,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "team_base": {
      "rows": 30,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "team_advanced": {
      "rows": 30,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "team_opponent": {
      "rows": 30,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "team_misc": {
      "rows": 30,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "hustle_player": {
-     "rows": 422,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "rows": 433,
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "hustle_team": {
      "rows": 30,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "tracking_player": {
-     "rows": 5319,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "rows": 5351,
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "tracking_team": {
      "rows": 360,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "contest_player": {
      "rows": 1553,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "contest_team": {
      "rows": 120,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "synergy_player_off": {
      "rows": 835,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "synergy_player_def": {
      "rows": 650,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "synergy_team_off": {
      "rows": 330,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "synergy_team_def": {
      "rows": 330,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "lineups": {
      "rows": 374,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "matchups": {
      "rows": 1297,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "clutch_player": {
      "rows": 281,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "clutch_team": {
      "rows": 30,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "est_player": {
      "rows": 448,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "est_team": {
      "rows": 30,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "shot_zones_player": {
      "rows": 448,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     },
     "defend_player": {
      "rows": 2515,
-     "updated": "2026-11-03T16:41:44+00:00"
+     "updated": "2026-11-04T16:41:56+00:00"
     }
    },
-   "updated": "2026-11-03T16:41:44+00:00",
+   "updated": "2026-11-04T16:41:56+00:00",
    "season": "2026-27",
    "seasonType": "Regular Season"
   },
@@ -231,5 +231,5 @@
    "seasonType": "Regular Season"
   }
  },
- "updated": "2026-11-03T16:41:44+00:00"
+ "updated": "2026-11-04T16:41:56+00:00"
 }
