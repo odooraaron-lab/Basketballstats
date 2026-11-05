@@ -77,6 +77,7 @@ const toPost = (r: any): NewsPost => ({
   added_at: new Date(r.added_at).toISOString(),
 });
 
+/** Save one story (Admin → News "add a link"). */
 export async function addPost(p: NewsItem, origin: "auto" | "admin" = "auto"): Promise<boolean> {
   const tk = titleKey(p.title);
   const published = p.published_at && Date.parse(p.published_at) < Date.now() + 60_000 ? p.published_at : null;
@@ -140,15 +141,60 @@ export interface IngestReport {
   added: number;
   skipped: number;
   pictures: number;
+  /** How long the run took, so a slow database or feed shows up in Admin → News */
+  ms?: number;
   sources: Record<string, { ok: boolean; found?: number; added?: number; error?: string }>;
+}
+
+/**
+ * Save many stories in ONE query. Inserting them one by one meant hundreds of database round
+ * trips per run; on Vercel the run hit its time limit part-way through, so the sources at the
+ * end of the list (basketball, racing) almost never got saved. Returns the url_keys added.
+ */
+export async function addPosts(items: NewsItem[], origin: "auto" | "admin" = "auto"): Promise<Set<string>> {
+  const seenUrl = new Set<string>();
+  const seenTitle = new Set<string>();
+  const rows: Record<string, string | null>[] = [];
+  for (const p of items) {
+    const uk = urlKey(p.url);
+    const tk = titleKey(p.title);
+    if (seenUrl.has(uk) || (tk && seenTitle.has(tk))) continue;
+    seenUrl.add(uk);
+    if (tk) seenTitle.add(tk);
+    const published = p.published_at && Date.parse(p.published_at) < Date.now() + 60_000 ? p.published_at : null;
+    rows.push({
+      url: p.url.slice(0, 2000),
+      url_key: uk,
+      title: p.title.slice(0, 300),
+      title_key: tk,
+      summary: p.summary,
+      image: p.image,
+      source: p.source?.slice(0, 80) ?? null,
+      kind: p.kind,
+      sports: p.sports.join(","),
+      published_at: published,
+    });
+  }
+  if (!rows.length) return new Set();
+  const out = await q(
+    `INSERT INTO news_posts (url, url_key, title, title_key, summary, image, source, kind, sports, origin, published_at)
+     SELECT x.url, x.url_key, x.title, x.title_key, x.summary, x.image, x.source, x.kind, string_to_array(x.sports, ','), $2, x.published_at::timestamptz
+     FROM jsonb_to_recordset($1::jsonb) AS x(url text, url_key text, title text, title_key text, summary text, image text, source text, kind text, sports text, published_at text)
+     WHERE NOT EXISTS (SELECT 1 FROM news_posts p WHERE p.title_key = x.title_key AND x.title_key <> '' AND p.added_at > now() - interval '3 days')
+     ON CONFLICT (url_key) DO NOTHING RETURNING url_key`,
+    [JSON.stringify(rows), origin],
+  );
+  return new Set(out.map((r) => r.url_key as string));
 }
 
 export async function runNewsIngest({ force = false, reason = "page" }: { force?: boolean; reason?: string } = {}): Promise<IngestReport | { ran: false; why: string }> {
   if (!dbConfigured()) return { ran: false, why: "no-database" };
   if (!(await claim(force ? 15 : INGEST_MINUTES * 60 - 20))) return { ran: false, why: "not-due" };
+  const t0 = Date.now();
   const sources = SOURCES.filter((s) => s.enabled !== false);
   const settled = await Promise.allSettled(sources.map((s) => fetchSource(s)));
   const report: IngestReport = { at: new Date().toISOString(), reason, added: 0, skipped: 0, pictures: 0, sources: {} };
+  const all: { src: string; item: NewsItem }[] = [];
   for (let i = 0; i < sources.length; i++) {
     const src = sources[i];
     const r = settled[i];
@@ -156,15 +202,24 @@ export async function runNewsIngest({ force = false, reason = "page" }: { force?
       report.sources[src.id] = { ok: false, error: String((r.reason as Error)?.message ?? r.reason).slice(0, 160) };
       continue;
     }
-    let added = 0;
-    for (const item of r.value.slice(0, 40)) {
-      if (await addPost(item).catch(() => false)) added++;
-      else report.skipped++;
-    }
-    report.added += added;
-    report.sources[src.id] = { ok: true, found: r.value.length, added };
+    report.sources[src.id] = { ok: true, found: r.value.length, added: 0 };
+    for (const item of r.value.slice(0, 40)) all.push({ src: src.id, item });
   }
+  const added = await addPosts(all.map((a) => a.item));
+  const counted = new Set<string>();
+  for (const { src, item } of all) {
+    const k = urlKey(item.url);
+    if (added.has(k) && !counted.has(k)) {
+      counted.add(k);
+      report.sources[src].added = (report.sources[src].added ?? 0) + 1;
+      report.added++;
+    } else report.skipped++;
+  }
+  // Save the report before the slower picture step, so a cut-short run still shows what happened
+  report.ms = Date.now() - t0;
+  await setState("news_report", report).catch(() => {});
   report.pictures = await addPictures().catch(() => 0);
+  report.ms = Date.now() - t0;
   await setState("news_report", report).catch(() => {});
   return report;
 }

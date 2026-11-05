@@ -26,7 +26,7 @@ export default async function AdminNews({ searchParams }: { searchParams: Promis
           </form>
           {report ? (
             <span className="text-ink-400">
-              Last run {when(report.at)} ({report.reason}): {report.added} new, {report.skipped} duplicates, {report.pictures} pictures added.
+              Last run {when(report.at)} ({report.reason}): {report.added} new, {report.skipped} duplicates, {report.pictures} pictures added{report.ms ? `, took ${(report.ms / 1000).toFixed(1)}s` : ""}.
             </span>
           ) : (
             <span className="text-ink-500">Hasn&apos;t run yet.</span>

@@ -127,3 +127,31 @@ test("tally: strike rate, places and level-stakes profit", () => {
   assert.equal(t.avgWinOdds, 2.75);
   assert.equal(formString(runs.map((r) => ({ position: r.position, final: r.final }))), "1201");
 });
+
+// A real reply from api.tab.co.nz (Taupo R1, 5 Nov 2026), trimmed to the fields we read.
+test("parses a real TAB NZ meeting list and race reply", async () => {
+  const { readFileSync } = await import("node:fs");
+  const real = JSON.parse(readFileSync(new URL("./fixtures/tab-taupo-r1.json", import.meta.url), "utf8"));
+  const [m] = parseMeetings(real.meetings);
+  assert.equal(m.name, "Taupo");
+  assert.equal(m.country, "NZ");
+  assert.equal(m.races[0].start, "2026-11-05T02:11:00.000Z");
+  assert.equal(m.races[0].trackCondition, "Soft6");
+
+  const r = parseRace(real.event)!;
+  assert.equal(r.meetingName, "Taupo");
+  assert.equal(r.number, 1);
+  assert.equal(r.start, "2026-11-05T02:11:00.000Z");
+  assert.equal(r.distance, 1400);
+  assert.ok(isFinal(r));
+  assert.deepEqual(r.results.map((x) => [x.position, x.number]), [[1, 5], [2, 2], [3, 1]]);
+  const domainAce = r.runners.find((x) => x.number === 1)!;
+  assert.equal(domainAce.jockey, "Joe Doyle");
+  assert.equal(domainAce.trainer, "G A & D G Rogerson & Clint Isdale");
+  assert.equal(domainAce.weight, 59.5);
+  assert.equal(domainAce.winOdds, 3.6);
+  assert.equal(domainAce.form, "48808");
+  assert.equal(domainAce.scratched, false);
+  assert.ok(r.runners.every((x) => !x.favourite)); // the favourite (No. 4) is outside the trimmed field
+  assert.ok(r.dividends.some((d) => d.product === "Pool Quinella" && d.dividend === 12.8));
+});

@@ -60,6 +60,8 @@ export interface IngestReport {
   races: number;
   saved: number;
   remaining: number;
+  /** Races that couldn't be fetched or saved this run */
+  failed?: number;
   error?: string;
 }
 
@@ -95,9 +97,16 @@ export async function ingestRange(from: string, to: string, budgetMs = 40_000): 
       const x = todo[i++];
       const started = Date.parse(x.start) < now - 10 * 60_000;
       const card = await getRace(x.id, started).catch(() => null);
-      if (card) {
-        await saveCard(card, x.date).catch(() => {});
+      if (!card) {
+        report.failed = (report.failed ?? 0) + 1;
+        continue;
+      }
+      try {
+        await saveCard(card, x.date);
         report.saved++;
+      } catch (e) {
+        report.failed = (report.failed ?? 0) + 1;
+        report.error ??= String((e as Error)?.message ?? e).slice(0, 160);
       }
     }
   };

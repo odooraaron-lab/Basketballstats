@@ -3,20 +3,46 @@ import "server-only";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type J = any;
 
+// Next's data cache refuses anything over 2MB, so whole-season scoreboards (a Rugby World Cup,
+// a full A-League year: 2.4–2.8MB) were refetched from ESPN on every request. Those big replies
+// are kept in this server's memory instead, for the same revalidate time.
+const BIG = 1_900_000;
+const MAX_BIG = 8;
+const big = new Map<string, { exp: number; data: J }>();
+const bigUrls = new Set<string>();
+const inflight = new Map<string, Promise<J | null>>();
+
 /** JSON GET with Next's data cache. Returns null on any failure (feeds come and go). */
 export async function getJson(url: string, revalidate: number): Promise<J | null> {
-  try {
-    const res = await fetch(url, {
-      next: { revalidate },
-      headers: { "User-Agent": "Mozilla/5.0 (stat-tracker)", Accept: "application/json, text/plain, */*" },
-      signal: AbortSignal.timeout(15000),
-    });
-    if (!res.ok) return null;
-    const text = await res.text(); // some CDNs label JSON as text/plain
-    return text ? JSON.parse(text) : null;
-  } catch {
-    return null;
-  }
+  const hit = big.get(url);
+  if (hit && hit.exp > Date.now()) return hit.data;
+  const pending = inflight.get(url);
+  if (pending) return pending;
+  const run = (async () => {
+    try {
+      const res = await fetch(url, {
+        ...(bigUrls.has(url) ? { cache: "no-store" as const } : { next: { revalidate } }),
+        headers: { "User-Agent": "Mozilla/5.0 (stat-tracker)", Accept: "application/json, text/plain, */*" },
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!res.ok) return hit?.data ?? null;
+      const text = await res.text(); // some CDNs label JSON as text/plain
+      const data = text ? JSON.parse(text) : null;
+      if (text.length > BIG && data) {
+        bigUrls.add(url);
+        big.delete(url);
+        big.set(url, { exp: Date.now() + revalidate * 1000, data });
+        while (big.size > MAX_BIG) big.delete(big.keys().next().value!);
+      }
+      return data;
+    } catch {
+      return hit?.data ?? null; // an expired copy beats nothing when the feed is down
+    } finally {
+      inflight.delete(url);
+    }
+  })();
+  inflight.set(url, run);
+  return run;
 }
 
 export async function mapLimit<T, R>(items: T[], limit: number, fn: (t: T) => Promise<R>): Promise<R[]> {

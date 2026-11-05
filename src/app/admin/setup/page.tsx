@@ -71,7 +71,8 @@ export default async function Setup() {
               {racing.lastIngest && (
                 <span className="block text-xs text-ink-500">
                   Last import {new Date(racing.lastIngest.at).toLocaleString("en-NZ", { timeZone: "Pacific/Auckland" })}: {racing.lastIngest.from} → {racing.lastIngest.to}, {racing.lastIngest.saved} races saved
-                  {racing.lastIngest.remaining ? `, ${racing.lastIngest.remaining} left for next time` : ""}.
+                  {racing.lastIngest.remaining ? `, ${racing.lastIngest.remaining} left for next time` : ""}
+                  {racing.lastIngest.failed ? `, ${racing.lastIngest.failed} failed${racing.lastIngest.error ? ` (${racing.lastIngest.error})` : ""}` : ""}.
                 </span>
               )}
             </li>

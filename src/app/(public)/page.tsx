@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { after } from "next/server";
 import { ResponsibleGambling } from "@/components/public/PublicFooter";
 import { POSTS, readingMinutes, zoneById } from "@/content/blog";
 import { allSportStatus } from "@/lib/seasonStatus";
-import { listPosts } from "@/lib/news/store";
+import { listPosts, runNewsIngest } from "@/lib/news/store";
 import { NewsImg } from "@/components/public/NewsImg";
 import { SPORT_LABEL, type SportTag } from "@/lib/news/core";
 import { Showcase, type ShowcaseItem } from "@/components/public/Showcase";
@@ -139,6 +140,8 @@ const FAQ: { q: string; a: string }[] = [
 export default async function Landing() {
   const [status, news] = await Promise.all([allSportStatus(), listPosts({ limit: 6, maxAgeDays: 4 }).catch(() => [])]);
   const on = status.filter((s) => s.state !== "off-season").length;
+  // The homepage shows the latest news too, so it also kicks off a news run when one is due
+  after(() => runNewsIngest({ reason: "home" }).catch(() => null));
   // Newest featured guides first (timely posts like the Melbourne Cup lead), then the rest
   const guides = [...POSTS.filter((p) => p.featured).sort((a, b) => (a.date < b.date ? 1 : -1)), ...POSTS.filter((p) => !p.featured)].slice(0, 6);
 

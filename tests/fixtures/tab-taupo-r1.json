@@ -1,0 +1,337 @@
+{
+ "meetings": {
+  "header": {
+   "title": "Race Meetings",
+   "generated_time": "2026-11-05T05:59:02.516756344Z",
+   "url": "/affiliates/v1/racing/meetings?date_from=2026-11-05&date_to=2026-11-05&country=NZ&category=T&limit=200&offset=0"
+  },
+  "data": {
+   "meetings": [
+    {
+     "meeting": "b9db9e76-e8fe-5ce3-b259-24d1d0c2e453",
+     "name": "Taupo",
+     "date": "2026-11-05T00:00:00Z",
+     "track_condition": "Soft5",
+     "category": "T",
+     "category_name": "Thoroughbred Horse Racing",
+     "country": "NZ",
+     "state": "NZ",
+     "races": [
+      {
+       "id": "b276d19c-5d2e-4f95-9c9f-dd26748471b4",
+       "race_number": 1,
+       "name": "RACE IMAGES R60 HCP 1400",
+       "start_time": "2026-11-05T02:11:00Z",
+       "tote_start_time": "15:11:00",
+       "track_condition": "Soft6",
+       "distance": 1400,
+       "weather": "Light Rain",
+       "country": "NZ",
+       "state": "NZ",
+       "status": "Final"
+      },
+      {
+       "id": "71da815c-474c-49d2-bac1-0c41f77f2489",
+       "race_number": 2,
+       "name": "BELLE FAMILY ENTAIN/NZB INSURANCE PEARL MDN",
+       "start_time": "2026-11-05T02:46:00Z",
+       "tote_start_time": "15:46:00",
+       "track_condition": "Soft5",
+       "distance": 1200,
+       "weather": "Light Rain",
+       "country": "NZ",
+       "state": "NZ",
+       "status": "Final"
+      }
+     ],
+     "quaddie": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "early_quaddie": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "tote_running_double": [
+      [
+       1,
+       2
+      ],
+      [
+       3,
+       4
+      ],
+      [
+       5,
+       6
+      ]
+     ],
+     "tote_treble": [
+      [
+       1,
+       2,
+       3
+      ],
+      [
+       4,
+       5,
+       6
+      ]
+     ],
+     "tote_meeting_number": 2,
+     "tote_raceday_date": "2026-11-05",
+     "tote_status": "Closed"
+    }
+   ]
+  }
+ },
+ "event": {
+  "data": {
+   "race": {
+    "event_id": "b276d19c-5d2e-4f95-9c9f-dd26748471b4",
+    "meeting_name": "Taupo",
+    "display_meeting_name": "Taupo",
+    "meeting_id": "b9db9e76-e8fe-5ce3-b259-24d1d0c2e453",
+    "status": "Final",
+    "description": "RACE IMAGES R60 HCP 1400",
+    "advertised_start": 1793844660,
+    "actual_start": 1793844689,
+    "advertised_start_string": "2026-11-05 02:11:00 +0000 UTC",
+    "actual_start_string": "2026-11-05 02:11:29 +0000 UTC",
+    "race_date_nz": "2026-11-05",
+    "start_time_nz": "15:11:00 NZDT",
+    "race_number": 1,
+    "type": "T",
+    "start_type": "",
+    "country": "NZ",
+    "state": "NZ",
+    "distance": 1400,
+    "weather": "Light Rain",
+    "form_guide": "",
+    "comment": "DOMAIN ACE (1) numerical form looks terrible but he has ability. Won a Listed Race as a 2yo and ran 3rd in the G1 2000 G",
+    "track_condition": "Soft6",
+    "track_direction": "Left",
+    "track_surface": "Grass",
+    "track_circumference": 1600,
+    "entrant_count": 6,
+    "field_size": 5,
+    "positions_paid": 2,
+    "video_channels": [
+     "Trackside1"
+    ],
+    "group": "",
+    "class": "Rating 60 HCP",
+    "ffwin_option_number": 0,
+    "fftop3_option_number": 0,
+    "gait": "",
+    "track_home_straight": 320,
+    "gender_conditions": "unrestricted",
+    "allowance_conditions": true,
+    "age_conditions": "Unrestricted",
+    "special_conditions": "",
+    "jockey_conditions": "C",
+    "weight_and_handicap_conditions": "hcp",
+    "mile_rate_400": "",
+    "mile_rate_800": ""
+   },
+   "results": [
+    {
+     "position": 1,
+     "name": "Sweet Disposition",
+     "barrier": 1,
+     "runner_number": 5,
+     "margin_length": 0,
+     "entrant_id": "d235e130-0eb0-498c-9e44-82c474a498f7",
+     "winning_time": 86.85,
+     "time_ran": 86.85
+    },
+    {
+     "position": 2,
+     "name": "Mista Stitch",
+     "barrier": 5,
+     "runner_number": 2,
+     "margin_length": 1.13,
+     "positional_margin": "1L",
+     "entrant_id": "3beaa098-6f8c-43ad-9a12-3113937c7d51",
+     "time_ran": 87.05
+    },
+    {
+     "position": 3,
+     "name": "Domain Ace",
+     "barrier": 4,
+     "runner_number": 1,
+     "margin_length": 1.24,
+     "positional_margin": "NSE",
+     "entrant_id": "4b24ceeb-26b9-4903-ac2b-06eed708207b",
+     "time_ran": 87.07
+    }
+   ],
+   "dividends": [
+    {
+     "id": "e80f3d3d-9f6e-589a-9e26-dc3d6338d4b5",
+     "tote": "NZ",
+     "product_name": "Pool Trifecta",
+     "status": "Interim",
+     "dividend": 72.3,
+     "pool_size": 4575.69,
+     "jackpot_size": 0,
+     "positions": [
+      {
+       "runner_number": 5,
+       "position": 1
+      },
+      {
+       "runner_number": 2,
+       "position": 2
+      },
+      {
+       "runner_number": 1,
+       "position": 3
+      }
+     ],
+     "description": "5:2:1"
+    },
+    {
+     "id": "436b4761-a20b-5a1b-bd29-517062a5b82c",
+     "tote": "NZ",
+     "product_name": "Pool Quinella",
+     "status": "Final",
+     "dividend": 12.8,
+     "pool_size": 2922.72,
+     "jackpot_size": 0,
+     "positions": [
+      {
+       "runner_number": 2,
+       "position": 1
+      },
+      {
+       "runner_number": 5,
+       "position": 2
+      }
+     ],
+     "description": "2:5"
+    }
+   ],
+   "favourite": {
+    "runner_number": 4,
+    "name": "La Cadiere"
+   },
+   "mover": {
+    "runner_number": 4,
+    "name": "La Cadiere"
+   },
+   "runners": [
+    {
+     "entrant_id": "4b24ceeb-26b9-4903-ac2b-06eed708207b",
+     "name": "Domain Ace",
+     "is_scratched": false,
+     "odds": {
+      "fixed_win": 3.6,
+      "fixed_place": 1.2,
+      "pool_win": 3.6,
+      "pool_place": 2.7
+     },
+     "scratch_time": 0,
+     "barrier": 4,
+     "runner_number": 1,
+     "prize_money": "298265",
+     "age": 5,
+     "sex": "g",
+     "colour": "ch",
+     "form_comment": null,
+     "class_level": "",
+     "jockey": "Joe Doyle",
+     "trainer_name": "G A & D G Rogerson & Clint Isdale",
+     "last_twenty_starts": "48808",
+     "weight": {
+      "allocated": "59.5",
+      "total": "59.5"
+     },
+     "favourite": false,
+     "mover": false,
+     "flucs": [
+      4.2,
+      4.4,
+      3.3,
+      3.6
+     ],
+     "scr_time": null
+    },
+    {
+     "entrant_id": "3beaa098-6f8c-43ad-9a12-3113937c7d51",
+     "name": "Mista Stitch",
+     "is_scratched": false,
+     "odds": {
+      "fixed_win": 34,
+      "fixed_place": 3,
+      "pool_win": 23.5,
+      "pool_place": 6
+     },
+     "scratch_time": 0,
+     "barrier": 5,
+     "runner_number": 2,
+     "prize_money": "24940",
+     "age": 7,
+     "sex": "g",
+     "colour": "b",
+     "form_comment": null,
+     "class_level": "",
+     "jockey": "Elen Nicholas",
+     "trainer_name": "Jacqui Teague",
+     "last_twenty_starts": "779x0",
+     "weight": {
+      "allocated": "58.5",
+      "total": "58.5"
+     },
+     "favourite": false,
+     "mover": false,
+     "flucs": [
+      19,
+      31,
+      35,
+      34
+     ],
+     "scr_time": null
+    },
+    {
+     "entrant_id": "8d63ccba-5297-4c8b-893b-04d93a9244db",
+     "name": "Syracuse",
+     "is_scratched": false,
+     "odds": {
+      "fixed_win": 7.5,
+      "fixed_place": 1.55,
+      "pool_win": 7.8,
+      "pool_place": 2.6
+     },
+     "scratch_time": 0,
+     "barrier": 3,
+     "runner_number": 3,
+     "prize_money": "11705",
+     "age": 4,
+     "sex": "m",
+     "colour": "b",
+     "form_comment": null,
+     "class_level": "",
+     "jockey": "Samantha Collett",
+     "trainer_name": "Donna Logan",
+     "last_twenty_starts": "1070x",
+     "weight": {
+      "allocated": "58",
+      "total": "58"
+     },
+     "favourite": false,
+     "mover": false,
+     "flucs": [
+      6.5,
+      7.5
+     ],
+     "scr_time": null
+    }
+   ]
+  }
+ }
+}
