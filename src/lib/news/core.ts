@@ -155,6 +155,8 @@ export function titleKey(title: string): string {
 // ------------------------------------------------------------------ sport tagging
 
 const RUGBY = /\brugby\b(?!\s+league)/i;
+// NBA teams and stars. "Sixers" alone is left out: in our news it's usually the Adelaide 36ers (NBL).
+const NBA_NAMES = /\b(Lakers|Celtics|Knicks|Nuggets|Mavericks|Timberwolves|Cavaliers|Bucks|76ers|Philadelphia Sixers|Grizzlies|Pelicans|Raptors|Pistons|Trail Blazers|Clippers|Thunder|Warriors\b(?=.*\b(Golden State|NBA|Curry)\b))\b|LeBron|Wembanyama|Jokic|Jokić|Steph(en)? Curry|Giannis|Luka Don[cč]i[cć]|Steven Adams/i;
 const RULES: { sport: SportTag; test: (t: string) => boolean }[] = [
   { sport: "all-blacks", test: (t) => /\bAll Blacks?\b|\bBledisloe\b|\bNations Championship\b|\bRugby Championship\b|\bRazor\b|Scott Robertson|Ardie Savea|Will Jordan|Beauden Barrett|\bBlack Ferns\b/i.test(t) },
   {
@@ -188,7 +190,7 @@ const RULES: { sport: SportTag; test: (t: string) => boolean }[] = [
   {
     sport: "nba",
     test: (t) =>
-      /\bNBA\b|\b(Lakers|Celtics|Knicks|Nuggets|Mavericks|Timberwolves|Cavaliers|Bucks|76ers|Sixers|Grizzlies|Pelicans|Raptors|Pistons|Trail Blazers|Clippers|Thunder)\b|LeBron|Wembanyama|Jokic|Jokić|Steph(en)? Curry|Giannis|Luka Don[cč]i[cć]|Steven Adams/i.test(t),
+      /\bNBA\b/.test(t) || NBA_NAMES.test(t),
   },
 ];
 
@@ -198,6 +200,8 @@ export function classify(text: string, hint: SportTag[] = []): SportTag[] {
   // Tests and the All Blacks are rugby union; don't also tag Super Rugby unless it says so
   const out = new Set<SportTag>([...found, ...hint]);
   if (out.has("all-blacks") && !/\bSuper Rugby\b/i.test(text)) out.delete("super-rugby");
+  // An NBL story that mentions "the NBA" in passing (a player's pathway, a scout) stays NBL only
+  if (out.has("nbl") && out.has("nba") && !hint.includes("nba") && !NBA_NAMES.test(text)) out.delete("nba");
   return SPORT_ORDER.filter((s) => out.has(s));
 }
 

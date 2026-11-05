@@ -37,6 +37,8 @@ export const SOURCES: Source[] = [
   // Basketball
   { id: "espn-nba", type: "rss", name: "ESPN", url: "https://www.espn.com/espn/rss/nba/news", sports: ["nba"] },
   { id: "guardian-nba", type: "rss", name: "The Guardian", url: "https://www.theguardian.com/sport/nba/rss", sports: ["nba"] },
+  // ESPN's feed doesn't answer requests from Vercel, so NBA news also comes through news search
+  { id: "nba-search", type: "gnews", name: "News search", region: "US", sports: ["nba"], queries: ["NBA", "Steven Adams NBA"] },
   { id: "nbl-search", type: "gnews", name: "News search", region: "AU", sports: ["nbl"], queries: ["NBL basketball", "NZ Breakers"] },
 
   // Racing

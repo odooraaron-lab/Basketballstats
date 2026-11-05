@@ -55,3 +55,14 @@ test("dedupe keys and page meta", () => {
   assert.equal(m.image, "https://www.1news.co.nz/img/a.jpg");
   assert.equal(m.source, "1News");
 });
+
+test("Adelaide 36ers stories stay NBL, real NBA stories stay NBA", () => {
+  assert.deepEqual(classify("Round 15 | Sixers vs Breakers in the NBL"), ["nbl"]);
+  assert.deepEqual(classify("Giddey: 'NBL the perfect pathway to NBA'"), ["nbl"]);
+  assert.deepEqual(classify("Sixers head to Darwin for Pre-season NBL Blitz"), ["nbl"]);
+  assert.deepEqual(classify("Giannis says Dončić could be best scorer of all time"), ["nba"]);
+  assert.deepEqual(classify("Philadelphia 76ers beat the Pistons"), ["nba"]);
+  assert.deepEqual(classify("Kiwi NBA hopeful joins the Breakers' NBL squad", ["nbl"]), ["nbl"]);
+  assert.deepEqual(classify("Warriors withholding payments to Porzingis", ["nba"]), ["nba"]);
+  assert.deepEqual(classify("Warriors sign Kiwis prop for 2027 NRL"), ["nrl"]);
+});
