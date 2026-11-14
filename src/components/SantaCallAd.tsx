@@ -5,12 +5,15 @@
  * Slides in a few seconds after the page loads. The x really closes it, and it stays closed for a day.
  * Drawn only in the browser, so it never changes the server-rendered page or the Google-facing HTML.
  *
- * Files: /santa-call-ad.jpg (the cheesy one) and /santa-call-ad-clean.jpg, both in /public.
+ * The picture is not stored on this site. It is loaded from Santa Call, so replacing that one file
+ * (public/ad/current.jpg in the santacall repo) changes the advert on every site at once.
+ * If Santa Call cannot be reached, the advert simply does not show.
  */
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const KEY = "santa-call-ad-closed-until";
+const AD_IMAGE = "https://www.santacall.co.nz/ad/current.jpg";
 const DAY = 24 * 60 * 60 * 1000;
 
 type Props = {
@@ -18,15 +21,14 @@ type Props = {
   site: string;
   /** Path prefixes where the ad never shows, e.g. ["/admin", "/login"]. */
   hideOn?: string[];
-  /** "crude" is the cheesy cheap-ad look; "clean" matches the Santa Call site. */
-  variant?: "crude" | "clean";
   /** Milliseconds before it slides in. */
   delay?: number;
 };
 
-export function SantaCallAd({ site, hideOn = [], variant = "crude", delay = 4000 }: Props) {
+export function SantaCallAd({ site, hideOn = [], delay = 4000 }: Props) {
   const pathname = usePathname() || "/";
   const [show, setShow] = useState(false);
+  const [broken, setBroken] = useState(false);
 
   const hidden = hideOn.some((p) => pathname === p || pathname.startsWith(p.endsWith("/") ? p : p + "/"));
 
@@ -51,10 +53,9 @@ export function SantaCallAd({ site, hideOn = [], variant = "crude", delay = 4000
     }
   }
 
-  if (hidden || !show) return null;
+  if (hidden || !show || broken) return null;
 
   const href = `https://www.santacall.co.nz/?utm_source=${encodeURIComponent(site)}&utm_medium=ad&utm_campaign=santa-ad`;
-  const src = variant === "clean" ? "/santa-call-ad-clean.jpg" : "/santa-call-ad.jpg";
 
   return (
     <aside
@@ -73,7 +74,8 @@ export function SantaCallAd({ site, hideOn = [], variant = "crude", delay = 4000
     >
       <a href={href} target="_blank" rel="noopener sponsored" style={{ display: "block", lineHeight: 0 }}>
         <img
-          src={src}
+          src={AD_IMAGE}
+          onError={() => setBroken(true)}
           width={800}
           height={420}
           alt="Advert: Santa Call NZ. Santa phones your kids and says their name. From $1.87."
