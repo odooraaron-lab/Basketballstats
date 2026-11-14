@@ -3,6 +3,7 @@ import { Tracker } from "@/components/Tracker";
 import { site } from "@/site.config";
 import "@fontsource-variable/archivo/standard.css";
 import "./globals.css";
+import { SantaCallAd } from "@/components/SantaCallAd";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen">
         {children}
         <Tracker />
+        <SantaCallAd site="quickread" hideOn={["/admin", "/account", "/api"]} />
       </body>
     </html>
   );
