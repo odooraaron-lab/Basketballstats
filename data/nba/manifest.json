@@ -4,114 +4,114 @@
    "datasets": {
     "player_base": {
      "rows": 471,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "player_advanced": {
      "rows": 471,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "player_misc": {
      "rows": 471,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "player_scoring": {
      "rows": 471,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "player_usage": {
      "rows": 471,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "team_base": {
      "rows": 30,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "team_advanced": {
      "rows": 30,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "team_opponent": {
      "rows": 30,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "team_misc": {
      "rows": 30,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "hustle_player": {
-     "rows": 459,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "rows": 462,
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "hustle_team": {
      "rows": 30,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "tracking_player": {
-     "rows": 5633,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "rows": 5636,
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "tracking_team": {
      "rows": 360,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "contest_player": {
-     "rows": 1713,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "rows": 1729,
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "contest_team": {
      "rows": 120,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "synergy_player_off": {
-     "rows": 1319,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "rows": 1356,
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "synergy_player_def": {
-     "rows": 1031,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "rows": 1065,
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "synergy_team_off": {
      "rows": 330,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "synergy_team_def": {
      "rows": 330,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "lineups": {
-     "rows": 771,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "rows": 811,
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "matchups": {
-     "rows": 2411,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "rows": 2544,
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "clutch_player": {
-     "rows": 323,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "rows": 325,
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "clutch_team": {
      "rows": 30,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "est_player": {
      "rows": 471,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "est_team": {
      "rows": 30,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "shot_zones_player": {
      "rows": 471,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "updated": "2026-11-17T16:41:45+00:00"
     },
     "defend_player": {
-     "rows": 2714,
-     "updated": "2026-11-16T16:41:56+00:00"
+     "rows": 2726,
+     "updated": "2026-11-17T16:41:45+00:00"
     }
    },
-   "updated": "2026-11-16T16:41:56+00:00",
+   "updated": "2026-11-17T16:41:45+00:00",
    "season": "2026-27",
    "seasonType": "Regular Season"
   },
@@ -231,5 +231,5 @@
    "seasonType": "Regular Season"
   }
  },
- "updated": "2026-11-16T16:41:56+00:00"
+ "updated": "2026-11-17T16:41:45+00:00"
 }
